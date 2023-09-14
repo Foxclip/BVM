@@ -3,8 +3,21 @@
 #include <string>
 #include <stack>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <format>
 
 const long int MAX_PROGRAM_STEPS = 10;
+
+std::string fileToStr(const char* path) {
+	if (!std::filesystem::exists(path)) {
+		throw std::format("File not found: {}", path);
+	}
+	std::ifstream t(path);
+	std::stringstream buffer;
+	buffer << t.rdbuf();
+	return buffer.str();
+}
 
 void throwUnexpectedCharException(char c, std::string current_word) {
 	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + std::string(1, c));
@@ -93,6 +106,9 @@ public:
 	}
 
 	long int execute() {
+		if (tokens.size() == 0) {
+			throw std::runtime_error("Empty program");
+		}
 		long iteration = 0;
 		bool changed = false;
 		do {
@@ -133,7 +149,7 @@ public:
 
 private:
 	long program_counter = 0;
-	std::vector<long> inputs = { 5, 6 };
+	std::vector<long> inputs = { 5, 6, 7 };
 
 	std::string get_token(long index) {
 		return tokens[index % tokens.size()];
@@ -150,8 +166,8 @@ int main() {
 		//for (int i = 0; i < tokens.size(); i++) {
 		//	std::cout << "Token " << i << ": " << tokens[i] << "\n";
 		//}
-
-		Program program("Add Inp 0 Inp 1");
+		std::string program_text = fileToStr("program.txt");
+		Program program(program_text);
 		long int result = program.execute();
 		std::cout << "Result: " << result << "\n";
 	} catch (std::string msg) {
@@ -159,6 +175,14 @@ int main() {
 	} catch (std::exception exc) {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
+
+	// TODO: ctype command, switches argument from command to number, and from number to command
+	// If you add 1 to the command, you get next command, numbers and command are two different looping sets
+	// Get(index), Set(index, value), Insert(index, value) commands
+	// Copy(index) command, for copying functions (useful for loops)
+	// TODO: print program hierarchy
+	// TODO: make a loop somehow
+	// TODO: make ifs somehow
 
 	return 0;
 }
