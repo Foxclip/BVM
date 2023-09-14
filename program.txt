@@ -5,3 +5,9 @@ Mul
                 Inp 0
                 Inp 1
             Inp 2
+    Add
+        Inp 0
+        Inp 2
+Mul
+    55
+    87

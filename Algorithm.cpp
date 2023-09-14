@@ -201,7 +201,7 @@ public:
 	void parse() {
 		Node* parent_node;
 		for (long token_i = 0; token_i < tokens.size(); token_i++) {
-			long new_token_i = parse_token(0, nullptr);
+			long new_token_i = parse_token(token_i, nullptr);
 			token_i = new_token_i;
 		}
 	}
