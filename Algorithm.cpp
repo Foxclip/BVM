@@ -8,6 +8,14 @@
 #include <format>
 
 const long int MAX_PROGRAM_STEPS = 10;
+typedef std::pair<std::string, int> InstructionDef;
+const std::vector<InstructionDef> INSTRUCTION_LIST = {
+	std::pair("Val", 0),
+	std::pair("Inp", 1),
+	std::pair("Add", 2),
+	std::pair("Mul", 2),
+	std::pair("Cpy", 1),
+};
 
 std::string fileToStr(const char* path) {
 	if (!std::filesystem::exists(path)) {
@@ -90,19 +98,47 @@ std::vector<std::string> tokenize(std::string str) {
 	return words;
 }
 
+class Node {
+public:
+	std::string string_token;
+	int instruction_index;
+	long num_value;
+	std::vector<std::unique_ptr<Node>> arguments;
+
+	Node(std::string string_token, int instruction_index, long num_value) {
+		this->string_token = string_token;
+		this->instruction_index = instruction_index;
+		this->num_value = num_value;
+	}
+
+	std::string to_string() {
+		if (string_token == "Val") {
+			return std::to_string(num_value);
+		}
+		return string_token;
+	}
+};
+
 class Program {
 public:
 	std::vector<std::string> tokens;
+	std::vector<std::unique_ptr<Node>> nodes;
 
 	Program(std::string str) {
 		tokens = tokenize(str);
 	}
 
-	void print() {
+	void print_tokens() {
 		for (int i = 0; i < tokens.size(); i++) {
 			std::cout << tokens[i] << " ";
 		}
 		std::cout << "\n";
+	}
+
+	void print_nodes() {
+		for (int i = 0; i < nodes.size(); i++) {
+			print_node(nodes[i].get(), 0);
+		}
 	}
 
 	long int execute() {
@@ -113,7 +149,7 @@ public:
 		bool changed = false;
 		do {
 			changed = false;
-			print();
+			print_tokens();
 			program_counter = 0;
 			while (program_counter < tokens.size()) {
 				std::string current_token = rel_token(0);
@@ -162,6 +198,14 @@ public:
 		return result;
 	}
 
+	void parse() {
+		Node* parent_node;
+		for (long token_i = 0; token_i < tokens.size(); token_i++) {
+			long new_token_i = parse_token(0, nullptr);
+			token_i = new_token_i;
+		}
+	}
+
 private:
 	long program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
@@ -173,6 +217,48 @@ private:
 	std::string& rel_token(long offset) {
 		return get_token(program_counter + offset);
 	}
+
+	long parse_token(long token_index, Node* parent_node) {
+		std::string current_token = tokens[token_index];
+		long num_val = 0;
+		if (isdigit(current_token[0])) {
+			num_val = std::stol(current_token);
+			current_token = "Val";
+		}
+		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
+			[&](InstructionDef def) {
+				return def.first == current_token;
+			}
+		);
+		if (it == INSTRUCTION_LIST.end()) {
+			throw std::runtime_error("Unexpected token: " + current_token);
+		}
+		int instruction_index = it - INSTRUCTION_LIST.begin();
+		std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token, instruction_index, num_val);
+		Node* new_node_p = new_node.get();
+		if (parent_node) {
+			parent_node->arguments.push_back(std::move(new_node));
+		} else {
+			nodes.push_back(std::move(new_node));
+		}
+		int arg_count = (*it).second;
+		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
+			long new_token_index = parse_token(token_index + 1, new_node_p);
+			token_index = new_token_index;
+		}
+		return token_index;
+	}
+
+	void print_node(Node* node, int indent_level) {
+		std::string indent_string = "";
+		for (int j = 0; j < indent_level; j++) {
+			indent_string += "    ";
+		}
+		std::cout << indent_string << node->to_string() << "\n";
+		for (int i = 0; i < node->arguments.size(); i++) {
+			print_node(node->arguments[i].get(), indent_level + 1);
+		}
+	}
 };
 
 int main() {
@@ -183,8 +269,12 @@ int main() {
 		//}
 		std::string program_text = fileToStr("program.txt");
 		Program program(program_text);
-		long int result = program.execute();
-		std::cout << "Result: " << result << "\n";
+		program.parse();
+		std::cout << "Nodes:";
+		std::cout << "\n";
+		program.print_nodes();
+		//long int result = program.execute();
+		//std::cout << "Result: " << result << "\n";
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
 	} catch (std::exception exc) {
