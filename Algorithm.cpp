@@ -243,6 +243,11 @@ private:
 		}
 		int arg_count = (*it).second;
 		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
+			if (token_index + 1 >= tokens.size()) {
+				std::cout << "End of program reached";
+				std::cout << "\n";
+				break;
+			}
 			long new_token_index = parse_token(token_index + 1, new_node_p);
 			token_index = new_token_index;
 		}
