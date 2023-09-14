@@ -17,6 +17,21 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Cpy", 1),
 };
 
+constexpr std::string_view intFormatStr = "{}";
+constexpr std::string_view floatFormatStr = "{:.3f}";
+template<typename T>
+std::string vector_to_str(std::vector<T> vec) {
+	std::string str = "{ ";
+	for (int i = 0; i < vec.size(); i++) {
+		str += std::format(intFormatStr, vec[i]);
+		if (i < vec.size() - 1) {
+			str += ", ";
+		}
+	}
+	str += " }";
+	return str;
+}
+
 std::string fileToStr(const char* path) {
 	if (!std::filesystem::exists(path)) {
 		throw std::format("File not found: {}", path);
@@ -141,61 +156,33 @@ public:
 		}
 	}
 
-	long int execute() {
-		if (tokens.size() == 0) {
+	long execute_node(Node* node) {
+		if (node->string_token == "Val") {
+			return node->num_value;
+		} else if (node->string_token == "Inp") {
+			long num_val = execute_node(node->arguments[0].get());
+			return inputs[num_val];
+		} else if (node->string_token == "Add") {
+			long arg0 = execute_node(node->arguments[0].get());
+			long arg1 = execute_node(node->arguments[1].get());
+			return arg0 + arg1;
+		} else if (node->string_token == "Mul") {
+			long arg0 = execute_node(node->arguments[0].get());
+			long arg1 = execute_node(node->arguments[1].get());
+			return arg0 * arg1;
+		}
+	}
+
+	std::vector<long> execute() {
+		if (nodes.size() == 0) {
 			throw std::runtime_error("Empty program");
 		}
-		long iteration = 0;
-		bool changed = false;
-		do {
-			changed = false;
-			print_tokens();
-			program_counter = 0;
-			while (program_counter < tokens.size()) {
-				std::string current_token = rel_token(0);
-				std::string next_token = rel_token(1);
-				if (isdigit(current_token[0])) {
-					// skipping
-				} else if (current_token == "Inp") {
-					if (isdigit(next_token[0])) {
-						long input_index = std::stol(next_token);
-						long input_value = inputs[input_index];
-						tokens.erase(tokens.begin() + program_counter);
-						get_token(program_counter) = std::to_string(input_value);
-						changed = true;
-					}
-				} else if (current_token == "Add") {
-					if (isdigit(rel_token(1)[0]) && isdigit(rel_token(2)[0])) {
-						long val1 = std::stol(rel_token(1));
-						long val2 = std::stol(rel_token(2));
-						long result = val1 + val2;
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-						get_token(program_counter) = std::to_string(result);
-						changed = true;
-					}
-				} else if (current_token == "Mul") {
-					if (isdigit(rel_token(1)[0]) && isdigit(rel_token(2)[0])) {
-						long val1 = std::stol(rel_token(1));
-						long val2 = std::stol(rel_token(2));
-						long result = val1 * val2;
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-						get_token(program_counter) = std::to_string(result);
-						changed = true;
-					}
-				} else if (current_token == "Cpy") {
-					if (current_token != next_token) {
-						changed = true;
-					}
-					get_token(program_counter) = next_token;
-				}
-				program_counter++;
-			}
-			iteration++;
-		} while (iteration < MAX_PROGRAM_STEPS && changed);
-		long result = std::stol(tokens[0]);
-		return result;
+		std::vector<long> results;
+		for (int i = 0; i < nodes.size(); i++) {
+			long result = execute_node(nodes[i].get());
+			results.push_back(result);
+		}
+		return results;
 	}
 
 	void parse() {
@@ -244,7 +231,7 @@ private:
 		int arg_count = (*it).second;
 		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
 			if (token_index + 1 >= tokens.size()) {
-				std::cout << "End of program reached";
+				std::cout << "Parser: End of program reached";
 				std::cout << "\n";
 				break;
 			}
@@ -278,8 +265,8 @@ int main() {
 		std::cout << "Nodes:";
 		std::cout << "\n";
 		program.print_nodes();
-		//long int result = program.execute();
-		//std::cout << "Result: " << result << "\n";
+		std::vector<long> results = program.execute();
+		std::cout << "Results: " << vector_to_str(results) << "\n";
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
 	} catch (std::exception exc) {

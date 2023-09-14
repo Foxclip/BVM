@@ -1,10 +1,9 @@
 Mul
-    Cpy
+    Add
         Add
-            Add
-                Inp 0
-                Inp 1
-            Inp 2
+            Inp 0
+            Inp 1
+        Inp 2
     Add
         Inp 0
         Inp 2
