@@ -125,7 +125,7 @@ public:
 						long input_index = std::stol(next_token);
 						long input_value = inputs[input_index];
 						tokens.erase(tokens.begin() + program_counter);
-						tokens[program_counter] = std::to_string(input_value);
+						get_token(program_counter) = std::to_string(input_value);
 						changed = true;
 					}
 				} else if (current_token == "Add") {
@@ -135,9 +135,24 @@ public:
 						long result = val1 + val2;
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
-						tokens[program_counter] = std::to_string(result);
+						get_token(program_counter) = std::to_string(result);
 						changed = true;
 					}
+				} else if (current_token == "Mul") {
+					if (isdigit(rel_token(1)[0]) && isdigit(rel_token(2)[0])) {
+						long val1 = std::stol(rel_token(1));
+						long val2 = std::stol(rel_token(2));
+						long result = val1 * val2;
+						tokens.erase(tokens.begin() + program_counter);
+						tokens.erase(tokens.begin() + program_counter);
+						get_token(program_counter) = std::to_string(result);
+						changed = true;
+					}
+				} else if (current_token == "Cpy") {
+					if (current_token != next_token) {
+						changed = true;
+					}
+					get_token(program_counter) = next_token;
 				}
 				program_counter++;
 			}
@@ -151,11 +166,11 @@ private:
 	long program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
 
-	std::string get_token(long index) {
+	std::string& get_token(long index) {
 		return tokens[index % tokens.size()];
 	}
 
-	std::string rel_token(long offset) {
+	std::string& rel_token(long offset) {
 		return get_token(program_counter + offset);
 	}
 };
