@@ -227,10 +227,12 @@ public:
 						changed = true;
 					}
 				} else if (current_token == "Cpy") {
-					if (current_token != next_token) {
-						changed = true;
-					}
-					get_token(program_counter) = next_token;
+					long new_token_index;
+					std::unique_ptr<Node> node = parse_token(program_counter + 1, nullptr, new_token_index);
+					std::vector<std::string> node_tokens = node.get()->tokenize();
+					tokens.insert(tokens.begin() + new_token_index + 1, node_tokens.begin(), node_tokens.end());
+					tokens.erase(tokens.begin() + program_counter);
+					changed = true;
 				}
 				program_counter++;
 			}

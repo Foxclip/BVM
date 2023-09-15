@@ -1,12 +1,22 @@
-Mul
-    Add
-        Add
-            Inp 0
-            Inp 1
-        Inp 2
-    Add
-        Inp 0
-        Inp 2
+# Mul
+#     Add
+#         Add
+#             Inp 0
+#             Inp 1
+#         Inp 2
+#     Add
+#         Inp 0
+#         Inp 2 # Inp 2
 #Mul
 #    55
 #    87
+
+# Cpy
+# Add
+#     1
+#     2
+
+Mul
+    Cpy
+    Add 2 3
+
