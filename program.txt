@@ -17,6 +17,5 @@
 #     2
 
 Mul
-    Cpy
+    Cpy 2
     Add 2 3
-

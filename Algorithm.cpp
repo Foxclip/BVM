@@ -227,12 +227,16 @@ public:
 						changed = true;
 					}
 				} else if (current_token == "Cpy") {
-					long new_token_index;
-					std::unique_ptr<Node> node = parse_token(program_counter + 1, nullptr, new_token_index);
-					std::vector<std::string> node_tokens = node.get()->tokenize();
-					tokens.insert(tokens.begin() + new_token_index + 1, node_tokens.begin(), node_tokens.end());
-					tokens.erase(tokens.begin() + program_counter);
-					changed = true;
+					if (isdigit(rel_token(1)[0])) {
+						long arg = std::stol(rel_token(1));
+						long new_token_index;
+						std::unique_ptr<Node> node = parse_token(program_counter + arg, nullptr, new_token_index);
+						std::vector<std::string> node_tokens = node.get()->tokenize();
+						tokens.erase(tokens.begin() + program_counter);
+						tokens.erase(tokens.begin() + program_counter);
+						tokens.insert(tokens.begin() + program_counter, node_tokens.begin(), node_tokens.end());
+						changed = true;
+					}
 				}
 				program_counter++;
 			}
