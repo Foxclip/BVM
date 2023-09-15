@@ -16,6 +16,10 @@
 #     1
 #     2
 
+# Mul
+#     Cpy -1
+#     Add 2 3
+
 Mul
-    Cpy 2
+    Cpy -2
     Add 2 3

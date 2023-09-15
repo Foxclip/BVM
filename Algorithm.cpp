@@ -42,6 +42,18 @@ std::string fileToStr(const char* path) {
 	return buffer.str();
 }
 
+long neg_mod(long a, long b) {
+	return (a % b + b) % b;
+}
+
+bool isNumberPrefix(char c) {
+	return c == '-' || isdigit(c);
+}
+
+bool isNumber(std::string str) {
+	return isNumberPrefix(str[0]);
+}
+
 void throwUnexpectedCharException(char c, std::string current_word) {
 	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + std::string(1, c));
 }
@@ -89,7 +101,7 @@ std::vector<std::string> tokenize(std::string str) {
 				current_word = "";
 				current_word += current_char;
 				state = WORD;
-			} else if (isdigit(current_char)) {
+			} else if (isNumberPrefix(current_char)) {
 				current_word = "";
 				current_word += current_char;
 				state = NUM;
@@ -196,10 +208,10 @@ public:
 			while (program_counter < tokens.size()) {
 				std::string current_token = rel_token(0);
 				std::string next_token = rel_token(1);
-				if (isdigit(current_token[0])) {
+				if (isNumber(current_token)) {
 					// skipping
 				} else if (current_token == "Inp") {
-					if (isdigit(next_token[0])) {
+					if (isNumber(next_token)) {
 						long input_index = std::stol(next_token);
 						long input_value = inputs[input_index];
 						tokens.erase(tokens.begin() + program_counter);
@@ -207,7 +219,7 @@ public:
 						changed = true;
 					}
 				} else if (current_token == "Add") {
-					if (isdigit(rel_token(1)[0]) && isdigit(rel_token(2)[0])) {
+					if (isNumber(rel_token(1)) && isNumber(rel_token(2))) {
 						long val1 = std::stol(rel_token(1));
 						long val2 = std::stol(rel_token(2));
 						long result = val1 + val2;
@@ -217,7 +229,7 @@ public:
 						changed = true;
 					}
 				} else if (current_token == "Mul") {
-					if (isdigit(rel_token(1)[0]) && isdigit(rel_token(2)[0])) {
+					if (isNumber(rel_token(1)) && isNumber(rel_token(2))) {
 						long val1 = std::stol(rel_token(1));
 						long val2 = std::stol(rel_token(2));
 						long result = val1 * val2;
@@ -227,10 +239,10 @@ public:
 						changed = true;
 					}
 				} else if (current_token == "Cpy") {
-					if (isdigit(rel_token(1)[0])) {
+					if (isNumber(rel_token(1))) {
 						long arg = std::stol(rel_token(1));
 						long new_token_index;
-						std::unique_ptr<Node> node = parse_token(program_counter + arg, nullptr, new_token_index);
+						std::unique_ptr<Node> node = parse_token(token_index(program_counter + arg) , nullptr, new_token_index);
 						std::vector<std::string> node_tokens = node.get()->tokenize();
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
@@ -264,8 +276,12 @@ private:
 	long program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
 
+	long token_index(long index) {
+		return neg_mod(index, tokens.size());
+	}
+
 	std::string& get_token(long index) {
-		return tokens[index % tokens.size()];
+		return tokens[token_index(index)];
 	}
 
 	std::string& rel_token(long offset) {
@@ -275,7 +291,7 @@ private:
 	std::unique_ptr<Node> parse_token(long token_index, Node* parent_node, long& new_token_index) {
 		std::string current_token = tokens[token_index];
 		long num_val = 0;
-		if (isdigit(current_token[0])) {
+		if (isNumber(current_token)) {
 			num_val = std::stol(current_token);
 			current_token = "Val";
 		}
@@ -339,8 +355,6 @@ int main() {
 	// TODO: ctype command, switches argument from command to number, and from number to command
 	// If you add 1 to the command, you get next command, numbers and command are two different looping sets
 	// Get(index), Set(index, value), Insert(index, value) commands
-	// Copy(index) command, for copying functions (useful for loops)
-	// TODO: print program hierarchy
 	// TODO: make a loop somehow
 	// TODO: make ifs somehow
 
