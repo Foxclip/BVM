@@ -188,7 +188,9 @@ public:
 	void parse() {
 		Node* parent_node;
 		for (long token_i = 0; token_i < tokens.size(); token_i++) {
-			long new_token_i = parse_token(token_i, nullptr);
+			long new_token_i;
+			std::unique_ptr<Node> node = parse_token(token_i, nullptr, new_token_i);
+			nodes.push_back(std::move(node));
 			token_i = new_token_i;
 		}
 	}
@@ -205,7 +207,7 @@ private:
 		return get_token(program_counter + offset);
 	}
 
-	long parse_token(long token_index, Node* parent_node) {
+	std::unique_ptr<Node> parse_token(long token_index, Node* parent_node, long& new_token_index) {
 		std::string current_token = tokens[token_index];
 		long num_val = 0;
 		if (isdigit(current_token[0])) {
@@ -223,11 +225,6 @@ private:
 		int instruction_index = it - INSTRUCTION_LIST.begin();
 		std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token, instruction_index, num_val);
 		Node* new_node_p = new_node.get();
-		if (parent_node) {
-			parent_node->arguments.push_back(std::move(new_node));
-		} else {
-			nodes.push_back(std::move(new_node));
-		}
 		int arg_count = (*it).second;
 		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
 			if (token_index + 1 >= tokens.size()) {
@@ -235,10 +232,11 @@ private:
 				std::cout << "\n";
 				break;
 			}
-			long new_token_index = parse_token(token_index + 1, new_node_p);
-			token_index = new_token_index;
+			std::unique_ptr<Node> node = parse_token(token_index + 1, new_node_p, token_index);
+			new_node_p->arguments.push_back(std::move(node));
 		}
-		return token_index;
+		new_token_index = token_index;
+		return new_node;
 	}
 
 	void print_node(Node* node, int indent_level) {
