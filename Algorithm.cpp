@@ -55,6 +55,7 @@ std::vector<std::string> tokenize(std::string str) {
 		SPACE,
 		WORD,
 		NUM,
+		COMMENT,
 	};
 	str += EOF;
 	SplitterState state = SPACE;
@@ -71,6 +72,10 @@ std::vector<std::string> tokenize(std::string str) {
 				words.push_back(current_word);
 				current_word = "";
 				state = SPACE;
+			} else if (current_char == '#') {
+				words.push_back(current_word);
+				current_word = "";
+				state = COMMENT;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
@@ -88,6 +93,8 @@ std::vector<std::string> tokenize(std::string str) {
 				current_word = "";
 				current_word += current_char;
 				state = NUM;
+			} else if (current_char == '#') {
+				state = COMMENT;
 			} else if (current_char == EOF) {
 				break;
 			} else {
@@ -102,11 +109,21 @@ std::vector<std::string> tokenize(std::string str) {
 				throwUnexpectedCharException(current_char, current_word);
 			} else if (isdigit(current_char)) {
 				current_word += current_char;
+			} else if (current_char == '#') {
+				words.push_back(current_word);
+				current_word = "";
+				state = COMMENT;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
 			} else {
 				throwUnexpectedCharException(current_char, current_word);
+			}
+		} else if (state == COMMENT) {
+			if (current_char == '\n' || current_char == '\r') {
+				state = SPACE;
+			} else if (current_char == EOF) {
+				break;
 			}
 		}
 	}

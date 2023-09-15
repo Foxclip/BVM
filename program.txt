@@ -7,6 +7,6 @@ Mul
     Add
         Inp 0
         Inp 2
-Mul
-    55
-    87
+#Mul
+#    55
+#    87
