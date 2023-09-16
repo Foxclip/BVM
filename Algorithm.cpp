@@ -264,6 +264,7 @@ public:
 						tokens.erase(tokens.begin() + program_counter);
 						rel_token(tokens, 0).str = "Val";
 						rel_token(tokens, 0).num_value = input_value;
+						break;
 					}
 				} else if (current_token_read.str == "Add") {
 					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
@@ -274,6 +275,7 @@ public:
 						tokens.erase(tokens.begin() + program_counter);
 						rel_token(tokens, 0).str = "Val";
 						rel_token(tokens, 0).num_value = result;
+						break;
 					}
 				} else if (current_token_read.str == "Mul") {
 					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
@@ -284,6 +286,7 @@ public:
 						tokens.erase(tokens.begin() + program_counter);
 						rel_token(tokens, 0).str = "Val";
 						rel_token(tokens, 0).num_value = result;
+						break;
 					}
 				} else if (current_token_read.str == "Cpy") {
 					if (rel_token(tokens, 1).str == "Val") {
@@ -296,6 +299,7 @@ public:
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.insert(tokens.begin() + program_counter, node_tokens.begin(), node_tokens.end());
 						program_counter += node_tokens.size() - 1; // skipping copied tokens
+						break;
 					}
 				} else if (current_token_read.str == "Node") {
 					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
@@ -307,6 +311,7 @@ public:
 						rel_token(tokens, 1).str = "Val";
 						rel_token(tokens, 1).num_value = val2;
 						program_counter += 1;
+						break;
 					}
 				} else if (current_token_read.str == "Del") {
 					if (rel_token(tokens, 1).str == "Val") {
@@ -334,6 +339,7 @@ public:
 							throw std::runtime_error("Del error");
 						}
 						program_counter -= 1;
+						break;
 					}
 				}
 				program_counter++;
