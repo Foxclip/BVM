@@ -224,14 +224,14 @@ public:
 
 	void print_tokens() {
 		for (int i = 0; i < tokens.size(); i++) {
-			if (i == program_counter) {
-				std::cout << "*";
-			}
+			//if (i == program_counter) {
+			//	std::cout << "*";
+			//}
 			std::cout << tokens[i].to_string() << " ";
 		}
-		if (program_counter == tokens.size()) {
-			std::cout << "*";
-		}
+		//if (program_counter == tokens.size()) {
+		//	std::cout << "*";
+		//}
 		std::cout << "\n";
 	}
 
@@ -246,13 +246,15 @@ public:
 			throw std::runtime_error("Empty program");
 		}
 		prev_tokens = tokens;
+		std::cout << "Iteration *: ";
+		print_tokens();
 		for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-			std::cout << "Iteration " << iteration << "\n";
+			std::cout << "Iteration " << iteration << ": ";
 			program_counter = 0;
 			long steps = 0;
 			while (program_counter < tokens.size() && steps < MAX_PROGRAM_STEPS) {
-				std::cout << "pc: " << program_counter << " | ";
-				print_tokens();
+				//std::cout << "pc: " << program_counter << " | ";
+				//print_tokens();
 				Token current_token_read = rel_token(tokens, 0);
 				Token next_token = rel_token(tokens, 1);
 				if (current_token_read.str == "Val") {
@@ -289,16 +291,32 @@ public:
 						break;
 					}
 				} else if (current_token_read.str == "Cpy") {
-					if (rel_token(tokens, 1).str == "Val") {
-						long arg = rel_token(tokens, 1).num_value;
+					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+						long src = rel_token(tokens, 1).num_value;
+						long dst = rel_token(tokens, 2).num_value;
+						if (dst == 1 || dst == 2) {
+							dst = 0;
+						}
 						long new_token_index;
-						long source_index = program_counter + arg;
-						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, source_index) , nullptr, new_token_index);
+						long src_index_begin = program_counter + src;
+						long dst_index_begin = program_counter + dst;
+						long cpy_position = program_counter;
+						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, src_index_begin) , nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.insert(tokens.begin() + program_counter, node_tokens.begin(), node_tokens.end());
-						program_counter += node_tokens.size() - 1; // skipping copied tokens
+						long dst_index_end = dst_index_begin + node_tokens.size() - 1;
+						tokens.insert(tokens.begin() + dst_index_begin, node_tokens.begin(), node_tokens.end());
+						if (dst_index_end <= cpy_position) {
+							program_counter += node_tokens.size();
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+						} else if (dst_index_begin > cpy_position + 2) {
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+						} else {
+							throw std::runtime_error("Cpy error");
+						}
 						break;
 					}
 				} else if (current_token_read.str == "Node") {
@@ -345,7 +363,6 @@ public:
 				program_counter++;
 				steps++;
 			}
-			std::cout << "pc: " << program_counter << " | ";
 			print_tokens();
 			if (tokens == prev_tokens) {
 				break;

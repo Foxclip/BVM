@@ -21,7 +21,7 @@
 #     Add 2 3
 
 # Mul
-#     Cpy -2
+#     Cpy -2 0
 #     Add 2 3
 
 # Mul
@@ -33,14 +33,14 @@
 # Cpy 2
 # Cpy -2
 
-0
-Node
-    Add
-        Cpy
-            -3
-        1
-    Cpy
-        -2
+# 0
+# Node
+#     Add
+#         Cpy
+#             -3
+#         1
+#     Cpy
+#         -2
 
 
 # Node
@@ -88,3 +88,10 @@ Node
 # 13
 # 14
 # 15
+
+5
+Cpy
+    -1
+    4
+6
+7
