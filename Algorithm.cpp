@@ -16,7 +16,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Inp", 1),
 	std::pair("Add", 2),
 	std::pair("Mul", 2),
-	std::pair("Cpy", 1),
+	std::pair("Cpy", 2),
 	std::pair("Node", 2),
 	std::pair("Del", 1),
 };
@@ -299,18 +299,17 @@ public:
 						}
 						long new_token_index;
 						long src_index_begin = program_counter + src;
-						long dst_index_begin = program_counter + dst;
+						long dst_index = program_counter + dst;
 						long cpy_position = program_counter;
 						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, src_index_begin) , nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						long dst_index_end = dst_index_begin + node_tokens.size() - 1;
-						tokens.insert(tokens.begin() + dst_index_begin, node_tokens.begin(), node_tokens.end());
-						if (dst_index_end <= cpy_position) {
+						tokens.insert(tokens.begin() + dst_index, node_tokens.begin(), node_tokens.end());
+						if (dst_index <= cpy_position) {
 							program_counter += node_tokens.size();
 							tokens.erase(tokens.begin() + program_counter);
 							tokens.erase(tokens.begin() + program_counter);
 							tokens.erase(tokens.begin() + program_counter);
-						} else if (dst_index_begin > cpy_position + 2) {
+						} else if (dst_index > cpy_position + 2) {
 							tokens.erase(tokens.begin() + program_counter);
 							tokens.erase(tokens.begin() + program_counter);
 							tokens.erase(tokens.begin() + program_counter);
