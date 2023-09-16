@@ -323,10 +323,11 @@ public:
 						long val1 = rel_token(tokens, 1).num_value;
 						long val2 = rel_token(tokens, 2).num_value;
 						tokens.erase(tokens.begin() + program_counter);
+						tokens.erase(tokens.begin() + program_counter);
 						rel_token(tokens, 0).str = "Val";
 						rel_token(tokens, 0).num_value = val1;
-						rel_token(tokens, 1).str = "Val";
-						rel_token(tokens, 1).num_value = val2;
+						//rel_token(tokens, 1).str = "Val";
+						//rel_token(tokens, 1).num_value = val2;
 						program_counter += 1;
 						break;
 					}

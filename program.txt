@@ -35,14 +35,14 @@
 
 0
 Node
+    Cpy 
+        3
+        8
     Add
         Cpy
-            -3
+            -6
             0
         1
-    Cpy
-        -2
-        0
 
 
 
