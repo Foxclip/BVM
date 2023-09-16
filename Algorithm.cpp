@@ -318,7 +318,9 @@ public:
 						std::vector<Token> node_tokens = node.get()->tokenize();
 						long index_begin = token_index(tokens, del_index);
 						long index_end = index_begin + node_tokens.size() - 1;
-						tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
+						if (arg != 1) {
+							tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
+						}
 						if (index_end < del_position) {
 							program_counter -= node_tokens.size();
 							tokens.erase(tokens.begin() + program_counter);
@@ -326,7 +328,7 @@ public:
 						} else if (index_begin >= del_position + 1) {
 							tokens.erase(tokens.begin() + program_counter);
 							tokens.erase(tokens.begin() + program_counter);
-						} else if (index_begin < del_position && index_end > del_position + 1) {
+						} else if (index_begin <= del_position && index_end >= del_position + 1) {
 							program_counter = del_index;
 						} else {
 							throw std::runtime_error("Del error");
