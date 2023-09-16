@@ -7,7 +7,7 @@
 #     Add
 #         Inp 0
 #         Inp 2 # Inp 2
-#Mul
+# Mul
 #    55
 #    87
 
@@ -23,3 +23,12 @@
 Mul
     Cpy -2
     Add 2 3
+
+# Mul
+#     3
+#     Add
+#         2
+#         3
+
+# Cpy 2
+# Cpy -2

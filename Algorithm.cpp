@@ -7,7 +7,8 @@
 #include <fstream>
 #include <format>
 
-const long int MAX_PROGRAM_STEPS = 10;
+const long MAX_ITERATIONS = 10;
+const long MAX_PROGRAM_STEPS = 100;
 typedef std::pair<std::string, int> InstructionDef;
 const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Val", 0),
@@ -176,6 +177,7 @@ public:
 class Program {
 public:
 	std::vector<std::string> tokens;
+	std::vector<std::string> prev_tokens;
 	std::vector<std::unique_ptr<Node>> nodes;
 
 	Program(std::string str) {
@@ -199,15 +201,16 @@ public:
 		if (tokens.size() == 0) {
 			throw std::runtime_error("Empty program");
 		}
-		long iteration = 0;
-		bool changed = false;
-		do {
-			changed = false;
-			print_tokens();
+		prev_tokens = tokens;
+		for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+			std::cout << "Iteration " << iteration << "\n";
 			program_counter = 0;
-			while (program_counter < tokens.size()) {
-				std::string current_token = rel_token(0);
-				std::string next_token = rel_token(1);
+			long steps = 0;
+			while (program_counter < tokens.size() && steps < MAX_PROGRAM_STEPS) {
+				std::cout << "pc: " << program_counter << " | ";
+				print_tokens();
+				std::string current_token = rel_token(prev_tokens, 0);
+				std::string next_token = rel_token(prev_tokens, 1);
 				if (isNumber(current_token)) {
 					// skipping
 				} else if (current_token == "Inp") {
@@ -215,49 +218,58 @@ public:
 						long input_index = std::stol(next_token);
 						long input_value = inputs[input_index];
 						tokens.erase(tokens.begin() + program_counter);
-						get_token(program_counter) = std::to_string(input_value);
-						changed = true;
+						get_token(tokens, program_counter) = std::to_string(input_value);
 					}
 				} else if (current_token == "Add") {
-					if (isNumber(rel_token(1)) && isNumber(rel_token(2))) {
-						long val1 = std::stol(rel_token(1));
-						long val2 = std::stol(rel_token(2));
+					if (isNumber(rel_token(prev_tokens, 1)) && isNumber(rel_token(prev_tokens, 2))) {
+						long val1 = std::stol(rel_token(prev_tokens, 1));
+						long val2 = std::stol(rel_token(prev_tokens, 2));
 						long result = val1 + val2;
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
-						get_token(program_counter) = std::to_string(result);
-						changed = true;
+						get_token(tokens, program_counter) = std::to_string(result);
 					}
 				} else if (current_token == "Mul") {
-					if (isNumber(rel_token(1)) && isNumber(rel_token(2))) {
-						long val1 = std::stol(rel_token(1));
-						long val2 = std::stol(rel_token(2));
+					if (isNumber(rel_token(prev_tokens, 1)) && isNumber(rel_token(prev_tokens, 2))) {
+						long val1 = std::stol(rel_token(prev_tokens, 1));
+						long val2 = std::stol(rel_token(prev_tokens, 2));
 						long result = val1 * val2;
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
-						get_token(program_counter) = std::to_string(result);
-						changed = true;
+						get_token(tokens, program_counter) = std::to_string(result);
 					}
 				} else if (current_token == "Cpy") {
-					if (isNumber(rel_token(1))) {
-						long arg = std::stol(rel_token(1));
+					if (isNumber(rel_token(prev_tokens, 1))) {
+						long arg = std::stol(rel_token(prev_tokens, 1));
 						long new_token_index;
-						std::unique_ptr<Node> node = parse_token(token_index(program_counter + arg) , nullptr, new_token_index);
+						long source_index = program_counter + arg;
+						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, source_index) , nullptr, new_token_index);
 						std::vector<std::string> node_tokens = node.get()->tokenize();
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.insert(tokens.begin() + program_counter, node_tokens.begin(), node_tokens.end());
-						changed = true;
+						program_counter += node_tokens.size() - 1; // skipping copied tokens
 					}
 				}
 				program_counter++;
+				steps++;
 			}
-			iteration++;
-		} while (iteration < MAX_PROGRAM_STEPS && changed);
+			if (tokens == prev_tokens) {
+				break;
+			}
+			prev_tokens = tokens;
+		}
+		std::cout << "Result\n";
+		std::cout << "pc: e | ";
+		print_tokens();
 		std::vector<long> results;
-		for (int i = 0; i < tokens.size(); i++) {
-			long result = std::stol(tokens[i]);
-			results.push_back(result);
+		try {
+			for (int i = 0; i < tokens.size(); i++) {
+				long result = std::stol(tokens[i]);
+				results.push_back(result);
+			}
+		} catch (std::exception exc) {
+			throw std::runtime_error("Output parsing error: " + std::string(exc.what()));
 		}
 		return results;
 	}
@@ -266,7 +278,7 @@ public:
 		Node* parent_node;
 		for (long token_i = 0; token_i < tokens.size(); token_i++) {
 			long new_token_i;
-			std::unique_ptr<Node> node = parse_token(token_i, nullptr, new_token_i);
+			std::unique_ptr<Node> node = parse_token(tokens, token_i, nullptr, new_token_i);
 			nodes.push_back(std::move(node));
 			token_i = new_token_i;
 		}
@@ -276,20 +288,20 @@ private:
 	long program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
 
-	long token_index(long index) {
-		return neg_mod(index, tokens.size());
+	long token_index(std::vector<std::string>& token_list, long index) {
+		return neg_mod(index, token_list.size());
 	}
 
-	std::string& get_token(long index) {
-		return tokens[token_index(index)];
+	std::string& get_token(std::vector<std::string>& token_list, long index) {
+		return token_list[token_index(token_list, index)];
 	}
 
-	std::string& rel_token(long offset) {
-		return get_token(program_counter + offset);
+	std::string& rel_token(std::vector<std::string>& token_list, long offset) {
+		return get_token(token_list, program_counter + offset);
 	}
 
-	std::unique_ptr<Node> parse_token(long token_index, Node* parent_node, long& new_token_index) {
-		std::string current_token = tokens[token_index];
+	std::unique_ptr<Node> parse_token(std::vector<std::string>& token_list, long token_index, Node* parent_node, long& new_token_index) {
+		std::string current_token = token_list[token_index];
 		long num_val = 0;
 		if (isNumber(current_token)) {
 			num_val = std::stol(current_token);
@@ -308,12 +320,12 @@ private:
 		Node* new_node_p = new_node.get();
 		int arg_count = (*it).second;
 		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
-			if (token_index + 1 >= tokens.size()) {
+			if (token_index + 1 >= token_list.size()) {
 				std::cout << "Parser: End of program reached";
 				std::cout << "\n";
 				break;
 			}
-			std::unique_ptr<Node> node = parse_token(token_index + 1, new_node_p, token_index);
+			std::unique_ptr<Node> node = parse_token(token_list, token_index + 1, new_node_p, token_index);
 			new_node_p->arguments.push_back(std::move(node));
 		}
 		new_token_index = token_index;
@@ -357,6 +369,9 @@ int main() {
 	// Get(index), Set(index, value), Insert(index, value) commands
 	// TODO: make a loop somehow
 	// TODO: make ifs somehow
+	// TODO: List node, container node
+	// EndList node is end of container
+	// TODO: fix program counter desync between tokens and prev_tokens
 
 	return 0;
 }
