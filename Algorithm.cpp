@@ -62,12 +62,25 @@ void throwUnexpectedCharException(char c, std::string current_word) {
 struct Token {
 	long index = 0;
 	std::string str;
+	long num_value = 0;
 
 	Token() { }
 
-	Token(long index, std::string str) {
+	Token(long index, std::string str, long num_value) {
 		this->index = index;
 		this->str = str;
+		this->num_value = num_value;
+	}
+
+	std::string _to_string() {
+		if (str == "Val") {
+			return std::to_string(num_value);
+		}
+		return str;
+	}
+
+	std::string to_string() {
+		return "[" + std::to_string(index) + "]" + _to_string();
 	}
 
 	friend bool operator==(const Token& first, const Token& second);
@@ -160,8 +173,14 @@ std::vector<Token> tokenize(std::string str) {
 		}
 	}
 	for (int i = 0; i < words.size(); i++) {
-		Token new_token = Token(i, words[i]);
-		tokens.push_back(new_token);
+		std::string str = words[i];
+		if (isNumber(str)) {
+			Token new_token = Token(i, "Val", std::stol(str));
+			tokens.push_back(new_token);
+		} else {
+			Token new_token = Token(i, words[i], 0);
+			tokens.push_back(new_token);
+		}
 	}
 	return tokens;
 }
@@ -169,28 +188,21 @@ std::vector<Token> tokenize(std::string str) {
 class Node {
 public:
 	Token token;
-	int instruction_index;
-	long num_value;
 	std::vector<std::unique_ptr<Node>> arguments;
 
-	Node(Token token, int instruction_index, long num_value) {
+	Node(Token token) {
 		this->token = token;
-		this->instruction_index = instruction_index;
-		this->num_value = num_value;
 	}
 
 	std::string to_string() {
-		if (token.str == "Val") {
-			return std::to_string(num_value);
-		}
-		return token.str;
+		return token.to_string();
 	}
 
-	std::vector<std::string> tokenize() {
-		std::vector<std::string> tokens;
-		tokens.push_back(to_string());
+	std::vector<Token> tokenize() {
+		std::vector<Token> tokens;
+		tokens.push_back(token);
 		for (int i = 0; i < arguments.size(); i++) {
-			std::vector<std::string> arg_tokens = arguments[i].get()->tokenize();
+			std::vector<Token> arg_tokens = arguments[i].get()->tokenize();
 			tokens.insert(tokens.end(), arg_tokens.begin(), arg_tokens.end());
 		}
 		return tokens;
@@ -209,7 +221,7 @@ public:
 
 	void print_tokens() {
 		for (int i = 0; i < tokens.size(); i++) {
-			std::cout << tokens[i].str << " ";
+			std::cout << tokens[i].to_string() << " ";
 		}
 		std::cout << "\n";
 	}
@@ -232,42 +244,45 @@ public:
 			while (program_counter < tokens.size() && steps < MAX_PROGRAM_STEPS) {
 				std::cout << "pc: " << program_counter << " | ";
 				print_tokens();
-				Token current_token = rel_token(prev_tokens, 0);
+				Token current_token_read = rel_token(prev_tokens, 0);
 				Token next_token = rel_token(prev_tokens, 1);
-				if (isNumber(current_token.str)) {
+				if (current_token_read.str == "Val") {
 					// skipping
-				} else if (current_token.str == "Inp") {
-					if (isNumber(next_token.str)) {
-						long input_index = std::stol(next_token.str);
+				} else if (current_token_read.str == "Inp") {
+					if (next_token.str == "Val") {
+						long input_index = next_token.num_value;
 						long input_value = inputs[input_index];
 						tokens.erase(tokens.begin() + program_counter);
-						get_token(tokens, program_counter).str = std::to_string(input_value);
+						rel_token(tokens, 0).str = "Val";
+						rel_token(tokens, 0).num_value = input_value;
 					}
-				} else if (current_token.str == "Add") {
-					if (isNumber(rel_token(prev_tokens, 1).str) && isNumber(rel_token(prev_tokens, 2).str)) {
-						long val1 = std::stol(rel_token(prev_tokens, 1).str);
-						long val2 = std::stol(rel_token(prev_tokens, 2).str);
+				} else if (current_token_read.str == "Add") {
+					if (rel_token(prev_tokens, 1).str == "Val" && rel_token(prev_tokens, 2).str == "Val") {
+						long val1 = rel_token(prev_tokens, 1).num_value;
+						long val2 = rel_token(prev_tokens, 2).num_value;
 						long result = val1 + val2;
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
-						get_token(tokens, program_counter).str = std::to_string(result);
+						rel_token(tokens, 0).str = "Val";
+						rel_token(tokens, 0).num_value = result;
 					}
-				} else if (current_token.str == "Mul") {
-					if (isNumber(rel_token(prev_tokens, 1).str) && isNumber(rel_token(prev_tokens, 2).str)) {
-						long val1 = std::stol(rel_token(prev_tokens, 1).str);
-						long val2 = std::stol(rel_token(prev_tokens, 2).str);
+				} else if (current_token_read.str == "Mul") {
+					if (rel_token(prev_tokens, 1).str == "Val" && rel_token(prev_tokens, 2).str == "Val") {
+						long val1 = rel_token(prev_tokens, 1).num_value;
+						long val2 = rel_token(prev_tokens, 2).num_value;
 						long result = val1 * val2;
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
-						get_token(tokens, program_counter).str = std::to_string(result);
+						rel_token(tokens, 0).str = "Val";
+						rel_token(tokens, 0).num_value = result;
 					}
-				} else if (current_token.str == "Cpy") {
-					if (isNumber(rel_token(prev_tokens, 1).str)) {
-						long arg = std::stol(rel_token(prev_tokens, 1).str);
+				} else if (current_token_read.str == "Cpy") {
+					if (rel_token(prev_tokens, 1).str == "Val") {
+						long arg = rel_token(prev_tokens, 1).num_value;
 						long new_token_index;
 						long source_index = program_counter + arg;
 						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, source_index) , nullptr, new_token_index);
-						std::vector<std::string> node_tokens = node.get()->tokenize();
+						std::vector<Token> node_tokens = node.get()->tokenize();
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.insert(tokens.begin() + program_counter, node_tokens.begin(), node_tokens.end());
@@ -277,8 +292,13 @@ public:
 				program_counter++;
 				steps++;
 			}
+			std::cout << "pc: e | ";
+			print_tokens();
 			if (tokens == prev_tokens) {
 				break;
+			}
+			for (long i = 0; i < tokens.size(); i++) {
+				tokens[i].index = i;
 			}
 			prev_tokens = tokens;
 		}
@@ -286,13 +306,9 @@ public:
 		std::cout << "pc: e | ";
 		print_tokens();
 		std::vector<long> results;
-		try {
-			for (int i = 0; i < tokens.size(); i++) {
-				long result = std::stol(tokens[i].str);
-				results.push_back(result);
-			}
-		} catch (std::exception exc) {
-			throw std::runtime_error("Output parsing error: " + std::string(exc.what()));
+		for (int i = 0; i < tokens.size(); i++) {
+			long result = tokens[i].num_value;
+			results.push_back(result);
 		}
 		return results;
 	}
@@ -339,7 +355,7 @@ private:
 			throw std::runtime_error("Unexpected token: " + current_token.str);
 		}
 		int instruction_index = it - INSTRUCTION_LIST.begin();
-		std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token, instruction_index, num_val);
+		std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
 		Node* new_node_p = new_node.get();
 		int arg_count = (*it).second;
 		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
