@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <format>
+#include <algorithm>
 
 const long MAX_ITERATIONS = 10;
 const long MAX_PROGRAM_STEPS = 100;
@@ -16,6 +17,8 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Add", 2),
 	std::pair("Mul", 2),
 	std::pair("Cpy", 1),
+	std::pair("Node", 2),
+	std::pair("Del", 1),
 };
 
 constexpr std::string_view intFormatStr = "{}";
@@ -293,6 +296,42 @@ public:
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.insert(tokens.begin() + program_counter, node_tokens.begin(), node_tokens.end());
 						program_counter += node_tokens.size() - 1; // skipping copied tokens
+					}
+				} else if (current_token_read.str == "Node") {
+					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+						long val1 = rel_token(tokens, 1).num_value;
+						long val2 = rel_token(tokens, 2).num_value;
+						tokens.erase(tokens.begin() + program_counter);
+						rel_token(tokens, 0).str = "Val";
+						rel_token(tokens, 0).num_value = val1;
+						rel_token(tokens, 1).str = "Val";
+						rel_token(tokens, 1).num_value = val2;
+						program_counter += 1;
+					}
+				} else if (current_token_read.str == "Del") {
+					if (rel_token(tokens, 1).str == "Val") {
+						long arg = rel_token(tokens, 1).num_value;
+						long new_token_index;
+						long del_index = program_counter + arg;
+						long del_position = program_counter;
+						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, del_index), nullptr, new_token_index);
+						std::vector<Token> node_tokens = node.get()->tokenize();
+						long index_begin = token_index(tokens, del_index);
+						long index_end = index_begin + node_tokens.size() - 1;
+						tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
+						if (index_end < del_position) {
+							program_counter -= node_tokens.size();
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+						} else if (index_begin >= del_position + 1) {
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+						} else if (index_begin < del_position && index_end > del_position + 1) {
+							program_counter = del_index;
+						} else {
+							throw std::runtime_error("Del error");
+						}
+						program_counter -= 1;
 					}
 				}
 				program_counter++;

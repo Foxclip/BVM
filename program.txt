@@ -20,9 +20,9 @@
 #     Cpy -1
 #     Add 2 3
 
-Mul
-    Cpy -2
-    Add 2 3
+# Mul
+#     Cpy -2
+#     Add 2 3
 
 # Mul
 #     3
@@ -32,3 +32,50 @@ Mul
 
 # Cpy 2
 # Cpy -2
+
+# 0
+# Node
+#     Add
+#         Cpy
+#             -1
+#         1
+
+# Node
+#     Add
+#         2
+#         3
+#     Del
+#         0
+
+# Add
+#     2
+#     3
+# Del
+#     0
+# Mul
+#     5
+#     5
+
+# 0
+# 1
+# 2
+# 3
+# Del
+#    3
+# 4
+# 5
+# 6
+# 7
+
+0
+1
+2
+3
+Node
+    Del
+        -1
+    0
+4
+5
+6
+7
