@@ -19,7 +19,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Node", 2),
 	std::pair("Del", 1),
 	std::pair("Cmp", 2),
-	std::pair("If", 2),
+	std::pair("If", 3),
 };
 
 constexpr std::string_view intFormatStr = "{}";
@@ -440,18 +440,21 @@ public:
 						break;
 					}
 				} else if (current_token_read.str == "If") {
-					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+					if (rel_token(tokens, 1).str == "Val") {
 						long cond = rel_token(tokens, 1).num_value;
-						long addr = rel_token(tokens, 2).num_value;
-						if (cond != 0) {
-							rel_token(tokens, 0).str = "Cpy";
-							rel_token(tokens, 1).num_value = addr;
-							rel_token(tokens, 2).num_value = 0;
-						} else {
-							tokens.erase(tokens.begin() + program_counter);
-							tokens.erase(tokens.begin() + program_counter);
-							tokens.erase(tokens.begin() + program_counter);
-						}
+						long new_token_index;
+						std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
+						std::vector<Token> if_node_tokens = if_node.get()->tokenize();
+						std::vector<Token> branch_node_tokens;
+						Node* true_node = if_node.get()->arguments[1].get();
+						Node* false_node = if_node.get()->arguments[2].get();
+						Node* branch_node = cond != 0 ? true_node : false_node;
+						branch_node_tokens = branch_node->tokenize();
+						long index_begin = program_counter;
+						long index_end = program_counter + if_node_tokens.size();
+						tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end);
+						long insertion_index = program_counter;
+						tokens.insert(tokens.begin() + insertion_index, branch_node_tokens.begin(), branch_node_tokens.end());
 						break;
 					}
 				}
