@@ -8,8 +8,7 @@
 #include <format>
 #include <algorithm>
 
-const long MAX_ITERATIONS = 10;
-const long MAX_PROGRAM_STEPS = 100;
+const long MAX_ITERATIONS = 20;
 typedef std::pair<std::string, int> InstructionDef;
 const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Val", 0),
@@ -313,11 +312,10 @@ public:
 		prev_tokens = tokens;
 		std::cout << "Iteration *: ";
 		print_tokens();
-		for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+		for (unsigned long iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 			std::cout << "Iteration " << iteration << ": ";
-			program_counter = 0;
-			long steps = 0;
-			while (program_counter < tokens.size() && steps < MAX_PROGRAM_STEPS) {
+			unsigned long steps = 0;
+			for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
 				//std::cout << "pc: " << program_counter << " | ";
 				//print_tokens();
 				Token current_token_read = rel_token(tokens, 0);
@@ -368,7 +366,7 @@ public:
 						long cpy_position = program_counter;
 						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, src_index_begin) , nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						tokens.insert(tokens.begin() + dst_index, node_tokens.begin(), node_tokens.end());
+						tokens.insert(tokens.begin() + token_index(tokens, dst_index), node_tokens.begin(), node_tokens.end());
 						if (dst_index <= cpy_position) {
 							program_counter += node_tokens.size();
 							tokens.erase(tokens.begin() + program_counter);
@@ -425,7 +423,6 @@ public:
 						break;
 					}
 				}
-				program_counter++;
 				steps++;
 			}
 			print_tokens();
@@ -456,7 +453,7 @@ public:
 	}
 
 private:
-	long program_counter = 0;
+	unsigned long program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
 
 	long token_index(std::vector<Token>& token_list, long index) {
