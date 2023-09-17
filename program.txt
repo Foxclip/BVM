@@ -35,11 +35,14 @@
 
 0
 Node
-    Cpy 
+    Cpy
         -1
-        0
-    0
-
+        8
+    Add
+        Cpy
+            -3
+            0
+        1
 
 
 # Node

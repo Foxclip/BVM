@@ -288,14 +288,14 @@ public:
 
 	void print_tokens() {
 		for (int i = 0; i < tokens.size(); i++) {
-			//if (i == program_counter) {
-			//	std::cout << "*";
-			//}
+			if (i == program_counter) {
+				std::cout << "*";
+			}
 			std::cout << tokens[i].to_string() << " ";
 		}
-		//if (program_counter == tokens.size()) {
-		//	std::cout << "*";
-		//}
+		if (program_counter == tokens.size()) {
+			std::cout << "*";
+		}
 		std::cout << "\n";
 	}
 
@@ -366,7 +366,13 @@ public:
 						long cpy_position = program_counter;
 						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, src_index_begin) , nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						tokens.insert(tokens.begin() + token_index(tokens, dst_index), node_tokens.begin(), node_tokens.end());
+						long insertion_index;
+						if (dst_index == tokens.size()) {
+							insertion_index = tokens.size();
+						} else {
+							insertion_index = token_index(tokens, dst_index);
+						}
+						tokens.insert(tokens.begin() + insertion_index, node_tokens.begin(), node_tokens.end());
 						if (dst_index <= cpy_position) {
 							program_counter += node_tokens.size();
 							tokens.erase(tokens.begin() + program_counter);
@@ -391,7 +397,6 @@ public:
 						rel_token(tokens, 0).num_value = val1;
 						//rel_token(tokens, 1).str = "Val";
 						//rel_token(tokens, 1).num_value = val2;
-						program_counter += 1;
 						break;
 					}
 				} else if (current_token_read.str == "Del") {
@@ -419,7 +424,6 @@ public:
 						} else {
 							throw std::runtime_error("Del error");
 						}
-						program_counter -= 1;
 						break;
 					}
 				}
