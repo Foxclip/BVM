@@ -422,7 +422,7 @@ public:
 						std::vector<Token> node_tokens = node.get()->tokenize();
 						long index_begin = token_index(tokens, del_index);
 						long index_end = index_begin + node_tokens.size() - 1;
-						if (del_index != del_position + 1) {
+						if (index_begin != del_position + 1) {
 							tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
 						}
 						if (index_end < del_position) {
