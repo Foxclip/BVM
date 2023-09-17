@@ -33,16 +33,24 @@
 # Cpy 2
 # Cpy -2
 
-0
-Node
-    Cpy
-        -1
-        8
-    Add
-        Cpy
-            -3
-            0
-        1
+# 0
+# Node
+#     Cpy
+#         -1
+#         8
+#     Node
+#         Add
+#             Cpy
+#                 -6
+#                 0
+#             1
+#         If
+#             Cmp
+#                 Cpy
+#                     -3
+#                     10
+#             Del
+#                 2
 
 
 # Node
@@ -117,3 +125,14 @@ Node
 #     -2
 # 8
 # 9
+
+33
+If
+    Cmp
+        Add
+            2
+            3
+        5
+    -1
+Del
+    -2

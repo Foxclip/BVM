@@ -18,6 +18,8 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Cpy", 2),
 	std::pair("Node", 2),
 	std::pair("Del", 1),
+	std::pair("Cmp", 2),
+	std::pair("If", 2),
 };
 
 constexpr std::string_view intFormatStr = "{}";
@@ -353,6 +355,17 @@ public:
 						rel_token(tokens, 0).num_value = result;
 						break;
 					}
+				} else if (current_token_read.str == "Cmp") {
+					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+						long val1 = rel_token(tokens, 1).num_value;
+						long val2 = rel_token(tokens, 2).num_value;
+						long result = val1 == val2 ? 1 : 0;
+						tokens.erase(tokens.begin() + program_counter);
+						tokens.erase(tokens.begin() + program_counter);
+						rel_token(tokens, 0).str = "Val";
+						rel_token(tokens, 0).num_value = result;
+						break;
+					}
 				} else if (current_token_read.str == "Cpy") {
 					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
 						long src = rel_token(tokens, 1).num_value;
@@ -423,6 +436,21 @@ public:
 							program_counter = del_index;
 						} else {
 							throw std::runtime_error("Del error");
+						}
+						break;
+					}
+				} else if (current_token_read.str == "If") {
+					if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+						long cond = rel_token(tokens, 1).num_value;
+						long addr = rel_token(tokens, 2).num_value;
+						if (cond != 0) {
+							rel_token(tokens, 0).str = "Cpy";
+							rel_token(tokens, 1).num_value = addr;
+							rel_token(tokens, 2).num_value = 0;
+						} else {
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
+							tokens.erase(tokens.begin() + program_counter);
 						}
 						break;
 					}
