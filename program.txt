@@ -33,17 +33,16 @@
 # Cpy 2
 # Cpy -2
 
-0
-Node
-    Cpy 
-        3
-        8
-    Add
-        Cpy
-            -6
-            0
-        1
-
+# 0
+# Node
+#     Cpy 
+#         3
+#         8
+#     Add
+#         Cpy
+#             -6
+#             0
+#         1
 
 
 # Node
@@ -98,3 +97,23 @@ Node
 #     4
 # 6
 # 7
+
+# Add :AddLabel
+#     AddLabel
+#     3
+
+0
+1
+2
+3
+4 :DelThis
+5 :CpyThis
+6
+Del
+    DelThis
+7
+Cpy
+    CpyThis
+    -2
+8
+9

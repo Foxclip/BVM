@@ -93,9 +93,20 @@ bool operator==(const Token& first, const Token& second) {
 	return first.str == second.str;
 }
 
+struct Label {
+	std::string str;
+	long token_index;
+
+	Label(std::string str, long token_index) {
+		this->str = str;
+		this->token_index = token_index;
+	}
+};
+
 std::vector<Token> tokenize(std::string str) {
 	std::vector<std::string> words;
 	std::vector<Token> tokens;
+	std::vector<Label> labels;
 	if (str.size() < 1) {
 		return tokens;
 	}
@@ -104,6 +115,7 @@ std::vector<Token> tokenize(std::string str) {
 		WORD,
 		NUM,
 		COMMENT,
+		LABEL,
 	};
 	str += EOF;
 	SplitterState state = SPACE;
@@ -124,6 +136,10 @@ std::vector<Token> tokenize(std::string str) {
 				words.push_back(current_word);
 				current_word = "";
 				state = COMMENT;
+			} else if (current_char == ':') {
+				words.push_back(current_word);
+				current_word = "";
+				state = LABEL;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
@@ -143,6 +159,8 @@ std::vector<Token> tokenize(std::string str) {
 				state = NUM;
 			} else if (current_char == '#') {
 				state = COMMENT;
+			} else if (current_char == ':') {
+				state = LABEL;
 			} else if (current_char == EOF) {
 				break;
 			} else {
@@ -153,14 +171,16 @@ std::vector<Token> tokenize(std::string str) {
 				words.push_back(current_word);
 				current_word = "";
 				state = SPACE;
-			} else if (isalpha(current_char)) {
-				throwUnexpectedCharException(current_char, current_word);
 			} else if (isdigit(current_char)) {
 				current_word += current_char;
 			} else if (current_char == '#') {
 				words.push_back(current_word);
 				current_word = "";
 				state = COMMENT;
+			} else if (current_char == ':') {
+				words.push_back(current_word);
+				current_word = "";
+				state = LABEL;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
@@ -173,6 +193,51 @@ std::vector<Token> tokenize(std::string str) {
 			} else if (current_char == EOF) {
 				break;
 			}
+		} else if (state == LABEL) {
+			if (isalpha(current_char)) 
+				current_word += current_char;
+			else if (isdigit(current_char)) {
+				if (current_word.size() == 0) {
+					throw std::runtime_error("Label name cannot start with a digit: " + std::string(1, current_char));
+				}
+				current_word += current_char;
+			} else if (isspace(current_char)) {
+				labels.push_back(Label(current_word, words.size() - 1));
+				current_word = "";
+				state = SPACE;
+			} else if (current_char == '#') {
+				labels.push_back(Label(current_word, words.size() - 1));
+				current_word = "";
+				state = COMMENT;
+			} else if (current_char == EOF) {
+				labels.push_back(Label(current_word, words.size() - 1));
+				break;
+			} else {
+				throwUnexpectedCharException(current_char, current_word);
+			}
+		}
+	}
+	for (int i = 0; i < labels.size(); i++) {
+		Label current_label = labels[i];
+		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
+			[&](InstructionDef idef) {
+				return idef.first == current_label.str;
+			}
+		);
+		if (it != INSTRUCTION_LIST.end()) {
+			throw std::runtime_error("Label name cannot be a keyword: " + current_label.str);
+		}
+	}
+	for (int i = 0; i < words.size(); i++) {
+		std::string current_word = words[i];
+		auto it = std::find_if(labels.begin(), labels.end(),
+			[&](Label& label) {
+				return label.str == current_word;
+			}
+		);
+		if (it != labels.end()) {
+			long relative_address = (*it).token_index - i;
+			words[i] = std::to_string(relative_address);
 		}
 	}
 	for (int i = 0; i < words.size(); i++) {
@@ -341,7 +406,7 @@ public:
 						std::vector<Token> node_tokens = node.get()->tokenize();
 						long index_begin = token_index(tokens, del_index);
 						long index_end = index_begin + node_tokens.size() - 1;
-						if (arg != 1) {
+						if (del_index != del_position + 1) {
 							tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
 						}
 						if (index_end < del_position) {
