@@ -141,13 +141,12 @@
 
 0
 Node
-    Node
-        Cpy
-            -3
-            11
-        Cpy
-            -2
-            9
+    Cpy
+        -2
+        11
+    Cpy
+        -1
+        9
     Add
         Cpy
             -4

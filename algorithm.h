@@ -16,7 +16,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("Add", 2),
 	std::pair("Mul", 2),
 	std::pair("Cpy", 2),
-	std::pair("Node", 2),
+	std::pair("Node", 3),
 	std::pair("Del", 1),
 	std::pair("Cmp", 2),
 	std::pair("If", 3),

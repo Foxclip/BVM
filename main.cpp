@@ -17,7 +17,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: expand Node instruction to 3 arguments
 	// TODO: make a loop
 	// TODO: ctype command, switches argument from command to number, and from number to command
 	// If you add 1 to the command, you get next command, numbers and command are two different looping sets
