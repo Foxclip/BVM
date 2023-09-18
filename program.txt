@@ -141,19 +141,15 @@
 
 0
 Node
-    Add
+    Node
         Cpy
             -3
+            11
+        Cpy
+            -2
+            9
+    Add
+        Cpy
+            -4
             0
         1
-    If
-        Cmp
-            Cpy
-                -5
-                0
-            10
-        Del
-            -4
-        Cpy
-            -6
-            3
