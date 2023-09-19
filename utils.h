@@ -21,7 +21,7 @@ std::string vector_to_str(std::vector<T> vec) {
 
 std::string fileToStr(const char* path);
 
-long neg_mod(long a, long b);
+long modulo(long a, long b);
 
 bool isNumberPrefix(char c);
 

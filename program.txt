@@ -30,9 +30,11 @@
 #         2
 #         3
 
+# infinite loop with parallel execution
 # Cpy 2
 # Cpy -2
 
+# for loop attempt
 # 0
 # Node
 #     Cpy
@@ -53,6 +55,7 @@
 #                 2
 
 
+# node test
 # Node
 #     Add
 #         2
@@ -60,6 +63,7 @@
 #     Del
 #         0
 
+# del test
 # Add
 #     2
 #     3
@@ -69,6 +73,7 @@
 #     5
 #     5
 
+# del test
 # Node
 #     Add
 #         1
@@ -99,6 +104,7 @@
 # 14
 # 15
 
+# cpy test
 # 5
 # Cpy
 #     -1
@@ -106,10 +112,12 @@
 # 6
 # 7
 
+# label test
 # Add :AddLabel
 #     AddLabel
 #     3
 
+# label test
 # 0
 # 1
 # 2
@@ -126,6 +134,7 @@
 # 8
 # 9
 
+# cmp test
 # If
 #     Cmp
 #         Add
@@ -139,6 +148,7 @@
 #         5
 #         6
 
+# for loop attempt
 # 0
 # Node
 #     Cpy
@@ -153,6 +163,7 @@
 #             0
 #         1
 
+# list test
 # list
 #     end
 # list
@@ -179,24 +190,38 @@
 # list
 #     end
 
-0
-list
-    cpy
-        -1
-        19
-    add
-        cpy
-            -3
-            0
-        1
-    if
-        cmp
-            cpy
-                -3
-                0
-            10
-        del
-            3
-        del
-            0
-    end
+# for loop
+# 0
+# list
+#     cpy
+#         -1
+#         19
+#     add
+#         cpy
+#             -3
+#             0
+#         1
+#     if
+#         cmp
+#             cpy
+#                 -3
+#                 0
+#             10
+#         del
+#             3
+#         del
+#             0
+#     end
+
+sub
+    10
+    3
+div
+    10
+    3
+mod
+    10
+    3
+pow
+    10
+    3

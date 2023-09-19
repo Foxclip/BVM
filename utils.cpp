@@ -10,7 +10,7 @@ std::string fileToStr(const char* path) {
 	return buffer.str();
 }
 
-long neg_mod(long a, long b) {
+long modulo(long a, long b) {
 	return (a % b + b) % b;
 }
 

@@ -14,10 +14,14 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("val", 0),
 	std::pair("inp", 1),
 	std::pair("add", 2),
+	std::pair("sub", 2),
 	std::pair("mul", 2),
+	std::pair("div", 2),
+	std::pair("mod", 2),
+	std::pair("pow", 2),
+	std::pair("cmp", 2),
 	std::pair("cpy", 2),
 	std::pair("del", 1),
-	std::pair("cmp", 2),
 	std::pair("if", 3),
 	std::pair("list", -1),
 	std::pair("end", 0),
@@ -77,4 +81,5 @@ private:
 	Token& rel_token(std::vector<Token>& token_list, long offset);
 	std::unique_ptr<Node> parse_token(std::vector<Token>& token_list, long token_index, Node* parent_node, long& new_token_index);
 	void print_node(Node* node, int indent_level);
+	bool binary_func(std::function<long(long, long)> func);
 };

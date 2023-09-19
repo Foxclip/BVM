@@ -252,36 +252,31 @@ std::vector<long> Program::execute() {
 					break;
 				}
 			} else if (current_token_read.str == "add") {
-				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
-					long val1 = rel_token(tokens, 1).num_value;
-					long val2 = rel_token(tokens, 2).num_value;
-					long result = val1 + val2;
-					tokens.erase(tokens.begin() + program_counter);
-					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "val";
-					rel_token(tokens, 0).num_value = result;
+				if (binary_func([](long a, long b) { return a + b; })) {
+					break;
+				}
+			} else if (current_token_read.str == "sub") {
+				if (binary_func([](long a, long b) { return a - b; })) {
 					break;
 				}
 			} else if (current_token_read.str == "mul") {
-				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
-					long val1 = rel_token(tokens, 1).num_value;
-					long val2 = rel_token(tokens, 2).num_value;
-					long result = val1 * val2;
-					tokens.erase(tokens.begin() + program_counter);
-					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "val";
-					rel_token(tokens, 0).num_value = result;
+				if (binary_func([](long a, long b) { return a * b; })) {
+					break;
+				}
+			} else if (current_token_read.str == "div") {
+				if (binary_func([](long a, long b) { return a / b; })) {
+					break;
+				}
+			} else if (current_token_read.str == "mod") {
+				if (binary_func([](long a, long b) { return modulo(a, b); })) {
+					break;
+				}
+			} else if (current_token_read.str == "pow") {
+				if (binary_func([](long a, long b) { return pow(a, b); })) {
 					break;
 				}
 			} else if (current_token_read.str == "cmp") {
-				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
-					long val1 = rel_token(tokens, 1).num_value;
-					long val2 = rel_token(tokens, 2).num_value;
-					long result = val1 == val2 ? 1 : 0;
-					tokens.erase(tokens.begin() + program_counter);
-					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "val";
-					rel_token(tokens, 0).num_value = result;
+				if (binary_func([](long a, long b) { return a == b ? 1 : 0; })) {
 					break;
 				}
 			} else if (current_token_read.str == "cpy") {
@@ -402,7 +397,7 @@ void Program::parse() {
 }
 
 long Program::token_index(std::vector<Token>& token_list, long index) {
-	return neg_mod(index, token_list.size());
+	return modulo(index, token_list.size());
 }
 
 Token& Program::get_token(std::vector<Token>& token_list, long index) {
@@ -467,4 +462,18 @@ void Program::print_node(Node* node, int indent_level) {
 	for (int i = 0; i < node->arguments.size(); i++) {
 		print_node(node->arguments[i].get(), indent_level + 1);
 	}
+}
+
+bool Program::binary_func(std::function<long(long, long)> func) {
+	if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
+		long val1 = rel_token(tokens, 1).num_value;
+		long val2 = rel_token(tokens, 2).num_value;
+		long result = func(val1, val2);
+		tokens.erase(tokens.begin() + program_counter);
+		tokens.erase(tokens.begin() + program_counter);
+		rel_token(tokens, 0).str = "val";
+		rel_token(tokens, 0).num_value = result;
+		return true;
+	}
+	return false;
 }
