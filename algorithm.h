@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "utils.h"
 
-const long MAX_ITERATIONS = 20;
+const long MAX_ITERATIONS = 1000;
 typedef std::pair<std::string, int> InstructionDef;
 const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("val", 0),

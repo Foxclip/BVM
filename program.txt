@@ -153,28 +153,50 @@
 #             0
 #         1
 
+# list
+#     end
+# list
+#     list
+#         0
+#         add
+#             11
+#             22
+#         2
+#         list
+#             55
+#             66
+#             77
+#             end
+#         3
+#         4
+#         end
+#     list
+#         end
+#     list
+#         1
+#         end
+#     end
+# list
+#     end
+
+0
 list
-    end
-list
-    list
-        0
-        add
-            11
-            22
-        2
-        list
-            55
-            66
-            77
-            end
-        3
-        4
-        end
-    list
-        end
-    list
+    cpy
+        -1
+        19
+    add
+        cpy
+            -3
+            0
         1
-        end
-    end
-list
+    if
+        cmp
+            cpy
+                -3
+                0
+            10
+        del
+            3
+        del
+            0
     end
