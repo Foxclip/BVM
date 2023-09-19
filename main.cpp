@@ -21,6 +21,7 @@ int main() {
 	// TODO: ctype command, switches argument from command to number, and from number to command
 	// If you add 1 to the command, you get next command, numbers and command are two different looping sets
 	// Get(index), Set(index, value), Insert(index, value) commands
+	// TODO: fractal lists
 
 	return 0;
 }

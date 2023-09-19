@@ -13,7 +13,7 @@ Token::Token(long index, std::string str, long num_value) {
 }
 
 std::string Token::to_string() {
-	if (str == "Val") {
+	if (str == "val") {
 		return std::to_string(num_value);
 	}
 	return str;
@@ -173,7 +173,7 @@ std::vector<Token> tokenize(std::string str) {
 	for (int i = 0; i < words.size(); i++) {
 		std::string str = words[i];
 		if (isNumber(str)) {
-			Token new_token = Token(i, "Val", std::stol(str));
+			Token new_token = Token(i, "val", std::stol(str));
 			tokens.push_back(new_token);
 		} else {
 			Token new_token = Token(i, words[i], 0);
@@ -239,52 +239,52 @@ std::vector<long> Program::execute() {
 			//print_tokens();
 			Token current_token_read = rel_token(tokens, 0);
 			Token next_token = rel_token(tokens, 1);
-			if (current_token_read.str == "Val") {
+			if (current_token_read.str == "val") {
 				// skipping
-			} else if (current_token_read.str == "Inp") {
-				if (next_token.str == "Val") {
+			} else if (current_token_read.str == "inp") {
+				if (next_token.str == "val") {
 					long input_index = next_token.num_value;
 					long input_value = inputs[input_index];
 					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "Val";
+					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = input_value;
 					break;
 				}
-			} else if (current_token_read.str == "Add") {
-				if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+			} else if (current_token_read.str == "add") {
+				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
 					long val1 = rel_token(tokens, 1).num_value;
 					long val2 = rel_token(tokens, 2).num_value;
 					long result = val1 + val2;
 					tokens.erase(tokens.begin() + program_counter);
 					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "Val";
+					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = result;
 					break;
 				}
-			} else if (current_token_read.str == "Mul") {
-				if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+			} else if (current_token_read.str == "mul") {
+				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
 					long val1 = rel_token(tokens, 1).num_value;
 					long val2 = rel_token(tokens, 2).num_value;
 					long result = val1 * val2;
 					tokens.erase(tokens.begin() + program_counter);
 					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "Val";
+					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = result;
 					break;
 				}
-			} else if (current_token_read.str == "Cmp") {
-				if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+			} else if (current_token_read.str == "cmp") {
+				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
 					long val1 = rel_token(tokens, 1).num_value;
 					long val2 = rel_token(tokens, 2).num_value;
 					long result = val1 == val2 ? 1 : 0;
 					tokens.erase(tokens.begin() + program_counter);
 					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "Val";
+					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = result;
 					break;
 				}
-			} else if (current_token_read.str == "Cpy") {
-				if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val") {
+			} else if (current_token_read.str == "cpy") {
+				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
 					long src = rel_token(tokens, 1).num_value;
 					long dst = rel_token(tokens, 2).num_value;
 					if (dst == 1 || dst == 2) {
@@ -313,22 +313,12 @@ std::vector<long> Program::execute() {
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 					} else {
-						throw std::runtime_error("Cpy error");
+						throw std::runtime_error("cpy error");
 					}
 					break;
 				}
-			} else if (current_token_read.str == "Node") {
-				if (rel_token(tokens, 1).str == "Val" && rel_token(tokens, 2).str == "Val" && rel_token(tokens, 3).str == "Val") {
-					long result = rel_token(tokens, 1).num_value;
-					tokens.erase(tokens.begin() + program_counter);
-					tokens.erase(tokens.begin() + program_counter);
-					tokens.erase(tokens.begin() + program_counter);
-					rel_token(tokens, 0).str = "Val";
-					rel_token(tokens, 0).num_value = result;
-					break;
-				}
-			} else if (current_token_read.str == "Del") {
-				if (rel_token(tokens, 1).str == "Val") {
+			} else if (current_token_read.str == "del") {
+				if (rel_token(tokens, 1).str == "val") {
 					long arg = rel_token(tokens, 1).num_value;
 					long new_token_index;
 					long del_index = program_counter + arg;
@@ -350,12 +340,12 @@ std::vector<long> Program::execute() {
 					} else if (index_begin <= del_position && index_end >= del_position + 1) {
 						program_counter = del_index;
 					} else {
-						throw std::runtime_error("Del error");
+						throw std::runtime_error("del error");
 					}
 					break;
 				}
-			} else if (current_token_read.str == "If") {
-				if (rel_token(tokens, 1).str == "Val") {
+			} else if (current_token_read.str == "if") {
+				if (rel_token(tokens, 1).str == "val") {
 					long cond = rel_token(tokens, 1).num_value;
 					long new_token_index;
 					std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
@@ -372,6 +362,10 @@ std::vector<long> Program::execute() {
 					tokens.insert(tokens.begin() + insertion_index, branch_node_tokens.begin(), branch_node_tokens.end());
 					break;
 				}
+			} else if (current_token_read.str == "list") {
+				// skipping
+			} else if (current_token_read.str == "end") {
+				// skipping
 			}
 			steps++;
 		}
@@ -414,12 +408,12 @@ Token& Program::rel_token(std::vector<Token>& token_list, long offset) {
 	return get_token(token_list, program_counter + offset);
 }
 
-std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long token_index, Node* parent_node, long& new_token_index) {
-	Token current_token = token_list[token_index];
+std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long parse_token_index, Node* parent_node, long& new_token_index) {
+	Token current_token = get_token(token_list, parse_token_index);
 	long num_val = 0;
 	if (isNumber(current_token.str)) {
 		num_val = std::stol(current_token.str);
-		current_token.str = "Val";
+		current_token.str = "val";
 	}
 	auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
 		[&](InstructionDef def) {
@@ -433,16 +427,29 @@ std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long 
 	std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
 	Node* new_node_p = new_node.get();
 	int arg_count = (*it).second;
-	for (int arg_i = 0; arg_i < arg_count; arg_i++) {
-		if (token_index + 1 >= token_list.size()) {
-			std::cout << "Parser: End of program reached";
-			std::cout << "\n";
-			break;
+	if (current_token.str == "list") {
+		long cur_index = parse_token_index + 1;
+		while (true) {
+			Token cur_token = get_token(tokens, cur_index);
+			std::unique_ptr<Node> node = parse_token(token_list, token_index(token_list, cur_index), new_node_p, parse_token_index);
+			new_node_p->arguments.push_back(std::move(node));
+			if (cur_token.str == "end") {
+				break;
+			}
+			cur_index = parse_token_index + 1;
 		}
-		std::unique_ptr<Node> node = parse_token(token_list, token_index + 1, new_node_p, token_index);
-		new_node_p->arguments.push_back(std::move(node));
+	} else {
+		for (int arg_i = 0; arg_i < arg_count; arg_i++) {
+			if (parse_token_index + 1 >= token_list.size()) {
+				std::cout << "Parser: End of program reached";
+				std::cout << "\n";
+				break;
+			}
+			std::unique_ptr<Node> node = parse_token(token_list, parse_token_index + 1, new_node_p, parse_token_index);
+			new_node_p->arguments.push_back(std::move(node));
+		}
 	}
-	new_token_index = token_index;
+	new_token_index = parse_token_index;
 	return new_node;
 }
 

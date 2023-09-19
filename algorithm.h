@@ -11,15 +11,16 @@
 const long MAX_ITERATIONS = 20;
 typedef std::pair<std::string, int> InstructionDef;
 const std::vector<InstructionDef> INSTRUCTION_LIST = {
-	std::pair("Val", 0),
-	std::pair("Inp", 1),
-	std::pair("Add", 2),
-	std::pair("Mul", 2),
-	std::pair("Cpy", 2),
-	std::pair("Node", 3),
-	std::pair("Del", 1),
-	std::pair("Cmp", 2),
-	std::pair("If", 3),
+	std::pair("val", 0),
+	std::pair("inp", 1),
+	std::pair("add", 2),
+	std::pair("mul", 2),
+	std::pair("cpy", 2),
+	std::pair("del", 1),
+	std::pair("cmp", 2),
+	std::pair("if", 3),
+	std::pair("list", -1),
+	std::pair("end", 0),
 };
 
 void throwUnexpectedCharException(char c, std::string current_word);
