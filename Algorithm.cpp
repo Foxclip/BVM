@@ -234,6 +234,7 @@ std::vector<long> Program::execute() {
 	for (unsigned long iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 		std::cout << "Iteration " << iteration << ": ";
 		unsigned long steps = 0;
+		std::stack<long> list_scope_stack;
 		for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
 			//std::cout << "pc: " << program_counter << " | ";
 			//print_tokens();
@@ -363,9 +364,13 @@ std::vector<long> Program::execute() {
 					break;
 				}
 			} else if (current_token_read.str == "list") {
-				// skipping
+				list_scope_stack.push(program_counter);
 			} else if (current_token_read.str == "end") {
-				// skipping
+				tokens.erase(tokens.begin() + program_counter);
+				tokens.erase(tokens.begin() + list_scope_stack.top());
+				list_scope_stack.pop();
+				program_counter--;
+				break;
 			}
 			steps++;
 		}
