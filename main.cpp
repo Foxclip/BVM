@@ -17,11 +17,15 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: make a loop
-	// TODO: ctype command, switches argument from command to number, and from number to command
-	// If you add 1 to the command, you get next command, numbers and command are two different looping sets
-	// Get(index), Set(index, value), Insert(index, value) commands
-	// TODO: fractal lists
+	// TODO: replace command string tokens in the code with enum values
+	// TODO: fractal lists?
+	// TODO: strings as lists of numbers and output to stdout
+	// TODO: modifying instructions can only address stuff inside its list
+	// TODO: file instruction that reads file and converts it into a list of chars
+	// TODO: move instruction, moves a node
+	// TODO: getaddr instruction, get address of the current node
+	// TODO: get instruction, returns two numbers: first number signifies whether token is an instruction or a number,
+	// second number is num_value if it is a number, or instruction index if it is an instruction
 
 	return 0;
 }

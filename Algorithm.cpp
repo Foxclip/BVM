@@ -246,6 +246,7 @@ std::vector<long> Program::execute() {
 				if (next_token.str == "val") {
 					long input_index = next_token.num_value;
 					long input_value = inputs[input_index];
+					shift_pointers(program_counter, -1);
 					tokens.erase(tokens.begin() + program_counter);
 					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = input_value;
@@ -283,54 +284,52 @@ std::vector<long> Program::execute() {
 				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
 					long src = rel_token(tokens, 1).num_value;
 					long dst = rel_token(tokens, 2).num_value;
-					if (dst == 1 || dst == 2) {
-						dst = 0;
-					}
 					long new_token_index;
-					long src_index_begin = program_counter + src;
-					long dst_index = program_counter + dst;
+					long src_index_begin = program_counter + 1 + src;
+					long dst_index = program_counter + 2 + dst;
 					long cpy_position = program_counter;
 					std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, new_token_index);
 					std::vector<Token> node_tokens = node.get()->tokenize();
-					long insertion_index;
+					long insertion_index_old;
 					if (dst_index == tokens.size()) {
-						insertion_index = tokens.size();
+						insertion_index_old = tokens.size();
 					} else {
-						insertion_index = token_index(tokens, dst_index);
+						insertion_index_old = token_index(tokens, dst_index);
 					}
-					tokens.insert(tokens.begin() + insertion_index, node_tokens.begin(), node_tokens.end());
-					if (dst_index <= cpy_position) {
-						program_counter += node_tokens.size();
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-					} else if (dst_index > cpy_position + 2) {
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-						tokens.erase(tokens.begin() + program_counter);
-					} else {
-						throw std::runtime_error("cpy error");
+					long erase_index = program_counter;
+					shift_pointers(erase_index, -3);
+					tokens.erase(tokens.begin() + erase_index);
+					tokens.erase(tokens.begin() + erase_index);
+					tokens.erase(tokens.begin() + erase_index);
+					long insertion_index_new = insertion_index_old;
+					if (insertion_index_old > cpy_position) {
+						insertion_index_new -= std::min(insertion_index_old - cpy_position, (long)3);
 					}
+					shift_pointers(insertion_index_new, node_tokens.size());
+					tokens.insert(tokens.begin() + insertion_index_new, node_tokens.begin(), node_tokens.end());
 					break;
 				}
 			} else if (current_token_read.str == "del") {
 				if (rel_token(tokens, 1).str == "val") {
 					long arg = rel_token(tokens, 1).num_value;
 					long new_token_index;
-					long del_index = program_counter + arg;
+					long del_index = program_counter + 1 + arg;
 					long del_position = program_counter;
 					std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, del_index), nullptr, new_token_index);
 					std::vector<Token> node_tokens = node.get()->tokenize();
 					long index_begin = token_index(tokens, del_index);
 					long index_end = index_begin + node_tokens.size() - 1;
 					if (index_begin != del_position + 1) {
+						shift_pointers(index_begin, -(long)(node_tokens.size()));
 						tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
 					}
 					if (index_end < del_position) {
 						program_counter -= node_tokens.size();
+						shift_pointers(program_counter, -2);
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 					} else if (index_begin >= del_position + 1) {
+						shift_pointers(program_counter, -2);
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 					} else if (index_begin <= del_position && index_end >= del_position + 1) {
@@ -353,6 +352,7 @@ std::vector<long> Program::execute() {
 					branch_node_tokens = branch_node->tokenize();
 					long index_begin = program_counter;
 					long index_end = program_counter + if_node_tokens.size();
+					shift_pointers(program_counter, -(long)(branch_node_tokens.size() - if_node_tokens.size()));
 					tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end);
 					long insertion_index = program_counter;
 					tokens.insert(tokens.begin() + insertion_index, branch_node_tokens.begin(), branch_node_tokens.end());
@@ -361,8 +361,11 @@ std::vector<long> Program::execute() {
 			} else if (current_token_read.str == "list") {
 				list_scope_stack.push(program_counter);
 			} else if (current_token_read.str == "end") {
+				shift_pointers(program_counter, -1);
 				tokens.erase(tokens.begin() + program_counter);
-				tokens.erase(tokens.begin() + list_scope_stack.top());
+				long list_pos = list_scope_stack.top();
+				shift_pointers(list_pos, -1);
+				tokens.erase(tokens.begin() + list_pos);
 				list_scope_stack.pop();
 				program_counter--;
 				break;
@@ -387,6 +390,7 @@ std::vector<long> Program::execute() {
 }
 
 void Program::parse() {
+	nodes.clear();
 	Node* parent_node;
 	for (long token_i = 0; token_i < tokens.size(); token_i++) {
 		long new_token_i;
@@ -424,6 +428,7 @@ std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long 
 		throw std::runtime_error("Unexpected token: " + current_token.str);
 	}
 	int instruction_index = it - INSTRUCTION_LIST.begin();
+	current_token.index = parse_token_index;
 	std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
 	Node* new_node_p = new_node.get();
 	int arg_count = (*it).second;
@@ -469,6 +474,7 @@ bool Program::binary_func(std::function<long(long, long)> func) {
 		long val1 = rel_token(tokens, 1).num_value;
 		long val2 = rel_token(tokens, 2).num_value;
 		long result = func(val1, val2);
+		shift_pointers(program_counter, -2);
 		tokens.erase(tokens.begin() + program_counter);
 		tokens.erase(tokens.begin() + program_counter);
 		rel_token(tokens, 0).str = "val";
@@ -476,4 +482,50 @@ bool Program::binary_func(std::function<long(long, long)> func) {
 		return true;
 	}
 	return false;
+}
+
+void Program::shift_pointers(long pos, long offset) {
+	parse();
+	for (long node_i = 0; node_i < nodes.size(); node_i++) {
+		_shift_pointers(nodes[node_i].get(), pos, offset);
+	}
+}
+
+void Program::_shift_pointers(Node* node, long pos, long offset) {
+	int arg_count = get_instruction_info(node->token.str).second;
+	if (node->token.str == "cpy" || node->token.str == "del") {
+		for (int i = 0; i < arg_count; i++) {
+			Token arg = node->arguments[i].get()->token;
+			auto shift_func = [&](Token t) {
+				if (t.str == "val") {
+					long pointer_index_old = t.index;
+					long pointer_dst_old = t.index + t.num_value;
+					long pointer_index_new = pointer_index_old;
+					long pointer_dst_new = pointer_dst_old;
+					if (pos <= pointer_index_old) {
+						pointer_index_new += offset;
+					}
+					if (pos <= pointer_dst_old) {
+						pointer_dst_new += offset;
+					}
+					long new_pointer = pointer_dst_new - pointer_index_new;
+					get_token(tokens, t.index).num_value = new_pointer;
+				}
+			};
+			shift_func(arg);
+		}
+	}
+	for (int arg_i = 0; arg_i < node->arguments.size(); arg_i++) {
+		Node* arg_node = node->arguments[arg_i].get();
+		_shift_pointers(arg_node, pos, offset);
+	}
+}
+
+InstructionDef Program::get_instruction_info(std::string token) {
+	auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
+		[&](InstructionDef def) {
+			return def.first == token;
+		}
+	);
+	return *it;
 }
