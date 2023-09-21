@@ -130,19 +130,6 @@ std::vector<Token> tokenize(std::string str) {
 			throw std::runtime_error("Label name cannot be a keyword: " + current_label.str);
 		}
 	}
-	// replacing labels with addresses
-	for (int i = 0; i < words.size(); i++) {
-		std::string current_word = words[i];
-		auto it = std::find_if(labels.begin(), labels.end(),
-			[&](Label& label) {
-				return label.str == current_word;
-			}
-		);
-		if (it != labels.end()) {
-			long relative_address = (*it).token_index - i;
-			words[i] = std::to_string(relative_address);
-		}
-	}
 	// creating tokens from words
 	for (int i = 0; i < words.size(); i++) {
 		std::string str = words[i];
@@ -152,6 +139,20 @@ std::vector<Token> tokenize(std::string str) {
 		} else {
 			Token new_token = Token(i, words[i], 0);
 			tokens.push_back(new_token);
+		}
+	}
+	// replacing labels with addresses
+	for (int i = 0; i < tokens.size(); i++) {
+		Token& current_token = tokens[i];
+		auto it = std::find_if(labels.begin(), labels.end(),
+			[&](Label& label) {
+				return label.str == current_token.str;
+			}
+		);
+		if (it != labels.end()) {
+			long relative_address = (*it).token_index - i;
+			tokens[i].str = "val";
+			tokens[i].num_value = relative_address;
 		}
 	}
 	return tokens;
