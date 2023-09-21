@@ -332,10 +332,9 @@ std::vector<long> Program::execute() {
 			} else if (current_token_read.str == "list") {
 				list_scope_stack.push(program_counter);
 			} else if (current_token_read.str == "end") {
-				shift_pointers(program_counter, -1);
-				tokens.erase(tokens.begin() + program_counter);
 				long list_pos = list_scope_stack.top();
-				shift_pointers(list_pos, -1);
+				shift_pointers(program_counter, -2);
+				tokens.erase(tokens.begin() + program_counter);
 				tokens.erase(tokens.begin() + list_pos);
 				list_scope_stack.pop();
 				program_counter--;
@@ -385,6 +384,7 @@ Token& Program::rel_token(std::vector<Token>& token_list, long offset) {
 
 std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long parse_token_index, Node* parent_node, long& new_token_index) {
 	Token current_token = get_token(token_list, parse_token_index);
+	current_token.index = parse_token_index;
 	long num_val = 0;
 	if (isNumber(current_token.str)) {
 		num_val = std::stol(current_token.str);
@@ -399,7 +399,6 @@ std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long 
 		throw std::runtime_error("Unexpected token: " + current_token.str);
 	}
 	int instruction_index = it - INSTRUCTION_LIST.begin();
-	current_token.index = parse_token_index;
 	std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
 	Node* new_node_p = new_node.get();
 	int arg_count = (*it).second;

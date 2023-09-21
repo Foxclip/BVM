@@ -288,11 +288,24 @@
 # 5 :five
 
 # end file label test
-cpy
-    zero
-    endf
-zero: 0
-1
-2
-3
-endf:
+# cpy
+#     zero
+#     endf
+# zero: 0
+# 1
+# 2
+# 3
+# endf:
+
+# for loop with new labels
+# cur: 0
+# lst: list
+#     cpy lst endf
+#     inc: add cpy cur 0 1
+#     if cmp cpy inc 0 10
+#         del endf
+#         del 0
+#     end
+# endf:
+
+list if cpy -6 0 1 0 end
