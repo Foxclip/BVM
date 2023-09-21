@@ -45,7 +45,6 @@ std::vector<Token> tokenize(std::string str) {
 		WORD,
 		NUM,
 		COMMENT,
-		LABEL,
 	};
 	str += EOF;
 	SplitterState state = SPACE;
@@ -67,9 +66,9 @@ std::vector<Token> tokenize(std::string str) {
 				current_word = "";
 				state = COMMENT;
 			} else if (current_char == ':') {
-				words.push_back(current_word);
+				labels.push_back(Label(current_word, words.size()));
 				current_word = "";
-				state = LABEL;
+				state = SPACE;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
@@ -89,8 +88,6 @@ std::vector<Token> tokenize(std::string str) {
 				state = NUM;
 			} else if (current_char == '#') {
 				state = COMMENT;
-			} else if (current_char == ':') {
-				state = LABEL;
 			} else if (current_char == EOF) {
 				break;
 			} else {
@@ -107,10 +104,6 @@ std::vector<Token> tokenize(std::string str) {
 				words.push_back(current_word);
 				current_word = "";
 				state = COMMENT;
-			} else if (current_char == ':') {
-				words.push_back(current_word);
-				current_word = "";
-				state = LABEL;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
@@ -122,28 +115,6 @@ std::vector<Token> tokenize(std::string str) {
 				state = SPACE;
 			} else if (current_char == EOF) {
 				break;
-			}
-		} else if (state == LABEL) {
-			if (isalpha(current_char))
-				current_word += current_char;
-			else if (isdigit(current_char)) {
-				if (current_word.size() == 0) {
-					throw std::runtime_error("Label name cannot start with a digit: " + std::string(1, current_char));
-				}
-				current_word += current_char;
-			} else if (isspace(current_char)) {
-				labels.push_back(Label(current_word, words.size() - 1));
-				current_word = "";
-				state = SPACE;
-			} else if (current_char == '#') {
-				labels.push_back(Label(current_word, words.size() - 1));
-				current_word = "";
-				state = COMMENT;
-			} else if (current_char == EOF) {
-				labels.push_back(Label(current_word, words.size() - 1));
-				break;
-			} else {
-				throwUnexpectedCharException(current_char, current_word);
 			}
 		}
 	}

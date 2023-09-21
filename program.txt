@@ -228,35 +228,35 @@
 #     3
 
 # shifting pointers
-0 :zero
-1
-cpy
-    zero
-    dst2
-2
-cpy
-    ten
-    eight
-3 :three
-del
-    three
-4
-5
-6 :six
-cpy
-    zero
-    0
-cpy
-    six
-    0
-7
-8 :eight
-9
-10 :ten
-11
-cpy
-    zero
-    dst2 :dst2
+# zero: 0
+# 1
+# cpy
+#     zero
+#     dst2
+# 2
+# cpy
+#     ten
+#     eight
+# three: 3
+# del
+#     three
+# 4
+# 5
+# six: 6
+# cpy
+#     zero
+#     0
+# cpy
+#     six
+#     0
+# 7
+# eight: 8
+# 9
+# ten: 10
+# 11
+# cpy
+#     zero
+#     dst2: dst2
 
 # 0 :zero
 # cpy
@@ -286,3 +286,13 @@ cpy
 #     0
 # 4
 # 5 :five
+
+# end file label test
+cpy
+    zero
+    endf
+zero: 0
+1
+2
+3
+endf:
