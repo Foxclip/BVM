@@ -308,4 +308,14 @@
 #     end
 # endf:
 
-list if cpy -6 0 1 0 end
+# list if cpy -6 0 1 0 end
+0
+1
+2
+3
+4
+5
+p
+    1
+p
+    2

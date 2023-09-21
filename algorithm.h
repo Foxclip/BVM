@@ -25,6 +25,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("if", 3),
 	std::pair("list", -1),
 	std::pair("end", 0),
+	std::pair("p", 1),
 };
 
 void throwUnexpectedCharException(char c, std::string current_word);
@@ -83,6 +84,5 @@ private:
 	void print_node(Node* node, int indent_level);
 	bool binary_func(std::function<long(long, long)> func);
 	void shift_pointers(long pos, long offset);
-	void _shift_pointers(Node* node, long pos, long offset);
 	InstructionDef get_instruction_info(std::string token);
 };

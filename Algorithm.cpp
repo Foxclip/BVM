@@ -118,6 +118,7 @@ std::vector<Token> tokenize(std::string str) {
 			}
 		}
 	}
+	// cheking if any label name is an instruction name
 	for (int i = 0; i < labels.size(); i++) {
 		Label current_label = labels[i];
 		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
@@ -129,6 +130,7 @@ std::vector<Token> tokenize(std::string str) {
 			throw std::runtime_error("Label name cannot be a keyword: " + current_label.str);
 		}
 	}
+	// replacing labels with addresses
 	for (int i = 0; i < words.size(); i++) {
 		std::string current_word = words[i];
 		auto it = std::find_if(labels.begin(), labels.end(),
@@ -141,6 +143,7 @@ std::vector<Token> tokenize(std::string str) {
 			words[i] = std::to_string(relative_address);
 		}
 	}
+	// creating tokens from words
 	for (int i = 0; i < words.size(); i++) {
 		std::string str = words[i];
 		if (isNumber(str)) {
@@ -339,6 +342,16 @@ std::vector<long> Program::execute() {
 				list_scope_stack.pop();
 				program_counter--;
 				break;
+			} else if (current_token_read.str == "p") {
+				if (rel_token(tokens, 1).str == "val") {
+					long arg = next_token.num_value;
+					long result = arg;
+					shift_pointers(program_counter, -1);
+					tokens.erase(tokens.begin() + program_counter);
+					rel_token(tokens, 0).str = "val";
+					rel_token(tokens, 0).num_value = result;
+					break;
+				}
 			}
 			steps++;
 		}
@@ -455,39 +468,23 @@ bool Program::binary_func(std::function<long(long, long)> func) {
 }
 
 void Program::shift_pointers(long pos, long offset) {
-	parse();
-	for (long node_i = 0; node_i < nodes.size(); node_i++) {
-		_shift_pointers(nodes[node_i].get(), pos, offset);
-	}
-}
-
-void Program::_shift_pointers(Node* node, long pos, long offset) {
-	int arg_count = get_instruction_info(node->token.str).second;
-	if (node->token.str == "cpy" || node->token.str == "del") {
-		for (int i = 0; i < arg_count; i++) {
-			Token arg = node->arguments[i].get()->token;
-			auto shift_func = [&](Token t) {
-				if (t.str == "val") {
-					long pointer_index_old = t.index;
-					long pointer_dst_old = t.index + t.num_value;
-					long pointer_index_new = pointer_index_old;
-					long pointer_dst_new = pointer_dst_old;
-					if (pos <= pointer_index_old) {
-						pointer_index_new += offset;
-					}
-					if (pos <= pointer_dst_old) {
-						pointer_dst_new += offset;
-					}
-					long new_pointer = pointer_dst_new - pointer_index_new;
-					get_token(tokens, t.index).num_value = new_pointer;
-				}
-			};
-			shift_func(arg);
+	for (long token_i = 0; token_i < tokens.size(); token_i++) {
+		Token current_token = get_token(tokens, token_i);
+		Token next_token = get_token(tokens, token_i + 1);
+		if (current_token.str == "p") {
+			long pointer_index_old = token_i + 1;
+			long pointer_dst_old = token_index(tokens, token_i + 1 + next_token.num_value);
+			long pointer_index_new = pointer_index_old;
+			long pointer_dst_new = pointer_dst_old;
+			if (pos <= pointer_index_old) {
+				pointer_index_new += offset;
+			}
+			if (pos <= pointer_dst_old) {
+				pointer_dst_new += offset;
+			}
+			long new_pointer = pointer_dst_new - pointer_index_new;
+			get_token(tokens, token_i + 1).num_value = new_pointer;
 		}
-	}
-	for (int arg_i = 0; arg_i < node->arguments.size(); arg_i++) {
-		Node* arg_node = node->arguments[arg_i].get();
-		_shift_pointers(arg_node, pos, offset);
 	}
 }
 
