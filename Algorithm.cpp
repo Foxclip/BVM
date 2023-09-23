@@ -118,18 +118,7 @@ std::vector<Token> tokenize(std::string str) {
 			}
 		}
 	}
-	// cheking if any label name is an instruction name
-	for (int i = 0; i < labels.size(); i++) {
-		Label current_label = labels[i];
-		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
-			[&](InstructionDef idef) {
-				return idef.first == current_label.str;
-			}
-		);
-		if (it != INSTRUCTION_LIST.end()) {
-			throw std::runtime_error("Label name cannot be a keyword: " + current_label.str);
-		}
-	}
+
 	// creating tokens from words
 	for (int i = 0; i < words.size(); i++) {
 		std::string str = words[i];
@@ -141,6 +130,27 @@ std::vector<Token> tokenize(std::string str) {
 			tokens.push_back(new_token);
 		}
 	}
+
+	// adding p instructions
+	for (int i = 0; i < tokens.size(); i++) {
+		Token current_token = tokens[i];
+		auto it = std::find_if(labels.begin(), labels.end(),
+			[&](Label label) {
+				return label.str == current_token.str;
+			}
+		);
+		if (it != labels.end()) {
+			tokens.insert(tokens.begin() + i, Token(i, "p", 0));
+			int new_index = i;
+			for (int label_i = 0; label_i < labels.size(); label_i++) {
+				if (labels[label_i].token_index >= i) {
+					labels[label_i].token_index++;
+				}
+			}
+			i++;
+		}
+	}
+	
 	// replacing labels with addresses
 	for (int i = 0; i < tokens.size(); i++) {
 		Token& current_token = tokens[i];

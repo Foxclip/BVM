@@ -309,13 +309,20 @@
 # endf:
 
 # list if cpy -6 0 1 0 end
-0
+rec0: rec0
+zero: 0
 1
-2
-three: 3
-4
-three
+zero
 p
     1
+rec1: rec1
 p
     2
+somelabel
+2
+three: 3
+rec2: rec2
+4
+somelabel:
+three
+rec3: rec3
