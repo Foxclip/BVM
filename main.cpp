@@ -17,7 +17,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: preprocessing: replace labels with p instructions
+	// TODO: shift pointers from pointer list, instead of scanning the whole token list
 	// TODO: repl instruction, replaces one subtree with another
 	// TODO: replace command string tokens in the code with enum values
 	// TODO: undeletable end instruction

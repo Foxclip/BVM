@@ -14,15 +14,15 @@ Token::Token(long index, std::string str, long num_value) {
 
 std::string Token::to_string() {
 	if (str == "val") {
-		return std::to_string(num_value);
+		if (pointer) {
+			return "p(" + std::to_string(num_value) + ")";
+		} else  {
+			return std::to_string(num_value);
+		}
+	} else {
+		return str;
 	}
-	return str;
 }
-
-std::string Token::_to_string() {
-	return "[" + std::to_string(index) + "]" + _to_string();
-}
-
 
 bool operator==(const Token& first, const Token& second) {
 	return first.str == second.str;
@@ -130,26 +130,6 @@ std::vector<Token> tokenize(std::string str) {
 			tokens.push_back(new_token);
 		}
 	}
-
-	// adding p instructions
-	for (int i = 0; i < tokens.size(); i++) {
-		Token current_token = tokens[i];
-		auto it = std::find_if(labels.begin(), labels.end(),
-			[&](Label label) {
-				return label.str == current_token.str;
-			}
-		);
-		if (it != labels.end()) {
-			tokens.insert(tokens.begin() + i, Token(i, "p", 0));
-			int new_index = i;
-			for (int label_i = 0; label_i < labels.size(); label_i++) {
-				if (labels[label_i].token_index >= i) {
-					labels[label_i].token_index++;
-				}
-			}
-			i++;
-		}
-	}
 	
 	// replacing labels with addresses
 	for (int i = 0; i < tokens.size(); i++) {
@@ -163,6 +143,7 @@ std::vector<Token> tokenize(std::string str) {
 			long relative_address = (*it).token_index - i;
 			tokens[i].str = "val";
 			tokens[i].num_value = relative_address;
+			tokens[i].pointer = true;
 		}
 	}
 	return tokens;
@@ -360,6 +341,7 @@ std::vector<long> Program::execute() {
 					tokens.erase(tokens.begin() + program_counter);
 					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = result;
+					rel_token(tokens, 0).pointer = true;
 					break;
 				}
 			}
@@ -369,9 +351,6 @@ std::vector<long> Program::execute() {
 		if (tokens == prev_tokens) {
 			break;
 		}
-		//for (long i = 0; i < tokens.size(); i++) {
-		//	tokens[i].index = i;
-		//}
 		prev_tokens = tokens;
 	}
 	std::vector<long> results;
@@ -480,10 +459,9 @@ bool Program::binary_func(std::function<long(long, long)> func) {
 void Program::shift_pointers(long pos, long offset) {
 	for (long token_i = 0; token_i < tokens.size(); token_i++) {
 		Token current_token = get_token(tokens, token_i);
-		Token next_token = get_token(tokens, token_i + 1);
-		if (current_token.str == "p") {
-			long pointer_index_old = token_i + 1;
-			long pointer_dst_old = token_index(tokens, token_i + 1 + next_token.num_value);
+		if (current_token.pointer) {
+			long pointer_index_old = token_i;
+			long pointer_dst_old = token_i + current_token.num_value;
 			long pointer_index_new = pointer_index_old;
 			long pointer_dst_new = pointer_dst_old;
 			if (pos <= pointer_index_old) {
@@ -493,7 +471,7 @@ void Program::shift_pointers(long pos, long offset) {
 				pointer_dst_new += offset;
 			}
 			long new_pointer = pointer_dst_new - pointer_index_new;
-			get_token(tokens, token_i + 1).num_value = new_pointer;
+			get_token(tokens, token_i).num_value = new_pointer;
 		}
 	}
 }

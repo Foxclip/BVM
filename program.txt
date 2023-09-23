@@ -298,45 +298,59 @@
 # endf:
 
 # for loop with new labels
-list
-    cur: 0
-    lst: list
-        cpy
-            lst
-            endf
-        inc: add
-                cpy
-                    cur
-                    0
-                1
-        if
-            cmp
-                cpy
-                    inc
-                    0
-                10
-            del
-                endf
-            del
-                0
-        end
-    endf: end
+# list
+#     cur: 0
+#     lst: list
+#         cpy
+#             lst
+#             end2
+#         inc: add
+#                 cpy
+#                     cur
+#                     0
+#                 1
+#         if
+#             cmp
+#                 cpy
+#                     inc
+#                     0
+#                 10
+#             del
+#                 add
+#                     end1
+#                     1
+#             del
+#                 0
+#         end1: end
+#     end2: end
 
 # p instruction inserting test
-# rec0: rec0
-# zero: 0
-# 1
-# zero
+rec0: rec0
+zero: 0
+p
+    1
+1
+zero
+rec1: rec1
+somelabel
+2
+three: 3
+rec2: rec2
+4
+p
+    2
+somelabel: three
+rec3: rec3
+
+# pointer type test
+# begin:
+# endp
 # p
 #     1
-# rec1: rec1
-# p
-#     2
-# somelabel
-# 2
-# three: 3
-# rec2: rec2
-# 4
-# somelabel:
-# three
-# rec3: rec3
+# 5
+# endp2
+# 6
+# endp: 7
+# 8
+# endp2: 9
+# 10

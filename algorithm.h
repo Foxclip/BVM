@@ -34,6 +34,7 @@ struct Token {
 	long index = 0;
 	std::string str;
 	long num_value = 0;
+	bool pointer = false;
 
 	Token();
 	Token(long index, std::string str, long num_value);
