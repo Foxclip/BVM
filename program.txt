@@ -299,22 +299,26 @@
 
 # for loop with new labels
 # list
-#     cur: 0
+#     list
+#         0
+#         cur: end
 #     lst: list
 #         cpy
 #             lst
 #             end2
 #         inc: add
 #                 cpy
-#                     cur
+#                     sub
+#                         cur
+#                         1
 #                     0
 #                 1
 #         if
-#             cmp
+#             gt
 #                 cpy
 #                     inc
 #                     0
-#                 10
+#                 9
 #             del
 #                 add
 #                     end1
@@ -379,21 +383,113 @@
 # 7
 
 # if pointer shift test
-if
-    add
+# if
+#     add
+#         0
+#         1
+#     list
+#         six
+#         eight
+#         end
+#     list
+#         six
+#         eight
+#         nine
+#         end
+# 5
+# six: 6
+# 7
+# eight: 8
+# nine: 9
+
+#
+# inc: add
+#     0
+#     1
+# cpy
+#     inc
+#     0
+
+# list
+#     zero: 0
+#     lst: list
+#         cpy
+#             zero
+#             lst
+#         zero    
+#         end
+#     end
+
+# infinite loop
+# list
+#     list
+#         0
+#         cur: end
+#     lst: list
+#         cpy
+#             lst
+#             end2
+#         inc: add
+#                 cpy
+#                     sub
+#                         cur
+#                         1
+#                     0
+#                 1
+#         end
+#     end2: end
+
+# list pointer test
+# list
+#     1
+#     endl: end
+# list
+#     cpy
+#         endl
+#         0
+#     end
+
+# deleting pointer destination test
+# one: 1
+# two: 2
+# three: 3
+# one
+# two
+# three
+# del
+#     two
+
+# for loop from 0 to 9
+list
+    list
         0
-        1
-    list
-        six
-        eight
-        end
-    list
-        six
-        eight
-        nine
-        end
-5
-six: 6
-7
-eight: 8
-nine: 9
+        cur: end
+    lst: list
+        cpy
+            lst
+            end2
+        inc: add
+                cpy
+                    sub
+                        cur
+                        1
+                    0
+                1
+        if
+            cmp
+                cpy
+                    inc
+                    0
+                10
+            list
+                del
+                    add
+                        end1
+                        1
+                del
+                    lst
+                end
+            del
+                0
+        end1: end
+    end2: end

@@ -20,6 +20,8 @@ const std::vector<InstructionDef> INSTRUCTION_LIST = {
 	std::pair("mod", 2),
 	std::pair("pow", 2),
 	std::pair("cmp", 2),
+	std::pair("lt", 2),
+	std::pair("gt", 2),
 	std::pair("cpy", 2),
 	std::pair("del", 1),
 	std::pair("if", 3),

@@ -246,6 +246,14 @@ std::vector<long> Program::execute() {
 				if (binary_func([](long a, long b) { return a == b ? 1 : 0; })) {
 					break;
 				}
+			} else if (current_token_read.str == "lt") {
+				if (binary_func([](long a, long b) { return a < b ? 1 : 0; })) {
+					break;
+				}
+			} else if (current_token_read.str == "gt") {
+				if (binary_func([](long a, long b) { return a > b ? 1 : 0; })) {
+					break;
+				}
 			} else if (current_token_read.str == "cpy") {
 				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
 					long src = rel_token(tokens, 1).num_value;
@@ -483,8 +491,15 @@ void Program::shift_pointers(std::vector<Token>& token_list, long pos, long offs
 					pointer_index_new += offset;
 				}
 			}
-			if (pos <= pointer_dst_old) {
-				pointer_dst_new += offset;
+			if (offset < 0) {
+				long recalc_offset = std::clamp(pos - pointer_dst_old, offset, 0L);
+				if (pos <= pointer_dst_old) {
+					pointer_dst_new += recalc_offset;
+				}
+			} else {
+				if (pos <= pointer_dst_old) {
+					pointer_dst_new += offset;
+				}
 			}
 			long new_pointer = pointer_dst_new - pointer_index_new;
 			get_token(token_list, token_i).num_value = new_pointer;
