@@ -298,31 +298,45 @@
 # endf:
 
 # for loop with new labels
-# cur: 0
-# lst: list
-#     cpy lst endf
-#     inc: add cpy cur 0 1
-#     if cmp cpy inc 0 10
-#         del endf
-#         del 0
-#     end
-# endf:
+list
+    cur: 0
+    lst: list
+        cpy
+            lst
+            endf
+        inc: add
+                cpy
+                    cur
+                    0
+                1
+        if
+            cmp
+                cpy
+                    inc
+                    0
+                10
+            del
+                endf
+            del
+                0
+        end
+    endf: end
 
-# list if cpy -6 0 1 0 end
-rec0: rec0
-zero: 0
-1
-zero
-p
-    1
-rec1: rec1
-p
-    2
-somelabel
-2
-three: 3
-rec2: rec2
-4
-somelabel:
-three
-rec3: rec3
+# p instruction inserting test
+# rec0: rec0
+# zero: 0
+# 1
+# zero
+# p
+#     1
+# rec1: rec1
+# p
+#     2
+# somelabel
+# 2
+# three: 3
+# rec2: rec2
+# 4
+# somelabel:
+# three
+# rec3: rec3

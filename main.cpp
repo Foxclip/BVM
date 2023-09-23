@@ -23,13 +23,16 @@ int main() {
 	// TODO: undeletable end instruction
 	// TODO: move instruction, moves a node
 	// TODO: conv instruction, converts list of numbers to code
+	// TODO: getsize instruction, returns size of the list
 	// TODO: get instruction, returns two numbers: first number signifies whether token is an instruction or a number,
 	// second number is num_value if it is a number, or instruction index if it is an instruction
 	// TODO: strings as lists of numbers and output to stdout
 	// TODO: file instruction that reads file and converts it into a list of chars
+	// TODO: malloc, free and read instructions for working with heap memory
 	// TODO: getaddr instruction, get absolute address of the current node
 	// TODO: modifying instructions can only address stuff inside its list
 	// TODO: fractal lists?
+	// TODO: parallel computation of lists and CUDA version
 
 	return 0;
 }

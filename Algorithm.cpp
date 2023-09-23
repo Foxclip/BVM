@@ -355,9 +355,8 @@ std::vector<long> Program::execute() {
 				break;
 			} else if (current_token_read.str == "p") {
 				if (rel_token(tokens, 1).str == "val") {
-					long arg = next_token.num_value;
-					long result = arg;
 					shift_pointers(program_counter, -1);
+					long result = rel_token(tokens, 1).num_value;
 					tokens.erase(tokens.begin() + program_counter);
 					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = result;
