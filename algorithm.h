@@ -84,6 +84,6 @@ private:
 	std::unique_ptr<Node> parse_token(std::vector<Token>& token_list, long token_index, Node* parent_node, long& new_token_index);
 	void print_node(Node* node, int indent_level);
 	bool binary_func(std::function<long(long, long)> func);
-	void shift_pointers(long pos, long offset);
+	void shift_pointers(std::vector<Token>& token_list, long pos, long offset);
 	InstructionDef get_instruction_info(std::string token);
 };

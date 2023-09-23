@@ -367,13 +367,33 @@
 # 9
 
 # another pointer shift test
-six
-list
-    5
-    6
-    7
-    six   
-    end
+# six
+# list
+#     5
+#     6
+#     7
+#     six   
+#     end
+# 5
+# six: 6
+# 7
+
+# if pointer shift test
+if
+    add
+        0
+        1
+    list
+        six
+        eight
+        end
+    list
+        six
+        eight
+        nine
+        end
 5
 six: 6
 7
+eight: 8
+nine: 9

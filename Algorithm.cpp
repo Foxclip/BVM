@@ -210,7 +210,7 @@ std::vector<long> Program::execute() {
 				// skipping
 			} else if (current_token_read.str == "inp") {
 				if (next_token.str == "val") {
-					shift_pointers(program_counter, -1);
+					shift_pointers(tokens, program_counter, -1);
 					long input_index = next_token.num_value;
 					long input_value = inputs[input_index];
 					tokens.erase(tokens.begin() + program_counter);
@@ -263,7 +263,7 @@ std::vector<long> Program::execute() {
 						insertion_index_old = token_index(tokens, dst_index);
 					}
 					long erase_index = program_counter;
-					shift_pointers(erase_index, -3);
+					shift_pointers(tokens, erase_index, -3);
 					tokens.erase(tokens.begin() + erase_index);
 					tokens.erase(tokens.begin() + erase_index);
 					tokens.erase(tokens.begin() + erase_index);
@@ -271,7 +271,7 @@ std::vector<long> Program::execute() {
 					if (insertion_index_old > cpy_position) {
 						insertion_index_new -= std::min(insertion_index_old - cpy_position, (long)3);
 					}
-					shift_pointers(insertion_index_new, node_tokens.size());
+					shift_pointers(tokens, insertion_index_new, node_tokens.size());
 					tokens.insert(tokens.begin() + insertion_index_new, node_tokens.begin(), node_tokens.end());
 					break;
 				}
@@ -286,16 +286,16 @@ std::vector<long> Program::execute() {
 					long index_begin = token_index(tokens, del_index);
 					long index_end = index_begin + node_tokens.size() - 1;
 					if (index_begin != del_position + 1) {
-						shift_pointers(index_begin, -(long)(node_tokens.size()));
+						shift_pointers(tokens, index_begin, -(long)(node_tokens.size()));
 						tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end + 1);
 					}
 					if (index_end < del_position) {
 						program_counter -= node_tokens.size();
-						shift_pointers(program_counter, -2);
+						shift_pointers(tokens, program_counter, -2);
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 					} else if (index_begin >= del_position + 1) {
-						shift_pointers(program_counter, -2);
+						shift_pointers(tokens, program_counter, -2);
 						tokens.erase(tokens.begin() + program_counter);
 						tokens.erase(tokens.begin() + program_counter);
 					} else if (index_begin <= del_position && index_end >= del_position + 1) {
@@ -311,33 +311,41 @@ std::vector<long> Program::execute() {
 					long new_token_index;
 					std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
 					std::vector<Token> if_node_tokens = if_node.get()->tokenize();
-					std::vector<Token> branch_node_tokens;
 					Node* true_node = if_node.get()->arguments[1].get();
 					Node* false_node = if_node.get()->arguments[2].get();
-					Node* branch_node = cond != 0 ? true_node : false_node;
-					branch_node_tokens = branch_node->tokenize();
-					long index_begin = program_counter;
-					long index_end = program_counter + if_node_tokens.size();
-					shift_pointers(program_counter, -(long)(branch_node_tokens.size() - if_node_tokens.size()));
-					tokens.erase(tokens.begin() + index_begin, tokens.begin() + index_end);
-					long insertion_index = program_counter;
-					tokens.insert(tokens.begin() + insertion_index, branch_node_tokens.begin(), branch_node_tokens.end());
+					std::vector<Token> true_node_tokens = true_node->tokenize();
+					std::vector<Token> false_node_tokens = false_node->tokenize();
+					long true_node_offset = 2;
+					long false_node_offset = 2 + true_node_tokens.size();
+					long true_node_index = program_counter + true_node_offset;
+					long false_node_index = program_counter + false_node_offset;
+					if (cond != 0) {
+						shift_pointers(tokens, false_node_index, -(long)false_node_tokens.size());
+						tokens.erase(tokens.begin() + false_node_index, tokens.begin() + false_node_index + false_node_tokens.size());
+						shift_pointers(tokens, program_counter, -true_node_offset);
+						tokens.erase(tokens.begin() + program_counter);
+						tokens.erase(tokens.begin() + program_counter);
+					} else {
+						shift_pointers(tokens, program_counter, -false_node_offset);
+						tokens.erase(tokens.begin() + program_counter, tokens.begin() + false_node_index);
+					}
 					break;
 				}
 			} else if (current_token_read.str == "list") {
 				list_scope_stack.push(program_counter);
 			} else if (current_token_read.str == "end") {
 				long list_pos = list_scope_stack.top();
-				shift_pointers(list_pos, -1);
+				shift_pointers(tokens, list_pos, -1);
 				tokens.erase(tokens.begin() + list_pos);
 				program_counter--;
-				shift_pointers(program_counter, -1);
+				shift_pointers(tokens, program_counter, -1);
 				tokens.erase(tokens.begin() + program_counter);
+				program_counter = list_pos;
 				list_scope_stack.pop();
 				break;
 			} else if (current_token_read.str == "p") {
 				if (rel_token(tokens, 1).str == "val") {
-					shift_pointers(program_counter, -1);
+					shift_pointers(tokens, program_counter, -1);
 					long result = rel_token(tokens, 1).num_value;
 					tokens.erase(tokens.begin() + program_counter);
 					rel_token(tokens, 0).str = "val";
@@ -444,7 +452,7 @@ void Program::print_node(Node* node, int indent_level) {
 
 bool Program::binary_func(std::function<long(long, long)> func) {
 	if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
-		shift_pointers(program_counter, -2);
+		shift_pointers(tokens, program_counter, -2);
 		long val1 = rel_token(tokens, 1).num_value;
 		long val2 = rel_token(tokens, 2).num_value;
 		long result = func(val1, val2);
@@ -457,9 +465,9 @@ bool Program::binary_func(std::function<long(long, long)> func) {
 	return false;
 }
 
-void Program::shift_pointers(long pos, long offset) {
-	for (long token_i = 0; token_i < tokens.size(); token_i++) {
-		Token current_token = get_token(tokens, token_i);
+void Program::shift_pointers(std::vector<Token>& token_list, long pos, long offset) {
+	for (long token_i = 0; token_i < token_list.size(); token_i++) {
+		Token current_token = get_token(token_list, token_i);
 		if (current_token.pointer) {
 			long pointer_index_old = token_i;
 			long pointer_dst_old = token_i + current_token.num_value;
@@ -479,7 +487,7 @@ void Program::shift_pointers(long pos, long offset) {
 				pointer_dst_new += offset;
 			}
 			long new_pointer = pointer_dst_new - pointer_index_new;
-			get_token(tokens, token_i).num_value = new_pointer;
+			get_token(token_list, token_i).num_value = new_pointer;
 		}
 	}
 }
