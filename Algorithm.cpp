@@ -210,9 +210,9 @@ std::vector<long> Program::execute() {
 				// skipping
 			} else if (current_token_read.str == "inp") {
 				if (next_token.str == "val") {
+					shift_pointers(program_counter, -1);
 					long input_index = next_token.num_value;
 					long input_value = inputs[input_index];
-					shift_pointers(program_counter, -1);
 					tokens.erase(tokens.begin() + program_counter);
 					rel_token(tokens, 0).str = "val";
 					rel_token(tokens, 0).num_value = input_value;
@@ -328,11 +328,12 @@ std::vector<long> Program::execute() {
 				list_scope_stack.push(program_counter);
 			} else if (current_token_read.str == "end") {
 				long list_pos = list_scope_stack.top();
-				shift_pointers(program_counter, -2);
-				tokens.erase(tokens.begin() + program_counter);
+				shift_pointers(list_pos, -1);
 				tokens.erase(tokens.begin() + list_pos);
-				list_scope_stack.pop();
 				program_counter--;
+				shift_pointers(program_counter, -1);
+				tokens.erase(tokens.begin() + program_counter);
+				list_scope_stack.pop();
 				break;
 			} else if (current_token_read.str == "p") {
 				if (rel_token(tokens, 1).str == "val") {
@@ -443,10 +444,10 @@ void Program::print_node(Node* node, int indent_level) {
 
 bool Program::binary_func(std::function<long(long, long)> func) {
 	if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
+		shift_pointers(program_counter, -2);
 		long val1 = rel_token(tokens, 1).num_value;
 		long val2 = rel_token(tokens, 2).num_value;
 		long result = func(val1, val2);
-		shift_pointers(program_counter, -2);
 		tokens.erase(tokens.begin() + program_counter);
 		tokens.erase(tokens.begin() + program_counter);
 		rel_token(tokens, 0).str = "val";
@@ -464,8 +465,15 @@ void Program::shift_pointers(long pos, long offset) {
 			long pointer_dst_old = token_i + current_token.num_value;
 			long pointer_index_new = pointer_index_old;
 			long pointer_dst_new = pointer_dst_old;
-			if (pos <= pointer_index_old) {
-				pointer_index_new += offset;
+			if (offset < 0) {
+				long recalc_offset = std::clamp(pos - pointer_index_old, offset, 0L);
+				if (pos <= pointer_index_old) {
+					pointer_index_new += recalc_offset;
+				}
+			} else {
+				if (pos <= pointer_index_old) {
+					pointer_index_new += offset;
+				}
 			}
 			if (pos <= pointer_dst_old) {
 				pointer_dst_new += offset;

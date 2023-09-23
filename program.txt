@@ -325,22 +325,22 @@
 #     end2: end
 
 # p instruction inserting test
-rec0: rec0
-zero: 0
-p
-    1
-1
-zero
-rec1: rec1
-somelabel
-2
-three: 3
-rec2: rec2
-4
-p
-    2
-somelabel: three
-rec3: rec3
+# rec0: rec0
+# zero: 0
+# p
+#     1
+# 1
+# zero
+# rec1: rec1
+# somelabel
+# 2
+# three: 3
+# rec2: rec2
+# 4
+# p
+#     2
+# somelabel: three
+# rec3: rec3
 
 # pointer type test
 # begin:
@@ -354,3 +354,26 @@ rec3: rec3
 # 8
 # endp2: 9
 # 10
+
+# pointer shift test
+# add
+#     p
+#         2
+#     1
+# 5
+# 6
+# 7
+# 8
+# 9
+
+# another pointer shift test
+six
+list
+    5
+    6
+    7
+    six   
+    end
+5
+six: 6
+7
