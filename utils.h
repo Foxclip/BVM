@@ -19,7 +19,7 @@ std::string vector_to_str(std::vector<T> vec) {
 	return str;
 }
 
-std::string fileToStr(const char* path);
+std::string fileToStr(std::string path);
 
 long modulo(long a, long b);
 

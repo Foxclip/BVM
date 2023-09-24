@@ -41,7 +41,6 @@ struct Token {
 	Token();
 	Token(long index, std::string str, long num_value);
 	std::string to_string();
-	std::string _to_string();
 	friend bool operator==(const Token& first, const Token& second);
 };
 
@@ -51,8 +50,6 @@ struct Label {
 
 	Label(std::string str, long token_index);
 };
-
-std::vector<Token> tokenize(std::string str);
 
 class Node {
 public:
@@ -69,17 +66,19 @@ public:
 	std::vector<Token> tokens;
 	std::vector<Token> prev_tokens;
 	std::vector<std::unique_ptr<Node>> nodes;
+	bool print_iterations = false;
 
 	Program(std::string str);
 	void print_tokens();
 	void print_nodes();
 	std::vector<long> execute();
-	void parse();
 
 private:
 	unsigned long program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
 
+	std::vector<Token> tokenize(std::string str);
+	void parse();
 	long token_index(std::vector<Token>& token_list, long index);
 	Token& get_token(std::vector<Token>& token_list, long index);
 	Token& rel_token(std::vector<Token>& token_list, long offset);

@@ -33,7 +33,7 @@ Label::Label(std::string str, long token_index) {
 	this->token_index = token_index;
 }
 
-std::vector<Token> tokenize(std::string str) {
+std::vector<Token> Program::tokenize(std::string str) {
 	std::vector<std::string> words;
 	std::vector<Token> tokens;
 	std::vector<Label> labels;
@@ -185,6 +185,7 @@ void Program::print_tokens() {
 }
 
 void Program::print_nodes() {
+	parse();
 	for (int i = 0; i < nodes.size(); i++) {
 		print_node(nodes[i].get(), 0);
 	}
@@ -195,10 +196,14 @@ std::vector<long> Program::execute() {
 		throw std::runtime_error("Empty program");
 	}
 	prev_tokens = tokens;
-	std::cout << "Iteration *: ";
-	print_tokens();
+	if (print_iterations) {
+		std::cout << "Iteration *: ";
+		print_tokens();
+	}
 	for (unsigned long iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-		std::cout << "Iteration " << iteration << ": ";
+		if (print_iterations) {
+			std::cout << "Iteration " << iteration << ": ";
+		}
 		unsigned long steps = 0;
 		std::stack<long> list_scope_stack;
 		for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
@@ -364,7 +369,9 @@ std::vector<long> Program::execute() {
 			}
 			steps++;
 		}
-		print_tokens();
+		if (print_iterations) {
+			print_tokens();
+		}
 		if (tokens == prev_tokens) {
 			break;
 		}

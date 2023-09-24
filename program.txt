@@ -460,36 +460,52 @@
 #     two
 
 # for loop from 0 to 9
+# list
+#     list
+#         0
+#         cur: end
+#     lst: list
+#         cpy
+#             lst
+#             end2
+#         inc: add
+#                 cpy
+#                     sub
+#                         cur
+#                         1
+#                     0
+#                 1
+#         if
+#             cmp
+#                 cpy
+#                     inc
+#                     0
+#                 10
+#             list
+#                 del
+#                     add
+#                         end1
+#                         1
+#                 del
+#                     lst
+#                 end
+#             del
+#                 0
+#         end1: end
+#     end2: end
+
+# factorial
 list
-    list
-        0
-        cur: end
+    input: 5
     lst: list
-        cpy
-            lst
-            end2
-        inc: add
-                cpy
-                    sub
-                        cur
-                        1
-                    0
-                1
-        if
-            cmp
-                cpy
-                    inc
-                    0
-                10
-            list
-                del
-                    add
-                        end1
-                        1
-                del
-                    lst
-                end
-            del
+        mul
+            cpy 
+                input
                 0
-        end1: end
-    end2: end
+            list
+                cpy
+                    lst
+                    0
+                end
+        end
+    endl: end
