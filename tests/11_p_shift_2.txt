@@ -1,0 +1,30 @@
+# 0 1 2 4 5 6 0 6 7 10 8 9 10 11 0 0
+zero: 0
+1
+cpy
+    zero
+    dst2
+2
+cpy
+    ten
+    eight
+three: 3
+del
+    three
+4
+5
+six: 6
+cpy
+    zero
+    0
+cpy
+    six
+    0
+7
+eight: 8
+9
+ten: 10
+11
+cpy
+    zero
+    dst2: dst2

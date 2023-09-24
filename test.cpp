@@ -110,7 +110,7 @@ namespace test {
 					std::cout << "    passed: " << filename << "\n";
 				} else {
 					failed_list.push_back(filename);
-					std::cout << "    FAIL: " << filename << "\n";
+					std::cout << "    FAILED: " << filename << "\n";
 					std::cout << "        Correct results: " + vector_to_str(correct_results) << "\n";
 					std::cout << "         Actual results: " + vector_to_str(actual_results) << "\n";
 				}

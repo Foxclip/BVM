@@ -495,17 +495,17 @@
 #     end2: end
 
 # factorial
-list
-    input: 5
-    lst: list
-        mul
-            cpy 
-                input
-                0
-            list
-                cpy
-                    lst
-                    0
-                end
-        end
-    endl: end
+# list
+#     input: 5
+#     lst: list
+#         mul
+#             cpy 
+#                 input
+#                 0
+#             list
+#                 cpy
+#                     lst
+#                     0
+#                 end
+#         end
+#     endl: end

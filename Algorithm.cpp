@@ -366,6 +366,8 @@ std::vector<long> Program::execute() {
 					rel_token(tokens, 0).pointer = true;
 					break;
 				}
+			} else {
+				throw std::runtime_error("Unexpected token: " + current_token_read.str);
 			}
 			steps++;
 		}
