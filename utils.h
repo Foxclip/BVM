@@ -22,13 +22,10 @@ namespace utils {
 	}
 
 	std::string file_to_str(std::string path);
-
 	long mod(long a, long b);
-
 	bool is_number_prefix(char c);
-
 	bool is_number(std::string str);
-
 	bool alphanum_less(std::string str1, std::string str2);
+	std::vector<std::filesystem::path> list_directory(std::filesystem::path path, bool alphanum = false);
 
 }

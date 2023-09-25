@@ -26,7 +26,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: sort filenames in test list in alphanumerical order
 	// TODO: repl instruction, replaces one subtree with another
 	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values

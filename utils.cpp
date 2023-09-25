@@ -42,4 +42,19 @@ namespace utils {
 		return str1.compare(str2) < 0;
 	}
 
+	std::vector<std::filesystem::path> list_directory(std::filesystem::path path, bool alphanum) {
+		std::vector<std::filesystem::path> result;
+		auto it = std::filesystem::directory_iterator(path);
+		for (auto& entry : it) {
+			result.push_back(entry.path());
+		}
+		if (alphanum) {
+			std::sort(result.begin(), result.end(), [](std::filesystem::path path1, std::filesystem::path path2) {
+					return alphanum_less(path1.filename().string(), path2.filename().string());
+				}
+			);
+		}
+		return result;
+	}
+
 }

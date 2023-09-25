@@ -91,19 +91,19 @@ namespace test {
 			throw std::runtime_error(path.string() + " is not a directory");
 		}
 		std::cout << "Running tests in " << path << "\n";
-		auto it = std::filesystem::directory_iterator(path);
+		std::vector<std::filesystem::path> directory_list = utils::list_directory(path, true);
 		int passed_count = 0;
 		std::vector<std::string> failed_list;
-		for (auto& entry : it) {
-			if (entry.is_regular_file()) {
-				std::string filename = entry.path().filename().string();
+		for (std::filesystem::path entry : directory_list) {
+			if (std::filesystem::is_regular_file(entry)) {
+				std::string filename = entry.filename().string();
 				std::vector<long> actual_results;
 				std::vector<long> correct_results;
 				bool passed;
 				try {
-					passed = run_test(entry.path(), actual_results, correct_results);
+					passed = run_test(entry, actual_results, correct_results);
 				} catch (std::exception exc) {
-					throw std::runtime_error(entry.path().string() + ": " + exc.what());
+					throw std::runtime_error(entry.string() + ": " + exc.what());
 				}
 				if (passed) {
 					passed_count++;
