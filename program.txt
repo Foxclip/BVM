@@ -509,3 +509,19 @@
 #                 end
 #         end
 #     endl: end
+
+# repl test
+one: 1
+2
+three: 3
+4
+repl
+    0
+    repl_p
+6
+7
+repl_p: repl
+    three
+    one
+8
+9

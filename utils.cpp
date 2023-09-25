@@ -24,6 +24,14 @@ namespace utils {
 		return is_number_prefix(str[0]);
 	}
 
+	bool is_valid_word_prefix(char c) {
+		return isalpha(c) || c == '_';
+	}
+
+	bool is_valid_word_middle(char c) {
+		return isalpha(c) || isdigit(c) || c == '_';
+	}
+
 	long get_prefix_number(std::string str) {
 		char* end;
 		long result = std::strtol(str.c_str(), &end, 10);

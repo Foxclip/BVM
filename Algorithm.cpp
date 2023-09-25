@@ -25,6 +25,9 @@ std::string Token::to_string() {
 }
 
 bool operator==(const Token& first, const Token& second) {
+	if (first.str == "val" && second.str == "val") {
+		return first.num_value == second.num_value;
+	}
 	return first.str == second.str;
 }
 
@@ -55,7 +58,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			throw std::runtime_error("Invalid char: " + std::to_string(current_char));
 		}
 		if (state == WORD) {
-			if (isalpha(current_char) || isdigit(current_char)) {
+			if (utils::is_valid_word_middle(current_char)) {
 				current_word += current_char;
 			} else if (isspace(current_char)) {
 				words.push_back(current_word);
@@ -78,7 +81,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 		} else if (state == SPACE) {
 			if (isspace(current_char)) {
 				// nothing
-			} else if (isalpha(current_char)) {
+			} else if (utils::is_valid_word_prefix(current_char)) {
 				current_word = "";
 				current_word += current_char;
 				state = WORD;
@@ -316,6 +319,38 @@ std::vector<long> Program::execute() {
 					} else {
 						throw std::runtime_error("del error");
 					}
+					break;
+				}
+			} else if (current_token_read.str == "repl") {
+				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
+					long dst = rel_token(tokens, 1).num_value;
+					long src = rel_token(tokens, 2).num_value;
+					long dst_index_begin = token_index(tokens, program_counter + 1 + dst);
+					long src_index_begin = token_index(tokens, program_counter + 2 + src);
+					long src_last_index;
+					long dst_last_index;
+					long repl_index = program_counter;
+					if (dst_index_begin >= repl_index && dst_index_begin < repl_index + 3) {
+						dst_index_begin = repl_index;
+					}
+					std::unique_ptr<Node> src_node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, src_last_index);
+					std::vector<Token> src_node_tokens = src_node.get()->tokenize();
+					std::unique_ptr<Node> dst_node = parse_token(tokens, token_index(tokens, dst_index_begin), nullptr, dst_last_index);
+					std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
+					long insertion_index = dst_index_begin;
+					if (dst_index_begin != repl_index) {
+						shift_pointers(tokens, repl_index, -3);
+						tokens.erase(tokens.begin() + repl_index);
+						tokens.erase(tokens.begin() + repl_index);
+						tokens.erase(tokens.begin() + repl_index);
+						if (insertion_index > repl_index) {
+							insertion_index -= 3;
+						}
+					}
+					long pointer_offset = src_node_tokens.size() - dst_node_tokens.size();
+					shift_pointers(tokens, insertion_index, pointer_offset);
+					tokens.erase(tokens.begin() + insertion_index, tokens.begin() + insertion_index + dst_node_tokens.size());
+					tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 					break;
 				}
 			} else if (current_token_read.str == "if") {
