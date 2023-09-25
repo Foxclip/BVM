@@ -82,7 +82,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 				current_word = "";
 				current_word += current_char;
 				state = WORD;
-			} else if (isNumberPrefix(current_char)) {
+			} else if (utils::is_number_prefix(current_char)) {
 				current_word = "";
 				current_word += current_char;
 				state = NUM;
@@ -122,7 +122,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 	// creating tokens from words
 	for (int i = 0; i < words.size(); i++) {
 		std::string str = words[i];
-		if (isNumber(str)) {
+		if (utils::is_number(str)) {
 			Token new_token = Token(i, "val", std::stol(str));
 			tokens.push_back(new_token);
 		} else {
@@ -240,7 +240,7 @@ std::vector<long> Program::execute() {
 					break;
 				}
 			} else if (current_token_read.str == "mod") {
-				if (binary_func([](long a, long b) { return modulo(a, b); })) {
+				if (binary_func([](long a, long b) { return utils::mod(a, b); })) {
 					break;
 				}
 			} else if (current_token_read.str == "pow") {
@@ -399,7 +399,7 @@ void Program::parse() {
 }
 
 long Program::token_index(std::vector<Token>& token_list, long index) {
-	return modulo(index, token_list.size());
+	return utils::mod(index, token_list.size());
 }
 
 Token& Program::get_token(std::vector<Token>& token_list, long index) {
@@ -414,7 +414,7 @@ std::unique_ptr<Node> Program::parse_token(std::vector<Token>& token_list, long 
 	Token current_token = get_token(token_list, parse_token_index);
 	current_token.index = parse_token_index;
 	long num_val = 0;
-	if (isNumber(current_token.str)) {
+	if (utils::is_number(current_token.str)) {
 		num_val = std::stol(current_token.str);
 		current_token.str = "val";
 	}

@@ -3,14 +3,14 @@
 #include "test.h"
 
 void execute_program(std::string path) {
-	std::string program_text = fileToStr(path);
+	std::string program_text = utils::file_to_str(path);
 	Program program(program_text);
 	program.print_iterations = true;
 	std::cout << "Nodes:";
 	std::cout << "\n";
 	program.print_nodes();
 	std::vector<long> results = program.execute();
-	std::cout << "Results: " << vector_to_str(results) << "\n";
+	std::cout << "Results: " << utils::vector_to_str(results) << "\n";
 }
 
 int main() {
@@ -26,7 +26,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: make unit tests
+	// TODO: sort filenames in test list in alphanumerical order
 	// TODO: repl instruction, replaces one subtree with another
 	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values

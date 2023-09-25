@@ -44,7 +44,7 @@ namespace test {
 					throwUnexpectedCharException(current_char, current_word);
 				}
 			} else if (state == SPACE) {
-				if (isNumberPrefix(current_char)) {
+				if (utils::is_number_prefix(current_char)) {
 					current_word = "";
 					current_word += current_char;
 					state = NUM;
@@ -67,7 +67,7 @@ namespace test {
 		if (!std::filesystem::is_regular_file(path)) {
 			throw std::runtime_error(path.string() + " is not a file");
 		}
-		std::string program_text = fileToStr(path.string());
+		std::string program_text = utils::file_to_str(path.string());
 		std::vector<std::string> correct_results_str = tokenize_correct_results(program_text);
 		std::vector<long> correct_results(correct_results_str.size());
 		std::transform(correct_results_str.begin(), correct_results_str.end(), correct_results.begin(),
@@ -111,8 +111,8 @@ namespace test {
 				} else {
 					failed_list.push_back(filename);
 					std::cout << "    FAILED: " << filename << "\n";
-					std::cout << "        Correct results: " + vector_to_str(correct_results) << "\n";
-					std::cout << "         Actual results: " + vector_to_str(actual_results) << "\n";
+					std::cout << "        Correct results: " + utils::vector_to_str(correct_results) << "\n";
+					std::cout << "         Actual results: " + utils::vector_to_str(actual_results) << "\n";
 				}
 			}
 		}
