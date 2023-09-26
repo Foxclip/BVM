@@ -26,8 +26,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: cpy instruction inserts its first arg before subtree pointed by second arg
-	// rename it to ins
 	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values
 	// TODO: next and prev instructions, return address of the next and previous subtree

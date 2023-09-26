@@ -398,6 +398,31 @@ std::vector<long> Program::execute() {
 					tokens.insert(tokens.begin() + get_index, src_node_tokens.begin(), src_node_tokens.end());
 					break;
 				}
+			} else if (current_token_read.str == "ins") {
+				if (rel_token(tokens, 1).str == "val") {
+					long dst = rel_token(tokens, 1).num_value;
+					long dst_index = token_index(tokens, program_counter + 1 + dst);
+					long src_index_begin = token_index(tokens, program_counter + 2);
+					long ins_index = program_counter;
+					long ins_last_index;
+					std::unique_ptr<Node> ins_node = parse_token(tokens, ins_index, nullptr, ins_last_index);
+					std::vector<Token> ins_node_tokens = ins_node->tokenize();
+					if (dst_index >= ins_index && dst_index <= ins_last_index) {
+						dst_index = ins_index;
+					}
+					Node* src_node = ins_node.get()->arguments[1].get();
+					std::vector<Token> src_node_tokens = src_node->tokenize();
+					long insertion_index = dst_index;
+					shift_pointers(tokens, ins_index, -(long)ins_node_tokens.size());
+					tokens.erase(tokens.begin() + ins_index, tokens.begin() + ins_last_index + 1);
+					if (insertion_index > ins_index) {
+						insertion_index -= std::min(insertion_index - ins_index, (long)ins_node_tokens.size());
+					}
+					long pointer_offset = src_node_tokens.size();
+					shift_pointers(tokens, insertion_index, pointer_offset);
+					tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
+					break;
+				}
 			} else if (current_token_read.str == "if") {
 				if (rel_token(tokens, 1).str == "val") {
 					long cond = rel_token(tokens, 1).num_value;

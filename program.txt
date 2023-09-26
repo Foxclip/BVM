@@ -651,20 +651,65 @@
 #     three
 
 # get test
+# 1
+# get
+#     add_p
+# two: 2
+# three: 3
+# add_p: add
+#     get
+#         four
+#     get
+#         two
+# four: 4
+# 5
+# get
+#     add_p
+# 6
+# 7
+# 8
+
+# ins test
+# 1
+# two: 2
+# 3
+# ins_p: ins
+#     two
+#     55
+# ins
+#     ins_p
+#     33
+# ins
+#     1
+#     -2
+# ins
+#     0
+#     -1
+# ins
+#     2
+#     99
+# 4
+# 5
+# 6
+
+# another ins test
 1
-get
-    add_p
 two: 2
-three: 3
-add_p: add
-    get
-        four
-    get
-        two
-four: 4
-5
-get
-    add_p
-6
-7
-8
+3
+ins
+    two
+    add
+        2
+        3
+ins_p: ins
+    -1
+    add
+        5
+        6
+ins
+    ins_p
+    ins
+        2
+        mul
+            2
+            2
