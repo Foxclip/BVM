@@ -578,10 +578,12 @@ bool Program::binary_func(std::function<long(long, long)> func) {
 		long val1 = rel_token(tokens, 1).num_value;
 		long val2 = rel_token(tokens, 2).num_value;
 		long result = func(val1, val2);
+		bool result_is_pointer = rel_token(tokens, 1).pointer || rel_token(tokens, 2).pointer;
 		tokens.erase(tokens.begin() + program_counter);
 		tokens.erase(tokens.begin() + program_counter);
 		rel_token(tokens, 0).str = "val";
 		rel_token(tokens, 0).num_value = result;
+		rel_token(tokens, 0).pointer = result_is_pointer;
 		return true;
 	}
 	return false;
