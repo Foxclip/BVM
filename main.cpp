@@ -26,7 +26,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: repl executes its second argument, also add some instruction to stop code from executing (or to force execute the code?)
+	// TODO: adding number to pointer test
+	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: block instruction, separates program into blocks, blocks have
 	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values
