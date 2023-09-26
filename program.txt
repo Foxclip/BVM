@@ -596,12 +596,56 @@
 #     end
 
 # new repl test
-repl
-    ff
+# repl
+#     ff
+#     5
+# 1
+# 2
+# three: 3
+# repl
+#     three
+#     ff: 55
+
+# replp test
+# 1 9 4 6 -5 9
+# one: 1
+# 2
+# three: 3
+# 4
+# replp
+#     0
+#     repl_p
+# 6
+# 7
+# repl_p: replp
+#     three
+#     one
+# 8
+# 9
+
+# another replp test
+add_p: add
     5
-1
-2
-three: 3
-repl
+    5
+replp
+    add_p
+    mul_p
+mul_p: mul
+    5
+    5
+replp
+    lst2
+    lst1
+lst1: list
+    1
+    two: 2
+    three: 3
+    end
+lst2: list
+    5
+    6
+    7
+    end
+replp
+    two
     three
-    ff: 55

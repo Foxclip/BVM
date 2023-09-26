@@ -352,6 +352,38 @@ std::vector<long> Program::execute() {
 					tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 					break;
 				}
+			} else if (current_token_read.str == "replp") {
+				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
+					long dst = rel_token(tokens, 1).num_value;
+					long src = rel_token(tokens, 2).num_value;
+					long dst_index_begin = token_index(tokens, program_counter + 1 + dst);
+					long src_index_begin = token_index(tokens, program_counter + 2 + src);
+					long src_last_index;
+					long dst_last_index;
+					long repl_index = program_counter;
+					if (dst_index_begin >= repl_index && dst_index_begin < repl_index + 3) {
+						dst_index_begin = repl_index;
+					}
+					std::unique_ptr<Node> src_node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, src_last_index);
+					std::vector<Token> src_node_tokens = src_node.get()->tokenize();
+					std::unique_ptr<Node> dst_node = parse_token(tokens, token_index(tokens, dst_index_begin), nullptr, dst_last_index);
+					std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
+					long insertion_index = dst_index_begin;
+					if (dst_index_begin != repl_index) {
+						shift_pointers(tokens, repl_index, -3);
+						tokens.erase(tokens.begin() + repl_index);
+						tokens.erase(tokens.begin() + repl_index);
+						tokens.erase(tokens.begin() + repl_index);
+						if (insertion_index > repl_index) {
+							insertion_index -= 3;
+						}
+					}
+					long pointer_offset = src_node_tokens.size() - dst_node_tokens.size();
+					shift_pointers(tokens, insertion_index, pointer_offset);
+					tokens.erase(tokens.begin() + insertion_index, tokens.begin() + insertion_index + dst_node_tokens.size());
+					tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
+					break;
+				}
 			} else if (current_token_read.str == "if") {
 				if (rel_token(tokens, 1).str == "val") {
 					long cond = rel_token(tokens, 1).num_value;
