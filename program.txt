@@ -494,10 +494,68 @@
 #         end1: end
 #     end2: end
 
+# repl test
+# one: 1
+# 2
+# 3
+# four: 4
+# repl
+#     3
+#     cpy
+#         repl_p
+#         0
+# 6
+# 7
+# repl_p: repl
+#     four
+#     55
+# 8
+# 9
+
+# another repl test
+# add_p: add
+#     5
+#     5
+# repl
+#     add_p
+#     cpy
+#         mul_p
+#         0
+# mul_p: mul
+#     5
+#     5
+# repl
+#     lst2
+#     cpy
+#         lst1
+#         0
+# lst1: list
+#     1
+#     two: 2
+#     three: 3
+#     end
+# lst2: list
+#     5
+#     6
+#     7
+#     end
+# repl
+#     two
+#     3
+
 # factorial
 # list
 #     input: 5
 #     lst: list
+#         if
+#             cmp
+#                 cpy
+#                     input
+#                     0
+#                 1
+#             cpy
+#                 lst
+#                 endl
 #         mul
 #             cpy 
 #                 input
@@ -510,45 +568,40 @@
 #         end
 #     endl: end
 
-# repl test
-# one: 1
-# 2
-# three: 3
-# 4
-# repl
-#     0
-#     repl_p
-# 6
-# 7
-# repl_p: repl
-#     three
-#     one
-# 8
-# 9
+# mul_p: mul
+#     input: 5
+#     if
+#         cmp
+#             input
+#             1
+#         1
+#         list
+#             cpy
+#                 mul_p
+#                 0
+#             repl
+#                 input
+#                 # input - 1                
 
-# another repl test
-add_p: add
-    5
-    5
+# input: 5
+# list
+#     next: sub
+#         cpy
+#             input
+#             1
+#         1
+#     repl
+#         input
+#         next
+#     end
+
+# new repl test
 repl
-    add_p
-    mul_p
-mul_p: mul
+    ff
     5
-    5
+1
+2
+three: 3
 repl
-    lst2
-    lst1
-lst1: list
-    1
-    two: 2
-    three: 3
-    end
-lst2: list
-    5
-    6
-    7
-    end
-repl
-    two
     three
+    ff: 55

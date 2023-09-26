@@ -322,29 +322,28 @@ std::vector<long> Program::execute() {
 					break;
 				}
 			} else if (current_token_read.str == "repl") {
-				if (rel_token(tokens, 1).str == "val" && rel_token(tokens, 2).str == "val") {
+				if (rel_token(tokens, 1).str == "val") {
 					long dst = rel_token(tokens, 1).num_value;
-					long src = rel_token(tokens, 2).num_value;
 					long dst_index_begin = token_index(tokens, program_counter + 1 + dst);
-					long src_index_begin = token_index(tokens, program_counter + 2 + src);
-					long src_last_index;
+					long src_index_begin = token_index(tokens, program_counter + 2);
 					long dst_last_index;
 					long repl_index = program_counter;
-					if (dst_index_begin >= repl_index && dst_index_begin < repl_index + 3) {
+					long repl_last_index;
+					std::unique_ptr<Node> repl_node = parse_token(tokens, repl_index, nullptr, repl_last_index);
+					if (dst_index_begin >= repl_index && dst_index_begin <= repl_last_index) {
 						dst_index_begin = repl_index;
 					}
-					std::unique_ptr<Node> src_node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, src_last_index);
-					std::vector<Token> src_node_tokens = src_node.get()->tokenize();
+					Node* src_node = repl_node.get()->arguments[1].get();
+					std::vector<Token> repl_node_tokens = repl_node->tokenize();
+					std::vector<Token> src_node_tokens = src_node->tokenize();
 					std::unique_ptr<Node> dst_node = parse_token(tokens, token_index(tokens, dst_index_begin), nullptr, dst_last_index);
 					std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
 					long insertion_index = dst_index_begin;
 					if (dst_index_begin != repl_index) {
-						shift_pointers(tokens, repl_index, -3);
-						tokens.erase(tokens.begin() + repl_index);
-						tokens.erase(tokens.begin() + repl_index);
-						tokens.erase(tokens.begin() + repl_index);
+						shift_pointers(tokens, repl_index, -(long)repl_node_tokens.size());
+						tokens.erase(tokens.begin() + repl_index, tokens.begin() + repl_last_index + 1);
 						if (insertion_index > repl_index) {
-							insertion_index -= 3;
+							insertion_index -= repl_node_tokens.size();
 						}
 					}
 					long pointer_offset = src_node_tokens.size() - dst_node_tokens.size();

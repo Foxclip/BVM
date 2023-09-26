@@ -26,8 +26,15 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: replp instruction, works like old repl
+	// TODO: get instruction, replaces itself with subtree pointed by arg
+	// TODO: cpy instruction inserts its first arg before subtree pointed by second arg
+	// rename it to ins
 	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values
+	// TODO: next and prev instructions, return address of the next and previous subtree
+	// TODO: modifying instructions shift pointers in the tokens that are being moved around
+	// if pointers lead inside then leave them as is, otherwise shift them so they point where they were pointing
 	// TODO: shift pointers from pointer list, instead of scanning the whole token list
 	// TODO: place program counter at the leftmost change position at new iteration
 	// TODO: undeletable end instruction
