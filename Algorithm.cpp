@@ -384,6 +384,20 @@ std::vector<long> Program::execute() {
 					tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 					break;
 				}
+			} else if (current_token_read.str == "get") {
+				if (rel_token(tokens, 1).str == "val") {
+					long src = rel_token(tokens, 1).num_value;
+					long src_index_begin = token_index(tokens, program_counter + 1 + src);
+					long get_index = program_counter;
+					long src_last_index;
+					std::unique_ptr<Node> src_node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, src_last_index);
+					std::vector<Token> src_node_tokens = src_node.get()->tokenize();
+					long pointer_offset = src_node_tokens.size() - 2;
+					shift_pointers(tokens, get_index, pointer_offset);
+					tokens.erase(tokens.begin() + get_index, tokens.begin() + get_index + 2);
+					tokens.insert(tokens.begin() + get_index, src_node_tokens.begin(), src_node_tokens.end());
+					break;
+				}
 			} else if (current_token_read.str == "if") {
 				if (rel_token(tokens, 1).str == "val") {
 					long cond = rel_token(tokens, 1).num_value;

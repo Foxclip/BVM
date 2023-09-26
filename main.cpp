@@ -26,8 +26,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: replp instruction, works like old repl
-	// TODO: get instruction, replaces itself with subtree pointed by arg
 	// TODO: cpy instruction inserts its first arg before subtree pointed by second arg
 	// rename it to ins
 	// TODO: functions can return pointers

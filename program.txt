@@ -624,28 +624,47 @@
 # 9
 
 # another replp test
-add_p: add
-    5
-    5
-replp
+# add_p: add
+#     5
+#     5
+# replp
+#     add_p
+#     mul_p
+# mul_p: mul
+#     5
+#     5
+# replp
+#     lst2
+#     lst1
+# lst1: list
+#     1
+#     two: 2
+#     three: 3
+#     end
+# lst2: list
+#     5
+#     6
+#     7
+#     end
+# replp
+#     two
+#     three
+
+# get test
+1
+get
     add_p
-    mul_p
-mul_p: mul
-    5
-    5
-replp
-    lst2
-    lst1
-lst1: list
-    1
-    two: 2
-    three: 3
-    end
-lst2: list
-    5
-    6
-    7
-    end
-replp
-    two
-    three
+two: 2
+three: 3
+add_p: add
+    get
+        four
+    get
+        two
+four: 4
+5
+get
+    add_p
+6
+7
+8
