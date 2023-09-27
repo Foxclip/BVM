@@ -99,11 +99,14 @@ namespace test {
 				std::string filename = entry.filename().string();
 				std::vector<long> actual_results;
 				std::vector<long> correct_results;
-				bool passed;
+				bool passed = false;
+				bool exception = false;
+				std::string exc_message;
 				try {
 					passed = run_test(entry, actual_results, correct_results);
 				} catch (std::exception exc) {
-					throw std::runtime_error(entry.string() + ": " + exc.what());
+					exception = true;
+					exc_message = exc.what();
 				}
 				if (passed) {
 					passed_count++;
@@ -111,8 +114,12 @@ namespace test {
 				} else {
 					failed_list.push_back(filename);
 					std::cout << "    FAILED: " << filename << "\n";
-					std::cout << "        Correct results: " + utils::vector_to_str(correct_results) << "\n";
-					std::cout << "         Actual results: " + utils::vector_to_str(actual_results) << "\n";
+					if (exception) {
+						std::cout << "        EXCEPTION: " << exc_message << "\n";
+					} else {
+						std::cout << "        Correct results: " + utils::vector_to_str(correct_results) << "\n";
+						std::cout << "         Actual results: " + utils::vector_to_str(actual_results) << "\n";
+					}
 				}
 			}
 		}

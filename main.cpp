@@ -16,9 +16,9 @@ void execute_program(std::string path) {
 int main() {
 	try {
 
-		execute_program("program.txt");
+		//execute_program("program.txt");
 		//execute_program("tests/3_basic.txt");
-		//test::run_tests("tests/");
+		test::run_tests("tests/");
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
