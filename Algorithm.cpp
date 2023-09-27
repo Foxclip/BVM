@@ -48,7 +48,7 @@ std::string Token::to_string() const {
 		case type_double:
 			return std::to_string(data.m_double) + "d";
 		case type_instr:
-			return INSTRUCTION_LIST[get_data<InstructionType>()].str;
+			return INSTRUCTION_LIST[get_data<InstructionType::data_type>()].str;
 		case type_ptr:
 			return "p(" + std::to_string(get_data<PointerType>()) + ")";
 		default:
@@ -72,7 +72,7 @@ bool operator==(const Token& first, const Token& second) {
 			case type_double:
 				return first.data.m_double == second.data.m_double;
 			case type_instr:
-				return first.get_data<InstructionType>() == second.get_data<InstructionType>();
+				return first.get_data<InstructionType::data_type>() == second.get_data<InstructionType::data_type>();
 			case type_ptr:
 				return first.get_data<PointerType>() == second.get_data<PointerType>();
 			default:
@@ -193,7 +193,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 				new_token.set_data<PointerType>(relative_address);
 			} else {
 				new_token = Token(str, get_token_type<InstructionType>());
-				new_token.set_data<InstructionType>(get_instruction_info(str).index);
+				new_token.set_data<InstructionType::data_type>(get_instruction_info(str).index);
 			}
 		}
 		tokens.push_back(new_token);

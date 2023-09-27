@@ -10,8 +10,10 @@
 
 const long MAX_ITERATIONS = 1000;
 typedef long PointerType;
-typedef int InstructionType;
 typedef int DefaultNumType;
+struct InstructionType {
+	using data_type = int;
+};
 
 struct InstructionDef {
 	std::string str;
