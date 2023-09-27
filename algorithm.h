@@ -9,11 +9,15 @@
 #include "utils.h"
 
 const long MAX_ITERATIONS = 1000;
-typedef long PointerType;
 typedef int DefaultNumType;
-struct InstructionType {
+struct PointerTokenType {
+	using data_type = long;
+};
+typedef PointerTokenType::data_type PointerDataType;
+struct InstructionTokenType {
 	using data_type = int;
 };
+typedef InstructionTokenType::data_type InstructionDataType;
 
 struct InstructionDef {
 	std::string str;
@@ -85,9 +89,9 @@ token_type get_token_type() {
 		return type_float;
 	} else if constexpr (std::is_same_v<T, double>) {
 		return type_double;
-	} else if constexpr (std::is_same_v<T, InstructionType>) {
+	} else if constexpr (std::is_same_v<T, InstructionTokenType>) {
 		return type_instr;
-	} else if constexpr (std::is_same_v<T, PointerType>) {
+	} else if constexpr (std::is_same_v<T, PointerTokenType>) {
 		return type_ptr;
 	} else {
 		static_assert(true, "Unknown token_data type");
@@ -115,8 +119,8 @@ struct Token {
 		unsigned long m_ulong;
 		float m_float;
 		double m_double;
-		InstructionType m_instr;
-		PointerType m_ptr;
+		InstructionDataType m_instr;
+		PointerDataType m_ptr;
 	};
 	std::string str;
 	token_type type;
@@ -192,9 +196,9 @@ struct Token {
 
 struct Label {
 	std::string str;
-	PointerType token_index;
+	PointerDataType token_index;
 
-	Label(std::string str, PointerType token_index);
+	Label(std::string str, PointerDataType token_index);
 };
 
 class Node {
@@ -220,17 +224,17 @@ public:
 	std::vector<long> execute();
 
 private:
-	PointerType program_counter = 0;
+	PointerDataType program_counter = 0;
 	std::vector<long> inputs = { 5, 6, 7 };
 
 	std::vector<Token> tokenize(std::string str);
 	void parse();
-	PointerType token_index(std::vector<Token>& token_list, PointerType index);
-	Token& get_token(std::vector<Token>& token_list, PointerType index);
-	Token& rel_token(std::vector<Token>& token_list, PointerType offset);
-	std::unique_ptr<Node> parse_token(std::vector<Token>& token_list, PointerType token_index, Node* parent_node, PointerType& new_token_index);
+	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
+	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
+	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
+	std::unique_ptr<Node> parse_token(std::vector<Token>& token_list, PointerDataType token_index, Node* parent_node, PointerDataType& new_token_index);
 	void print_node(Node* node, int indent_level);
-	void shift_pointers(std::vector<Token>& token_list, PointerType pos, PointerType offset);
+	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
 	InstructionInfo get_instruction_info(std::string token);
 	token_type get_return_type(token_type type1, token_type type2);
 
