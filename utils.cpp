@@ -12,10 +12,6 @@ namespace utils {
 		return buffer.str();
 	}
 
-	long mod(long a, long b) {
-		return (a % b + b) % b;
-	}
-
 	bool is_number_prefix(char c) {
 		return c == '-' || isdigit(c);
 	}

@@ -26,6 +26,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: type system, float numbers, division by zero
+	// TODO: test if long numbers actually work
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: block instruction, separates program into blocks, blocks have

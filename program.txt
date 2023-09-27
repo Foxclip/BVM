@@ -715,28 +715,32 @@
 #             2
 
 # factorial
-lst: list
-    replp
-        replthis
-        lst
-    sub_p: sub
-        get
-            arg
-        1
-    replp
-        add
-            before_replthis
-            17
-        sub_p
-    del
-        sub_p
-    mul_p: mul
-        arg: 5
-        if
-            cmp
-                get
-                    arg
-                1
-            before_replthis: 1
-            replthis: 0
-    end
+# lst: list
+#     replp
+#         replthis
+#         lst
+#     sub_p: sub
+#         get
+#             arg
+#         1
+#     replp
+#         add
+#             before_replthis
+#             17
+#         sub_p
+#     del
+#         sub_p
+#     mul_p: mul
+#         arg: 5
+#         if
+#             cmp
+#                 get
+#                     arg
+#                 1
+#             before_replthis: 1
+#             replthis: 0
+#     end
+
+add
+    2
+    3
