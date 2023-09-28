@@ -265,21 +265,23 @@ std::vector<long> Program::execute() {
 #define CALL_BINARY_FUNC(Macro_func) \
 			token_type type1 = rel_token(tokens, 1).type; \
 			token_type type2 = rel_token(tokens, 2).type; \
-			token_type return_type = get_return_type(type1, type2); \
-			if (return_type == type_double) { \
-				Macro_func(double) \
-			} else if (return_type == type_float) { \
-				Macro_func(float) \
-			} else if (return_type == type_ptr) { \
-				Macro_func(PointerDataType) \
-			} else if (return_type == type_ulong) { \
-				Macro_func(unsigned long) \
-			} else if (return_type == type_long) { \
-				Macro_func(long) \
-			} else if (return_type == type_uint) { \
-				Macro_func(unsigned int) \
-			} else if (return_type == type_int) { \
-				Macro_func(int) \
+			if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) { \
+				token_type return_type = get_return_type(type1, type2); \
+				if (return_type == type_double) { \
+					Macro_func(double) \
+				} else if (return_type == type_float) { \
+					Macro_func(float) \
+				} else if (return_type == type_ptr) { \
+					Macro_func(PointerDataType) \
+				} else if (return_type == type_ulong) { \
+					Macro_func(unsigned long) \
+				} else if (return_type == type_long) { \
+					Macro_func(long) \
+				} else if (return_type == type_uint) { \
+					Macro_func(unsigned int) \
+				} else if (return_type == type_int) { \
+					Macro_func(int) \
+				} \
 			}
 			if (current_token_read.is_num_or_ptr()) {
 				// skipping
@@ -305,15 +307,15 @@ std::vector<long> Program::execute() {
 				} else if (return_type == type_float) {
 					MOD_FUNC(long)
 				} else if (return_type == type_ptr) {
-						MOD_FUNC(PointerDataType)
+					MOD_FUNC(PointerDataType)
 				} else if (return_type == type_ulong) {
-						MOD_FUNC(unsigned long)
+					MOD_FUNC(unsigned long)
 				} else if (return_type == type_long) {
-						MOD_FUNC(long)
+					MOD_FUNC(long)
 				} else if (return_type == type_uint) {
-						MOD_FUNC(unsigned int)
+					MOD_FUNC(unsigned int)
 				} else if (return_type == type_int) {
-						MOD_FUNC(int)
+					MOD_FUNC(int)
 				}
 			} else if (current_token_read.str == "pow") {
 #define POW_FUNC(TRet) BINARY_FUNC(TRet, return pow(a, b);)
