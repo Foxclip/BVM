@@ -40,7 +40,7 @@ std::string Token::to_string() const {
 		case type_long:
 			return std::to_string(data.m_long) + "L";
 		case type_uint:
-			return std::to_string(data.m_uint) + "ui";
+			return std::to_string(data.m_uint) + "u";
 		case type_ulong:
 			return std::to_string(data.m_ulong) + "UL";
 		case type_float:
