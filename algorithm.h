@@ -8,16 +8,27 @@
 #include <algorithm>
 #include "utils.h"
 
-const long MAX_ITERATIONS = 1000;
+const long long MAX_ITERATIONS = 1000;
+
+typedef long long VectorResultsType;
+typedef unsigned long long ProgramCounterType;
+typedef long long FloatModConversionType;
+typedef int Int32Type;
+typedef unsigned int Uint32Type;
+typedef long long Int64Type;
+typedef unsigned long long Uint64Type;
+typedef float FloatDataType;
+typedef double DoubleDataType;
+typedef int BoolType;
 
 struct PointerTokenType {
-	using data_type = long;
+	using data_type = Int64Type;
 };
-#define POINTER_DATA_PARSE_FUNC std::stol
+#define POINTER_DATA_PARSE_FUNC std::stoull
 typedef PointerTokenType::data_type PointerDataType;
 
 struct InstructionTokenType {
-	using data_type = int;
+	using data_type = Uint32Type;
 };
 typedef InstructionTokenType::data_type InstructionDataType;
 
@@ -67,10 +78,10 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 void throwUnexpectedCharException(char c, std::string current_word);
 
 enum token_type {
-	type_int,
-	type_long,
-	type_uint,
-	type_ulong,
+	type_int32,
+	type_int64,
+	type_uint32,
+	type_uint64,
 	type_float,
 	type_double,
 	type_instr,
@@ -79,17 +90,17 @@ enum token_type {
 
 template <typename T>
 token_type get_token_type() {
-	if constexpr (std::is_same_v<T, int>) {
-		return type_int;
-	} else if constexpr (std::is_same_v<T, long>) {
-		return type_long;
-	} else if constexpr (std::is_same_v<T, unsigned int>) {
-		return type_uint;
-	} else if constexpr (std::is_same_v<T, unsigned long>) {
-		return type_ulong;
-	} else if constexpr (std::is_same_v<T, float>) {
+	if constexpr (std::is_same_v<T, Int32Type>) {
+		return type_int32;
+	} else if constexpr (std::is_same_v<T, Int64Type>) {
+		return type_int64;
+	} else if constexpr (std::is_same_v<T, Uint32Type>) {
+		return type_uint32;
+	} else if constexpr (std::is_same_v<T, Uint64Type>) {
+		return type_uint64;
+	} else if constexpr (std::is_same_v<T, FloatDataType>) {
 		return type_float;
-	} else if constexpr (std::is_same_v<T, double>) {
+	} else if constexpr (std::is_same_v<T, DoubleDataType>) {
 		return type_double;
 	} else if constexpr (std::is_same_v<T, InstructionTokenType>) {
 		return type_instr;
@@ -116,12 +127,12 @@ struct Token {
 	// parsing literals in tokenize func
 
 	union token_data {
-		int m_int;
-		long m_long;
-		unsigned int m_uint;
-		unsigned long m_ulong;
-		float m_float;
-		double m_double;
+		Int32Type m_int32;
+		Int64Type m_int64;
+		Uint32Type m_uint32;
+		Uint64Type m_uint64;
+		FloatDataType m_float;
+		DoubleDataType m_double;
 		InstructionDataType m_instr;
 		PointerDataType m_ptr;
 	};
@@ -139,17 +150,17 @@ struct Token {
 
 	template <typename T>
 	T get_data() const {
-		if constexpr (std::is_same_v<T, int>) {
-			return data.m_int;
-		} else if constexpr (std::is_same_v<T, long>) {
-			return data.m_long;
-		} else if constexpr (std::is_same_v<T, unsigned int>) {
-			return data.m_uint;
-		} else if constexpr (std::is_same_v<T, unsigned long>) {
-			return data.m_ulong;
-		} else if constexpr (std::is_same_v<T, float>) {
+		if constexpr (std::is_same_v<T, Int32Type>) {
+			return data.m_int32;
+		} else if constexpr (std::is_same_v<T, Int64Type>) {
+			return data.m_int64;
+		} else if constexpr (std::is_same_v<T, Uint32Type>) {
+			return data.m_uint32;
+		} else if constexpr (std::is_same_v<T, Uint64Type>) {
+			return data.m_uint64;
+		} else if constexpr (std::is_same_v<T, FloatDataType>) {
 			return data.m_float;
-		} else if constexpr (std::is_same_v<T, double>) {
+		} else if constexpr (std::is_same_v<T, DoubleDataType>) {
 			return data.m_double;
 		} else {
 			bool fail = T::unknown_type;
@@ -160,14 +171,14 @@ struct Token {
 	template <typename T>
 	T get_data_cast() const {
 		switch (type) {
-			case type_int:
-				return (T)data.m_int;
-			case type_uint:
-				return (T)data.m_uint;
-			case type_long:
-				return (T)data.m_long;
-			case type_ulong:
-				return (T)data.m_ulong;
+			case type_int32:
+				return (T)data.m_int32;
+			case type_uint32:
+				return (T)data.m_uint32;
+			case type_int64:
+				return (T)data.m_int64;
+			case type_uint64:
+				return (T)data.m_uint64;
 			case type_float:
 				return (T)data.m_float;
 			case type_double:
@@ -183,17 +194,17 @@ struct Token {
 
 	template <typename T>
 	void set_data(T new_data) {
-		if constexpr (std::is_same_v<T, int>) {
-			data.m_int = new_data;
-		} else if constexpr (std::is_same_v<T, long>) {
-			data.m_long = new_data;
-		} else if constexpr (std::is_same_v<T, unsigned int>) {
-			data.m_uint = new_data;
-		} else if constexpr (std::is_same_v<T, unsigned long>) {
-			data.m_ulong = new_data;
-		} else if constexpr (std::is_same_v<T, float>) {
+		if constexpr (std::is_same_v<T, Int32Type>) {
+			data.m_int32 = new_data;
+		} else if constexpr (std::is_same_v<T, Int64Type>) {
+			data.m_int64 = new_data;
+		} else if constexpr (std::is_same_v<T, Uint32Type>) {
+			data.m_uint32 = new_data;
+		} else if constexpr (std::is_same_v<T, Uint64Type>) {
+			data.m_uint64 = new_data;
+		} else if constexpr (std::is_same_v<T, FloatDataType>) {
 			data.m_float = new_data;
-		} else if constexpr (std::is_same_v<T, double>) {
+		} else if constexpr (std::is_same_v<T, DoubleDataType>) {
 			data.m_double = new_data;
 		} else {
 			static_assert(true, "Unknown token_data type");
@@ -228,11 +239,10 @@ public:
 	Program(std::string str);
 	void print_tokens();
 	void print_nodes();
-	std::vector<long> execute();
+	std::vector<VectorResultsType> execute();
 
 private:
 	PointerDataType program_counter = 0;
-	std::vector<long> inputs = { 5, 6, 7 };
 
 	std::vector<Token> tokenize(std::string str);
 	void parse();

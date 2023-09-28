@@ -60,7 +60,7 @@ namespace test {
 		return words;
 	}
 
-	bool run_test(std::filesystem::path path, std::vector<long>& actual_results_p, std::vector<long>& correct_results_p) {
+	bool run_test(std::filesystem::path path, std::vector<VectorResultsType>& actual_results_p, std::vector<VectorResultsType>& correct_results_p) {
 		if (!std::filesystem::exists(path)) {
 			throw std::runtime_error(path.string() + " not found");
 		}
@@ -69,14 +69,14 @@ namespace test {
 		}
 		std::string program_text = utils::file_to_str(path.string());
 		std::vector<std::string> correct_results_str = tokenize_correct_results(program_text);
-		std::vector<long> correct_results(correct_results_str.size());
+		std::vector<VectorResultsType> correct_results(correct_results_str.size());
 		std::transform(correct_results_str.begin(), correct_results_str.end(), correct_results.begin(),
 			[](std::string str) {
 				return std::stol(str);
 			}
 		);
 		Program program(program_text);
-		std::vector<long> actual_results = program.execute();
+		std::vector<VectorResultsType> actual_results = program.execute();
 		bool passed = actual_results == correct_results;
 		actual_results_p = actual_results;
 		correct_results_p = correct_results;
@@ -97,8 +97,8 @@ namespace test {
 		for (std::filesystem::path entry : directory_list) {
 			if (std::filesystem::is_regular_file(entry)) {
 				std::string filename = entry.filename().string();
-				std::vector<long> actual_results;
-				std::vector<long> correct_results;
+				std::vector<VectorResultsType> actual_results;
+				std::vector<VectorResultsType> correct_results;
 				bool passed = false;
 				bool exception = false;
 				std::string exc_message;

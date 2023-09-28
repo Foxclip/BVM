@@ -13,10 +13,10 @@ Token::Token(std::string str, token_type type) {
 
 bool Token::is_num() {
 	switch (type) {
-		case type_int:
-		case type_long:
-		case type_uint:
-		case type_ulong:
+		case type_int32:
+		case type_int64:
+		case type_uint32:
+		case type_uint64:
 		case type_float:
 		case type_double:
 			return true;
@@ -35,14 +35,14 @@ bool Token::is_num_or_ptr() {
 
 std::string Token::to_string() const {
 	switch (type) {
-		case type_int:
-			return std::to_string(data.m_int);
-		case type_long:
-			return std::to_string(data.m_long) + "L";
-		case type_uint:
-			return std::to_string(data.m_uint) + "u";
-		case type_ulong:
-			return std::to_string(data.m_ulong) + "U";
+		case type_int32:
+			return std::to_string(data.m_int32);
+		case type_int64:
+			return std::to_string(data.m_int64) + "L";
+		case type_uint32:
+			return std::to_string(data.m_uint32) + "u";
+		case type_uint64:
+			return std::to_string(data.m_uint64) + "U";
 		case type_float:
 			return std::to_string(data.m_float) + "f";
 		case type_double:
@@ -59,14 +59,14 @@ std::string Token::to_string() const {
 bool operator==(const Token& first, const Token& second) {
 	if (first.type == second.type) {
 		switch (first.type) {
-			case type_int:
-				return first.data.m_int == second.data.m_int;
-			case type_long:
-				return first.data.m_long == second.data.m_long;
-			case type_uint:
-				return first.data.m_uint == second.data.m_uint;
-			case type_ulong:
-				return first.data.m_ulong == second.data.m_ulong;
+			case type_int32:
+				return first.data.m_int32 == second.data.m_int32;
+			case type_int64:
+				return first.data.m_int64 == second.data.m_int64;
+			case type_uint32:
+				return first.data.m_uint32 == second.data.m_uint32;
+			case type_uint64:
+				return first.data.m_uint64 == second.data.m_uint64;
 			case type_float:
 				return first.data.m_float == second.data.m_float;
 			case type_double:
@@ -103,7 +103,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 	str += EOF;
 	SplitterState state = SPACE;
 	std::string current_word = "";
-	for (int i = 0; i < str.size(); i++) {
+	for (ProgramCounterType i = 0; i < str.size(); i++) {
 		char current_char = str[i];
 		if (current_char < -1) {
 			throw std::runtime_error("Invalid char: " + std::to_string(current_char));
@@ -152,7 +152,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 				words.push_back(current_word);
 				current_word = "";
 				state = SPACE;
-			} else if (isdigit(current_char)) {
+			} else if (isdigit(current_char) || current_char == '.') {
 				current_word += current_char;
 			} else if (utils::is_number_literal(current_char)) {
 				current_word += current_char;
@@ -179,18 +179,18 @@ std::vector<Token> Program::tokenize(std::string str) {
 	}
 
 	// creating tokens from words
-	for (int i = 0; i < words.size(); i++) {
+	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		std::string str = words[i];
 		Token new_token;
 		token_type new_token_type;
 		if (utils::is_number(str)) {
 			if (isdigit(str.back())) {
-				new_token_type = type_int;
+				new_token_type = type_int32;
 			} else {
 				switch (str.back()) {
-					case 'L': new_token_type = type_long; break;
-					case 'u': new_token_type = type_uint; break;
-					case 'U': new_token_type = type_ulong; break;
+					case 'L': new_token_type = type_int64; break;
+					case 'u': new_token_type = type_uint32; break;
+					case 'U': new_token_type = type_uint64; break;
 					case 'f': new_token_type = type_float; break;
 					case 'd': new_token_type = type_double; break;
 					case 'p': new_token_type = type_ptr; break;
@@ -199,13 +199,14 @@ std::vector<Token> Program::tokenize(std::string str) {
 			}
 			new_token = Token(str, new_token_type);
 			switch (new_token_type) {
-				case type_int: new_token.set_data<int>(std::stoi(str)); break;
-				case type_long: new_token.set_data<long>(std::stol(str)); break;
-				case type_uint: new_token.set_data<unsigned int>(std::stoul(str)); break;
-				case type_ulong: new_token.set_data<unsigned long>(std::stoul(str)); break;
-				case type_float: new_token.set_data<float>(std::stof(str)); break;
-				case type_double: new_token.set_data<double>(std::stod(str)); break;
+				case type_int32: new_token.set_data<Int32Type>(std::stoi(str)); break;
+				case type_int64: new_token.set_data<Int64Type>(std::stoll(str)); break;
+				case type_uint32: new_token.set_data<Uint32Type>(std::stoul(str)); break;
+				case type_uint64: new_token.set_data<Uint64Type>(std::stoull(str)); break;
+				case type_float: new_token.set_data<FloatDataType>(std::stof(str)); break;
+				case type_double: new_token.set_data<DoubleDataType>(std::stod(str)); break;
 				case type_ptr: new_token.set_data<PointerDataType>(POINTER_DATA_PARSE_FUNC(str)); break;
+				default: throw std::runtime_error("Unknown token_data type: " + std::to_string(new_token_type));
 			}
 		} else {
 			auto it = std::find_if(labels.begin(), labels.end(),
@@ -238,7 +239,7 @@ std::string Node::to_string() {
 std::vector<Token> Node::tokenize() {
 	std::vector<Token> tokens;
 	tokens.push_back(token);
-	for (int i = 0; i < arguments.size(); i++) {
+	for (ProgramCounterType i = 0; i < arguments.size(); i++) {
 		std::vector<Token> arg_tokens = arguments[i].get()->tokenize();
 		tokens.insert(tokens.end(), arg_tokens.begin(), arg_tokens.end());
 	}
@@ -250,7 +251,7 @@ Program::Program(std::string str) {
 }
 
 void Program::print_tokens() {
-	for (int i = 0; i < tokens.size(); i++) {
+	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
 		if (i == program_counter) {
 			std::cout << "*";
 		}
@@ -264,12 +265,12 @@ void Program::print_tokens() {
 
 void Program::print_nodes() {
 	parse();
-	for (int i = 0; i < nodes.size(); i++) {
+	for (ProgramCounterType i = 0; i < nodes.size(); i++) {
 		print_node(nodes[i].get(), 0);
 	}
 }
 
-std::vector<long> Program::execute() {
+std::vector<VectorResultsType> Program::execute() {
 	if (tokens.size() == 0) {
 		throw std::runtime_error("Empty program");
 	}
@@ -278,12 +279,12 @@ std::vector<long> Program::execute() {
 		std::cout << "Iteration *: ";
 		print_tokens();
 	}
-	for (unsigned long iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+	for (ProgramCounterType iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 		if (print_iterations) {
 			std::cout << "Iteration " << iteration << ": ";
 		}
-		unsigned long steps = 0;
-		std::stack<long> list_scope_stack;
+		ProgramCounterType steps = 0;
+		std::stack<ProgramCounterType> list_scope_stack;
 		for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
 			Token current_token_read = rel_token(tokens, 0);
 			Token next_token = rel_token(tokens, 1);
@@ -294,19 +295,19 @@ std::vector<long> Program::execute() {
 			if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) { \
 				token_type return_type = get_return_type(type1, type2); \
 				if (return_type == type_double) { \
-					Macro_func(double) \
+					Macro_func(DoubleDataType) \
 				} else if (return_type == type_float) { \
-					Macro_func(float) \
+					Macro_func(FloatDataType) \
 				} else if (return_type == type_ptr) { \
 					Macro_func(PointerDataType) \
-				} else if (return_type == type_ulong) { \
-					Macro_func(unsigned long) \
-				} else if (return_type == type_long) { \
-					Macro_func(long) \
-				} else if (return_type == type_uint) { \
-					Macro_func(unsigned int) \
-				} else if (return_type == type_int) { \
-					Macro_func(int) \
+				} else if (return_type == type_uint64) { \
+					Macro_func(Uint64Type) \
+				} else if (return_type == type_int64) { \
+					Macro_func(Int64Type) \
+				} else if (return_type == type_uint32) { \
+					Macro_func(Uint32Type) \
+				} else if (return_type == type_int32) { \
+					Macro_func(Int32Type) \
 				} \
 			}
 			if (current_token_read.is_num_or_ptr()) {
@@ -329,19 +330,19 @@ std::vector<long> Program::execute() {
 				token_type type2 = rel_token(tokens, 2).type;
 				token_type return_type = get_return_type(type1, type2);
 				if (return_type == type_double) {
-					MOD_FUNC(long)
+					MOD_FUNC(FloatModConversionType)
 				} else if (return_type == type_float) {
-					MOD_FUNC(long)
+					MOD_FUNC(FloatModConversionType)
 				} else if (return_type == type_ptr) {
 					MOD_FUNC(PointerDataType)
-				} else if (return_type == type_ulong) {
-					MOD_FUNC(unsigned long)
-				} else if (return_type == type_long) {
-					MOD_FUNC(long)
-				} else if (return_type == type_uint) {
-					MOD_FUNC(unsigned int)
-				} else if (return_type == type_int) {
-					MOD_FUNC(int)
+				} else if (return_type == type_uint64) {
+					MOD_FUNC(Uint64Type)
+				} else if (return_type == type_int64) {
+					MOD_FUNC(Int64Type)
+				} else if (return_type == type_uint32) {
+					MOD_FUNC(Uint32Type)
+				} else if (return_type == type_int32) {
+					MOD_FUNC(Int32Type)
 				}
 			} else if (current_token_read.str == "pow") {
 #define POW_FUNC(TRet) BINARY_FUNC(TRet, return pow(a, b);)
@@ -518,7 +519,7 @@ std::vector<long> Program::execute() {
 				}
 			} else if (current_token_read.str == "if") {
 				if (rel_token(tokens, 1).is_num_or_ptr()) {
-					int cond = rel_token(tokens, 1).get_data_cast<int>();
+					BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
 					PointerDataType new_token_index;
 					std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
 					std::vector<Token> if_node_tokens = if_node.get()->tokenize();
@@ -545,7 +546,7 @@ std::vector<long> Program::execute() {
 			} else if (current_token_read.str == "list") {
 				list_scope_stack.push(program_counter);
 			} else if (current_token_read.str == "end") {
-				long list_pos = list_scope_stack.top();
+				ProgramCounterType list_pos = list_scope_stack.top();
 				shift_pointers(tokens, list_pos, -1);
 				tokens.erase(tokens.begin() + list_pos);
 				program_counter--;
@@ -577,9 +578,9 @@ std::vector<long> Program::execute() {
 		}
 		prev_tokens = tokens;
 	}
-	std::vector<long> results;
-	for (int i = 0; i < tokens.size(); i++) {
-		long result = tokens[i].get_data_cast<long>();
+	std::vector<VectorResultsType> results;
+	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
+		VectorResultsType result = tokens[i].get_data_cast<VectorResultsType>();
 		results.push_back(result);
 	}
 	return results;
@@ -662,7 +663,7 @@ void Program::print_node(Node* node, int indent_level) {
 }
 
 void Program::shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset) {
-	for (PointerDataType token_i = 0; token_i < token_list.size(); token_i++) {
+	for (ProgramCounterType token_i = 0; token_i < token_list.size(); token_i++) {
 		Token current_token = get_token(token_list, token_i);
 		if (current_token.is_ptr()) {
 			PointerDataType pointer_index_old = token_i;
@@ -670,7 +671,7 @@ void Program::shift_pointers(std::vector<Token>& token_list, PointerDataType pos
 			PointerDataType pointer_index_new = pointer_index_old;
 			PointerDataType pointer_dst_new = pointer_dst_old;
 			if (offset < 0) {
-				PointerDataType recalc_offset = std::clamp(pos - pointer_index_old, offset, 0L);
+				PointerDataType recalc_offset = std::clamp(pos - pointer_index_old, offset, (PointerDataType)0);
 				if (pos <= pointer_index_old) {
 					pointer_index_new += recalc_offset;
 				}
@@ -680,7 +681,7 @@ void Program::shift_pointers(std::vector<Token>& token_list, PointerDataType pos
 				}
 			}
 			if (offset < 0) {
-				PointerDataType recalc_offset = std::clamp(pos - pointer_dst_old, offset, 0L);
+				PointerDataType recalc_offset = std::clamp(pos - pointer_dst_old, offset, (PointerDataType)0);
 				if (pos <= pointer_dst_old) {
 					pointer_dst_new += recalc_offset;
 				}
@@ -717,14 +718,14 @@ token_type Program::get_return_type(token_type type1, token_type type2) {
 		return type_float;
 	} else if (type1 == type_ptr || type2 == type_ptr) {
 		return type_ptr;
-	} else if (type1 == type_ulong || type2 == type_ulong) {
-		return type_ulong;
-	} else if (type1 == type_long || type2 == type_long) {
-		return type_long;
-	} else if (type1 == type_uint || type2 == type_uint) {
-		return type_uint;
-	} else if (type1 == type_int || type2 == type_int) {
-		return type_int;
+	} else if (type1 == type_uint64 || type2 == type_uint64) {
+		return type_uint64;
+	} else if (type1 == type_int64 || type2 == type_int64) {
+		return type_int64;
+	} else if (type1 == type_uint32 || type2 == type_uint32) {
+		return type_uint32;
+	} else if (type1 == type_int32 || type2 == type_int32) {
+		return type_int32;
 	} else {
 		throw std::runtime_error("Cannot determine return type: " + std::to_string(type1) + " " + std::to_string(type2));
 	}

@@ -39,9 +39,9 @@ namespace utils {
 			|| c == 'p';
 	}
 
-	long get_prefix_number(std::string str) {
+	LongNumberType get_prefix_number(std::string str) {
 		char* end;
-		long result = std::strtol(str.c_str(), &end, 10);
+		LongNumberType result = std::strtoull(str.c_str(), &end, 10);
 		if (end == str.c_str()) {
 			result = -1;
 		}
@@ -49,8 +49,8 @@ namespace utils {
 	}
 
 	bool alphanum_less(std::string str1, std::string str2) {
-		long prefix1 = get_prefix_number(str1);
-		long prefix2 = get_prefix_number(str2);
+		LongNumberType prefix1 = get_prefix_number(str1);
+		LongNumberType prefix2 = get_prefix_number(str2);
 		if (prefix1 != -1 && prefix2 != -1) {
 			return prefix1 < prefix2;
 		}

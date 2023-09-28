@@ -6,12 +6,14 @@
 
 namespace utils {
 
+	typedef unsigned long long LongNumberType;
+
 	constexpr std::string_view intFormatStr = "{}";
 	constexpr std::string_view floatFormatStr = "{:.3f}";
 	template<typename T>
 	std::string vector_to_str(std::vector<T> vec) {
 		std::string str = "{ ";
-		for (int i = 0; i < vec.size(); i++) {
+		for (LongNumberType i = 0; i < vec.size(); i++) {
 			str += std::format(intFormatStr, vec[i]);
 			if (i < vec.size() - 1) {
 				str += ", ";

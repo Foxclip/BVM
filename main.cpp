@@ -9,16 +9,16 @@ void execute_program(std::string path) {
 	std::cout << "Nodes:";
 	std::cout << "\n";
 	program.print_nodes();
-	std::vector<long> results = program.execute();
+	std::vector<VectorResultsType> results = program.execute();
 	std::cout << "Results: " << utils::vector_to_str(results) << "\n";
 }
 
 int main() {
 	try {
 
-		//execute_program("program.txt");
+		execute_program("program.txt");
 		//execute_program("tests/6_label.txt");
-		test::run_tests("tests/");
+		//test::run_tests("tests/");
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
@@ -41,7 +41,6 @@ int main() {
 	// TODO: place program counter at the leftmost change position at new iteration
 	// TODO: undeletable end instruction
 	// TODO: move instruction, moves a node
-	// TODO: float type
 	// TODO: do something with integer division by 0 (convert it to float and return inf?)
 	// TODO: conv instruction, converts list of numbers to code
 	// TODO: getsize instruction, returns size of the subtree
