@@ -3,14 +3,18 @@
 #include "test.h"
 
 void execute_program(std::string path) {
-	std::string program_text = utils::file_to_str(path);
-	Program program(program_text);
-	program.print_iterations = true;
-	std::cout << "Nodes:";
-	std::cout << "\n";
-	program.print_nodes();
-	std::vector<VectorResultsType> results = program.execute();
-	std::cout << "Results: " << utils::vector_to_str(results) << "\n";
+	try {
+		std::string program_text = utils::file_to_str(path);
+		Program program(program_text);
+		program.print_iterations = true;
+		std::cout << "Nodes:";
+		std::cout << "\n";
+		program.print_nodes();
+		std::vector<VectorResultsType> results = program.execute();
+		std::cout << "Results: " << utils::vector_to_str(results) << "\n";
+	} catch (std::exception exc) {
+		throw std::runtime_error(path + ": " + exc.what());
+	}
 }
 
 int main() {
@@ -26,8 +30,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: program returns tokens, correct results in tests are in the code, not in the files
 	// TODO: float numbers, int division by zero
-	// TODO: test if long numbers actually work
 	// TODO: adding number to pointer test
 	// TODO: pointer literal?
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing

@@ -20,6 +20,7 @@ namespace test {
 		std::vector<std::string> words;
 		SplitterState state = START;
 		std::string current_word = "";
+		ProgramCounterType current_line = 1;
 		for (int i = 0; i < str.size(); i++) {
 			char current_char = str[i];
 			if (state == START) {
@@ -28,7 +29,7 @@ namespace test {
 				} else if (is_space_char(current_char)) {
 					// nothing
 				} else {
-					throwUnexpectedCharException(current_char, current_word);
+					throwUnexpectedCharException(current_char, current_word, current_line);
 				}
 			} else if (state == NUM) {
 				if (isdigit(current_char)) {
@@ -41,7 +42,7 @@ namespace test {
 					words.push_back(current_word);
 					break;
 				} else {
-					throwUnexpectedCharException(current_char, current_word);
+					throwUnexpectedCharException(current_char, current_word, current_line);
 				}
 			} else if (state == SPACE) {
 				if (utils::is_number_prefix(current_char)) {
@@ -53,8 +54,11 @@ namespace test {
 				} else if (is_terminating_char(current_char)) {
 					break;
 				} else {
-					throwUnexpectedCharException(current_char, current_word);
+					throwUnexpectedCharException(current_char, current_word, current_line);
 				}
+			}
+			if (utils::is_newline(current_char)) {
+				current_line++;
 			}
 		}
 		return words;

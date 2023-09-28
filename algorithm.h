@@ -75,7 +75,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("p", 1),
 };
 
-void throwUnexpectedCharException(char c, std::string current_word);
+void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
 enum token_type {
 	type_int32,
@@ -125,6 +125,7 @@ struct Token {
 	// CALL_BINARY_FUNC macro
 	// get_return_type func
 	// parsing literals in tokenize func
+	// is_int_suffix func and is_float_suffix func in utils
 
 	union token_data {
 		Int32Type m_int32;

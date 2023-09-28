@@ -28,7 +28,9 @@ namespace utils {
 	bool is_number(std::string str);
 	bool is_valid_word_prefix(char c);
 	bool is_valid_word_middle(char c);
-	bool is_number_literal(char c);
+	bool is_int_suffix(char c);
+	bool is_float_suffix(char c);
+	bool is_newline(char c);
 	bool alphanum_less(std::string str1, std::string str2);
 	std::vector<std::filesystem::path> list_directory(std::filesystem::path path, bool alphanum = false);
 

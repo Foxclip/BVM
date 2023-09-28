@@ -1,7 +1,11 @@
 #include "algorithm.h"
 
-void throwUnexpectedCharException(char c, std::string current_word) {
-	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + std::string(1, c));
+void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line) {
+	throw std::runtime_error(
+		"Line " + std::to_string(line)
+		+ ", current word: " + current_word 
+		+ ", unexpected char: " + std::string(1, c)
+	);
 }
 
 Token::Token() {}
@@ -95,86 +99,116 @@ std::vector<Token> Program::tokenize(std::string str) {
 		return tokens;
 	}
 	enum SplitterState {
-		SPACE,
-		WORD,
-		NUM,
-		COMMENT,
+		STATE_SPACE,
+		STATE_WORD,
+		STATE_NUM,
+		STATE_FLOAT,
+		STATE_COMMENT,
 	};
 	str += EOF;
-	SplitterState state = SPACE;
+	SplitterState state = STATE_SPACE;
 	std::string current_word = "";
+	ProgramCounterType current_line = 1;
 	for (ProgramCounterType i = 0; i < str.size(); i++) {
 		char current_char = str[i];
 		if (current_char < -1) {
 			throw std::runtime_error("Invalid char: " + std::to_string(current_char));
 		}
-		if (state == WORD) {
+		if (state == STATE_WORD) {
 			if (utils::is_valid_word_middle(current_char)) {
 				current_word += current_char;
 			} else if (isspace(current_char)) {
 				words.push_back(current_word);
 				current_word = "";
-				state = SPACE;
+				state = STATE_SPACE;
 			} else if (current_char == '#') {
 				words.push_back(current_word);
 				current_word = "";
-				state = COMMENT;
+				state = STATE_COMMENT;
 			} else if (current_char == ':') {
 				labels.push_back(Label(current_word, words.size()));
 				current_word = "";
-				state = SPACE;
+				state = STATE_SPACE;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
 			} else {
-				throwUnexpectedCharException(current_char, current_word);
+				throwUnexpectedCharException(current_char, current_word, current_line);
 			}
-		} else if (state == SPACE) {
+		} else if (state == STATE_SPACE) {
 			if (isspace(current_char)) {
 				// nothing
 			} else if (utils::is_valid_word_prefix(current_char)) {
 				current_word = "";
 				current_word += current_char;
-				state = WORD;
+				state = STATE_WORD;
 			} else if (utils::is_number_prefix(current_char)) {
 				current_word = "";
 				current_word += current_char;
-				state = NUM;
+				state = STATE_NUM;
 			} else if (current_char == '#') {
-				state = COMMENT;
+				state = STATE_COMMENT;
 			} else if (current_char == EOF) {
 				break;
 			} else {
-				throwUnexpectedCharException(current_char, current_word);
+				throwUnexpectedCharException(current_char, current_word, current_line);
 			}
-		} else if (state == NUM) {
+		} else if (state == STATE_NUM) {
 			if (isspace(current_char)) {
 				words.push_back(current_word);
 				current_word = "";
-				state = SPACE;
-			} else if (isdigit(current_char) || current_char == '.') {
+				state = STATE_SPACE;
+			} else if (isdigit(current_char)) {
 				current_word += current_char;
-			} else if (utils::is_number_literal(current_char)) {
+			} else if (current_char == '.') {
+				current_word += current_char;
+				state = STATE_FLOAT;
+			} else if (utils::is_int_suffix(current_char)) {
 				current_word += current_char;
 				words.push_back(current_word);
 				current_word = "";
-				state = SPACE;
+				state = STATE_SPACE;
 			} else if (current_char == '#') {
 				words.push_back(current_word);
 				current_word = "";
-				state = COMMENT;
+				state = STATE_COMMENT;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
 			} else {
-				throwUnexpectedCharException(current_char, current_word);
+				throwUnexpectedCharException(current_char, current_word, current_line);
 			}
-		} else if (state == COMMENT) {
-			if (current_char == '\n' || current_char == '\r') {
-				state = SPACE;
+		} else if (state == STATE_FLOAT) {
+			if (isspace(current_char)) {
+				words.push_back(current_word);
+				current_word = "";
+				state = STATE_SPACE;
+			} else if (isdigit(current_char)) {
+				current_word += current_char;
+			} else if (utils::is_float_suffix(current_char)) {
+				current_word += current_char;
+				words.push_back(current_word);
+				current_word = "";
+				state = STATE_SPACE;
+			} else if (current_char == '#') {
+				words.push_back(current_word);
+				current_word = "";
+				state = STATE_COMMENT;
+			} else if (current_char == EOF) {
+				words.push_back(current_word);
+				break;
+			} else {
+				throwUnexpectedCharException(current_char, current_word, current_line);
+			}
+		} else if (state == STATE_COMMENT) {
+			if (utils::is_newline(current_char)) {
+				state = STATE_SPACE;
 			} else if (current_char == EOF) {
 				break;
 			}
+		}
+		if (utils::is_newline(current_char)) {
+			current_line++;
 		}
 	}
 

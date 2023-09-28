@@ -28,15 +28,21 @@ namespace utils {
 		return isalpha(c) || isdigit(c) || c == '_';
 	}
 
-	bool is_number_literal(char c) {
+	bool is_int_suffix(char c) {
 		return
 			   c == 'l'
 			|| c == 'u'
 			|| c == 'L'
 			|| c == 'U'
-			|| c == 'f'
-			|| c == 'd'
 			|| c == 'p';
+	}
+
+	bool is_float_suffix(char c) {
+		return c == 'f' || c == 'd';
+	}
+
+	bool is_newline(char c) {
+		return c == '\n' || c == '\r';
 	}
 
 	LongNumberType get_prefix_number(std::string str) {
