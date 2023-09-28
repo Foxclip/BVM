@@ -41,6 +41,10 @@ namespace utils {
 		return c == 'f' || c == 'd';
 	}
 
+	bool is_number_suffix(char c) {
+		return is_int_suffix(c) || is_float_suffix(c);
+	}
+
 	bool is_newline(char c) {
 		return c == '\n' || c == '\r';
 	}

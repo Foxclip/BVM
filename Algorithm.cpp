@@ -163,7 +163,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			} else if (current_char == '.') {
 				current_word += current_char;
 				state = STATE_FLOAT;
-			} else if (utils::is_int_suffix(current_char)) {
+			} else if (utils::is_number_suffix(current_char)) {
 				current_word += current_char;
 				words.push_back(current_word);
 				current_word = "";
