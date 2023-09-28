@@ -29,6 +29,7 @@ int main() {
 	// TODO: float numbers, int division by zero
 	// TODO: test if long numbers actually work
 	// TODO: adding number to pointer test
+	// TODO: pointer literal?
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: block instruction, separates program into blocks, blocks have
 	// TODO: functions can return pointers

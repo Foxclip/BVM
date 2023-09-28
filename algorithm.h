@@ -9,11 +9,13 @@
 #include "utils.h"
 
 const long MAX_ITERATIONS = 1000;
-typedef int DefaultNumType;
+
 struct PointerTokenType {
 	using data_type = long;
 };
+#define POINTER_DATA_PARSE_FUNC std::stol
 typedef PointerTokenType::data_type PointerDataType;
+
 struct InstructionTokenType {
 	using data_type = int;
 };
@@ -111,6 +113,7 @@ struct Token {
 	// operator==
 	// CALL_BINARY_FUNC macro
 	// get_return_type func
+	// parsing literals in tokenize func
 
 	union token_data {
 		int m_int;

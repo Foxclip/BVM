@@ -740,3 +740,11 @@
 #             before_replthis: 1
 #             replthis: 0
 #     end
+
+5
+5u
+5L
+5U
+5f
+5d
+5p

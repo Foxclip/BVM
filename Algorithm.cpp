@@ -36,13 +36,13 @@ bool Token::is_num_or_ptr() {
 std::string Token::to_string() const {
 	switch (type) {
 		case type_int:
-			return std::to_string(data.m_int) + "i";
+			return std::to_string(data.m_int);
 		case type_long:
 			return std::to_string(data.m_long) + "L";
 		case type_uint:
 			return std::to_string(data.m_uint) + "u";
 		case type_ulong:
-			return std::to_string(data.m_ulong) + "UL";
+			return std::to_string(data.m_ulong) + "U";
 		case type_float:
 			return std::to_string(data.m_float) + "f";
 		case type_double:
@@ -50,7 +50,7 @@ std::string Token::to_string() const {
 		case type_instr:
 			return INSTRUCTION_LIST[get_data<InstructionDataType>()].str;
 		case type_ptr:
-			return "p(" + std::to_string(get_data<PointerDataType>()) + ")";
+			return std::to_string(get_data<PointerDataType>()) + "p";
 		default:
 			throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
 	}
@@ -154,6 +154,11 @@ std::vector<Token> Program::tokenize(std::string str) {
 				state = SPACE;
 			} else if (isdigit(current_char)) {
 				current_word += current_char;
+			} else if (utils::is_number_literal(current_char)) {
+				current_word += current_char;
+				words.push_back(current_word);
+				current_word = "";
+				state = SPACE;
 			} else if (current_char == '#') {
 				words.push_back(current_word);
 				current_word = "";
@@ -177,10 +182,31 @@ std::vector<Token> Program::tokenize(std::string str) {
 	for (int i = 0; i < words.size(); i++) {
 		std::string str = words[i];
 		Token new_token;
+		token_type new_token_type;
 		if (utils::is_number(str)) {
-			new_token = Token(str, get_token_type<DefaultNumType>());
-			// TODO: parse float and double
-			new_token.set_data<long>(std::stol(str));
+			if (isdigit(str.back())) {
+				new_token_type = type_int;
+			} else {
+				switch (str.back()) {
+					case 'L': new_token_type = type_long; break;
+					case 'u': new_token_type = type_uint; break;
+					case 'U': new_token_type = type_ulong; break;
+					case 'f': new_token_type = type_float; break;
+					case 'd': new_token_type = type_double; break;
+					case 'p': new_token_type = type_ptr; break;
+					default: throw std::runtime_error("Unknown number suffix: " + std::string(1, str.back()));
+				}
+			}
+			new_token = Token(str, new_token_type);
+			switch (new_token_type) {
+				case type_int: new_token.set_data<int>(std::stoi(str)); break;
+				case type_long: new_token.set_data<long>(std::stol(str)); break;
+				case type_uint: new_token.set_data<unsigned int>(std::stoul(str)); break;
+				case type_ulong: new_token.set_data<unsigned long>(std::stoul(str)); break;
+				case type_float: new_token.set_data<float>(std::stof(str)); break;
+				case type_double: new_token.set_data<double>(std::stod(str)); break;
+				case type_ptr: new_token.set_data<PointerDataType>(POINTER_DATA_PARSE_FUNC(str)); break;
+			}
 		} else {
 			auto it = std::find_if(labels.begin(), labels.end(),
 				[&](Label& label) {

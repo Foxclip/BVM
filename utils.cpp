@@ -28,6 +28,17 @@ namespace utils {
 		return isalpha(c) || isdigit(c) || c == '_';
 	}
 
+	bool is_number_literal(char c) {
+		return
+			   c == 'l'
+			|| c == 'u'
+			|| c == 'L'
+			|| c == 'U'
+			|| c == 'f'
+			|| c == 'd'
+			|| c == 'p';
+	}
+
 	long get_prefix_number(std::string str) {
 		char* end;
 		long result = std::strtol(str.c_str(), &end, 10);
