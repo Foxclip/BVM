@@ -17,7 +17,7 @@ int main() {
 	try {
 
 		//execute_program("program.txt");
-		//execute_program("tests/3_basic.txt");
+		//execute_program("tests/6_label.txt");
 		test::run_tests("tests/");
 
 	} catch (std::string msg) {

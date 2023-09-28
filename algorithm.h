@@ -169,6 +169,10 @@ struct Token {
 				return (T)data.m_float;
 			case type_double:
 				return (T)data.m_double;
+			case type_ptr:
+				return (T)get_data<PointerDataType>();
+			case type_instr:
+				return (T)get_data<InstructionDataType>();
 			default:
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
 		}
