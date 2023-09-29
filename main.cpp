@@ -10,8 +10,9 @@ void execute_program(std::string path) {
 		std::cout << "Nodes:";
 		std::cout << "\n";
 		program.print_nodes();
-		std::vector<VectorResultsType> results = program.execute();
-		std::cout << "Results: " << utils::vector_to_str(results) << "\n";
+		std::vector<Token> results = program.execute();
+		std::cout << "Results: ";
+		program.print_tokens(false);
 	} catch (std::exception exc) {
 		throw std::runtime_error(path + ": " + exc.what());
 	}
@@ -22,7 +23,7 @@ int main() {
 
 		//execute_program("program.txt");
 		//execute_program("tests/6_label.txt");
-		test::run_tests("tests/");
+		test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
@@ -31,6 +32,7 @@ int main() {
 	}
 
 	// TODO: program returns tokens, correct results in tests are in the code, not in the files
+	// TODO: test for types
 	// TODO: float numbers, int division by zero
 	// TODO: adding number to pointer test
 	// TODO: pointer literal?

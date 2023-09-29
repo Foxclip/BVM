@@ -15,6 +15,39 @@ Token::Token(std::string str, token_type type) {
 	this->type = type;
 }
 
+Token::Token(std::string str) {
+	this->str = str;
+	if (utils::is_number_prefix(str.front())) {
+		if (isdigit(str.back())) {
+			type = type_int32;
+		} else {
+			switch (str.back()) {
+				case 'L': type = type_int64; break;
+				case 'u': type = type_uint32; break;
+				case 'U': type = type_uint64; break;
+				case 'f': type = type_float; break;
+				case 'd': type = type_double; break;
+				case 'p': type = type_ptr; break;
+				default: throw std::runtime_error("Unknown number suffix: " + std::string(1, str.back()));
+			}
+		}
+		switch (type) {
+			case type_int32: set_data<Int32Type>(std::stoi(str)); break;
+			case type_int64: set_data<Int64Type>(std::stoll(str)); break;
+			case type_uint32: set_data<Uint32Type>(std::stoul(str)); break;
+			case type_uint64: set_data<Uint64Type>(std::stoull(str)); break;
+			case type_float: set_data<FloatDataType>(std::stof(str)); break;
+			case type_double: set_data<DoubleDataType>(std::stod(str)); break;
+			case type_ptr: set_data<PointerDataType>(POINTER_DATA_PARSE_FUNC(str)); break;
+			default: throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
+		}
+	} else {
+		type = get_token_type<InstructionTokenType>();
+		// TODO: throw exception if instruction info is not found
+		set_data<InstructionDataType>(Program::get_instruction_info(str).index);
+	}
+}
+
 bool Token::is_num() {
 	switch (type) {
 		case type_int32:
@@ -58,6 +91,17 @@ std::string Token::to_string() const {
 		default:
 			throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
 	}
+}
+
+std::string Token::tokens_to_str(std::vector<Token> tokens) {
+	std::string str;
+	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
+		str += tokens[i].to_string();
+		if (i != tokens.size() - 1) {
+			str += " ";
+		}
+	}
+	return str;
 }
 
 bool operator==(const Token& first, const Token& second) {
@@ -212,50 +256,20 @@ std::vector<Token> Program::tokenize(std::string str) {
 		}
 	}
 
-	// creating tokens from words
 	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		std::string str = words[i];
 		Token new_token;
-		token_type new_token_type;
-		if (utils::is_number(str)) {
-			if (isdigit(str.back())) {
-				new_token_type = type_int32;
-			} else {
-				switch (str.back()) {
-					case 'L': new_token_type = type_int64; break;
-					case 'u': new_token_type = type_uint32; break;
-					case 'U': new_token_type = type_uint64; break;
-					case 'f': new_token_type = type_float; break;
-					case 'd': new_token_type = type_double; break;
-					case 'p': new_token_type = type_ptr; break;
-					default: throw std::runtime_error("Unknown number suffix: " + std::string(1, str.back()));
-				}
+		auto it = std::find_if(labels.begin(), labels.end(),
+			[&](Label& label) {
+				return label.str == str;
 			}
-			new_token = Token(str, new_token_type);
-			switch (new_token_type) {
-				case type_int32: new_token.set_data<Int32Type>(std::stoi(str)); break;
-				case type_int64: new_token.set_data<Int64Type>(std::stoll(str)); break;
-				case type_uint32: new_token.set_data<Uint32Type>(std::stoul(str)); break;
-				case type_uint64: new_token.set_data<Uint64Type>(std::stoull(str)); break;
-				case type_float: new_token.set_data<FloatDataType>(std::stof(str)); break;
-				case type_double: new_token.set_data<DoubleDataType>(std::stod(str)); break;
-				case type_ptr: new_token.set_data<PointerDataType>(POINTER_DATA_PARSE_FUNC(str)); break;
-				default: throw std::runtime_error("Unknown token_data type: " + std::to_string(new_token_type));
-			}
+		);
+		if (it != labels.end()) {
+			PointerDataType relative_address = (*it).token_index - i;
+			new_token = Token(str, get_token_type<PointerTokenType>());
+			new_token.set_data<PointerDataType>(relative_address);
 		} else {
-			auto it = std::find_if(labels.begin(), labels.end(),
-				[&](Label& label) {
-					return label.str == str;
-				}
-			);
-			if (it != labels.end()) {
-				PointerDataType relative_address = (*it).token_index - i;
-				new_token = Token(str, get_token_type<PointerTokenType>());
-				new_token.set_data<PointerDataType>(relative_address);
-			} else {
-				new_token = Token(str, get_token_type<InstructionTokenType>());
-				new_token.set_data<InstructionDataType>(get_instruction_info(str).index);
-			}
+			new_token = Token(str);
 		}
 		tokens.push_back(new_token);
 	}
@@ -284,14 +298,14 @@ Program::Program(std::string str) {
 	tokens = tokenize(str);
 }
 
-void Program::print_tokens() {
+void Program::print_tokens(bool print_program_counter) {
 	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
-		if (i == program_counter) {
+		if (print_program_counter && i == program_counter) {
 			std::cout << "*";
 		}
 		std::cout << tokens[i].to_string() << " ";
 	}
-	if (program_counter == tokens.size()) {
+	if (print_program_counter && program_counter == tokens.size()) {
 		std::cout << "*";
 	}
 	std::cout << "\n";
@@ -304,7 +318,7 @@ void Program::print_nodes() {
 	}
 }
 
-std::vector<VectorResultsType> Program::execute() {
+std::vector<Token> Program::execute() {
 	if (tokens.size() == 0) {
 		throw std::runtime_error("Empty program");
 	}
@@ -612,12 +626,7 @@ std::vector<VectorResultsType> Program::execute() {
 		}
 		prev_tokens = tokens;
 	}
-	std::vector<VectorResultsType> results;
-	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
-		VectorResultsType result = tokens[i].get_data_cast<VectorResultsType>();
-		results.push_back(result);
-	}
-	return results;
+	return tokens;
 }
 
 void Program::parse() {

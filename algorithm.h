@@ -10,7 +10,6 @@
 
 const long long MAX_ITERATIONS = 1000;
 
-typedef long long VectorResultsType;
 typedef unsigned long long ProgramCounterType;
 typedef long long FloatModConversionType;
 typedef int Int32Type;
@@ -143,10 +142,12 @@ struct Token {
 
 	Token();
 	Token(std::string str, token_type type);
+	Token(std::string str);
 	bool is_num();
 	bool is_ptr();
 	bool is_num_or_ptr();
 	std::string to_string() const;
+	static std::string tokens_to_str(std::vector<Token> tokens);
 	friend bool operator==(const Token& first, const Token& second);
 
 	template <typename T>
@@ -238,9 +239,10 @@ public:
 	bool print_iterations = false;
 
 	Program(std::string str);
-	void print_tokens();
+	void print_tokens(bool print_program_counter = true);
 	void print_nodes();
-	std::vector<VectorResultsType> execute();
+	static InstructionInfo get_instruction_info(std::string token);
+	std::vector<Token> execute();
 
 private:
 	PointerDataType program_counter = 0;
@@ -253,7 +255,6 @@ private:
 	std::unique_ptr<Node> parse_token(std::vector<Token>& token_list, PointerDataType token_index, Node* parent_node, PointerDataType& new_token_index);
 	void print_node(Node* node, int indent_level);
 	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
-	InstructionInfo get_instruction_info(std::string token);
 	token_type get_return_type(token_type type1, token_type type2);
 
 	template<typename TRet>

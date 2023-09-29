@@ -23,9 +23,8 @@ namespace utils {
 		return str;
 	}
 
-	std::string file_to_str(std::string path);
+	std::string file_to_str(std::filesystem::path path);
 	bool is_number_prefix(char c);
-	bool is_number(std::string str);
 	bool is_valid_word_prefix(char c);
 	bool is_valid_word_middle(char c);
 	bool is_int_suffix(char c);

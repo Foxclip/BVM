@@ -5,5 +5,7 @@
 #include "algorithm.h"
 
 namespace test {
-	void run_tests(std::filesystem::path path);
+
+	void run_tests();
+
 }

@@ -2,6 +2,18 @@
 
 namespace test {
 
+	struct TestCase {
+		std::filesystem::path path;
+		std::vector<std::string> correct_results_str;
+	};
+
+	const std::filesystem::path test_directory = "tests/";
+	const std::vector<TestCase> test_list = {
+		{ "math.txt", { "0", "2", "4", "0", "0", "3", "-1", "4", "1", "0", "2", "-1", "1", "0" }},
+		{ "mod.txt", { "2", "0", "2", "0", "-4", "-1" } },
+		{ "basic.txt", { "216", "4785" } },
+	};
+
 	bool is_terminating_char(char c) {
 		return c == '\n' || c == '\r' || c == EOF;
 	}
@@ -10,120 +22,63 @@ namespace test {
 		return isspace(c) && !is_terminating_char(c);
 	}
 
-	std::vector<std::string> tokenize_correct_results(std::string str) {
-		enum SplitterState {
-			START,
-			NUM,
-			SPACE,
-		};
-		str += (char)EOF;
-		std::vector<std::string> words;
-		SplitterState state = START;
-		std::string current_word = "";
-		ProgramCounterType current_line = 1;
-		for (int i = 0; i < str.size(); i++) {
-			char current_char = str[i];
-			if (state == START) {
-				if (current_char == '#') {
-					state = SPACE;
-				} else if (is_space_char(current_char)) {
-					// nothing
-				} else {
-					throwUnexpectedCharException(current_char, current_word, current_line);
-				}
-			} else if (state == NUM) {
-				if (isdigit(current_char)) {
-					current_word += current_char;
-				} else if (is_space_char(current_char)) {
-					words.push_back(current_word);
-					current_word = "";
-					state = SPACE;
-				} else if (is_terminating_char(current_char)) {
-					words.push_back(current_word);
-					break;
-				} else {
-					throwUnexpectedCharException(current_char, current_word, current_line);
-				}
-			} else if (state == SPACE) {
-				if (utils::is_number_prefix(current_char)) {
-					current_word = "";
-					current_word += current_char;
-					state = NUM;
-				} else if (is_space_char(current_char)) {
-					// nothing
-				} else if (is_terminating_char(current_char)) {
-					break;
-				} else {
-					throwUnexpectedCharException(current_char, current_word, current_line);
-				}
-			}
-			if (utils::is_newline(current_char)) {
-				current_line++;
-			}
+	bool run_test(TestCase test_case, std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p) {
+		std::filesystem::path test_path = test_directory / test_case.path;
+		std::string program_text = utils::file_to_str(test_path);
+		std::vector<Token> correct_results;
+		for (ProgramCounterType i = 0; i < test_case.correct_results_str.size(); i++) {
+			Token token(test_case.correct_results_str[i]);
+			correct_results.push_back(token);
 		}
-		return words;
-	}
-
-	bool run_test(std::filesystem::path path, std::vector<VectorResultsType>& actual_results_p, std::vector<VectorResultsType>& correct_results_p) {
-		if (!std::filesystem::exists(path)) {
-			throw std::runtime_error(path.string() + " not found");
-		}
-		if (!std::filesystem::is_regular_file(path)) {
-			throw std::runtime_error(path.string() + " is not a file");
-		}
-		std::string program_text = utils::file_to_str(path.string());
-		std::vector<std::string> correct_results_str = tokenize_correct_results(program_text);
-		std::vector<VectorResultsType> correct_results(correct_results_str.size());
-		std::transform(correct_results_str.begin(), correct_results_str.end(), correct_results.begin(),
-			[](std::string str) {
-				return std::stol(str);
-			}
-		);
 		Program program(program_text);
-		std::vector<VectorResultsType> actual_results = program.execute();
+		std::vector<Token> actual_results = program.execute();
 		bool passed = actual_results == correct_results;
 		actual_results_p = actual_results;
 		correct_results_p = correct_results;
 		return passed;
 	}
 
-	void run_tests(std::filesystem::path path) {
-		if (!std::filesystem::exists(path)) {
-			throw std::runtime_error(path.string() + " not found");
+	void run_tests() {
+		if (!std::filesystem::exists(test_directory)) {
+			throw std::runtime_error(test_directory.string() + " not found");
 		}
-		if (!std::filesystem::is_directory(path)) {
-			throw std::runtime_error(path.string() + " is not a directory");
+		if (!std::filesystem::is_directory(test_directory)) {
+			throw std::runtime_error(test_directory.string() + " is not a directory");
 		}
-		std::cout << "Running tests in " << path << "\n";
-		std::vector<std::filesystem::path> directory_list = utils::list_directory(path, true);
+		std::cout << "Running tests in " << test_directory << "\n";
 		int passed_count = 0;
 		std::vector<std::string> failed_list;
-		for (std::filesystem::path entry : directory_list) {
-			if (std::filesystem::is_regular_file(entry)) {
-				std::string filename = entry.filename().string();
-				std::vector<VectorResultsType> actual_results;
-				std::vector<VectorResultsType> correct_results;
-				bool passed = false;
-				bool exception = false;
-				std::string exc_message;
-				try {
-					passed = run_test(entry, actual_results, correct_results);
-				} catch (std::exception exc) {
-					exception = true;
-					exc_message = exc.what();
-				}
-				if (passed) {
-					passed_count++;
-					std::cout << "    passed: " << filename << "\n";
+		for (TestCase test_case : test_list) {
+			std::filesystem::path test_path = test_directory / test_case.path;
+			if (!std::filesystem::exists(test_path)) {
+				throw std::runtime_error(test_path.string() + " not found");
+			}
+			if (!std::filesystem::is_regular_file(test_path)) {
+				throw std::runtime_error(test_path.string() + " is not a file");
+			}
+			std::vector<Token> actual_results;
+			std::vector<Token> correct_results;
+			bool passed = false;
+			bool exception = false;
+			std::string exc_message;
+			try {
+				passed = run_test(test_case, actual_results, correct_results);
+			} catch (std::exception exc) {
+				exception = true;
+				exc_message = exc.what();
+			}
+			std::string filename = test_case.path.string();
+			if (passed) {
+				passed_count++;
+				std::cout << "    passed: " << filename << "\n";
+			} else {
+				failed_list.push_back(filename);
+				std::cout << "    FAILED: " << filename << "\n";
+				if (exception) {
+					std::cout << "        EXCEPTION: " << exc_message << "\n";
 				} else {
-					failed_list.push_back(filename);
-					std::cout << "    FAILED: " << filename << "\n";
-					if (exception) {
-						std::cout << "        EXCEPTION: " << exc_message << "\n";
-					} else {
-						std::cout << "        Correct results: " + utils::vector_to_str(correct_results) << "\n";
-						std::cout << "         Actual results: " + utils::vector_to_str(actual_results) << "\n";
-					}
+					std::cout << "        Correct results: " + Token::tokens_to_str(correct_results) << "\n";
+					std::cout << "         Actual results: " + Token::tokens_to_str(actual_results) << "\n";
 				}
 			}
 		}
