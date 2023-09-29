@@ -22,7 +22,7 @@ int main() {
 	try {
 
 		//execute_program("program.txt");
-		//execute_program("tests/p_shift_3.txt");
+		//execute_program("tests/type_parse.txt");
 		test::run_tests();
 
 	} catch (std::string msg) {
@@ -31,11 +31,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: fix type mismatch in the tests
-	// TODO: test for types from program.txt
-	// TODO: float numbers, int division by zero
+	// TODO: float numbers, int division by zero, float mod
 	// TODO: adding number to pointer test
-	// TODO: pointer literal?
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: adding numbers to lists and lists to numbers
 	// TODO: block instruction, separates program into blocks, blocks have

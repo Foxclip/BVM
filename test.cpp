@@ -83,7 +83,7 @@ namespace test {
 				exception = true;
 				exc_message = exc.what();
 			}
-			std::string filename = test_path.string();
+			std::string filename = test_filename.string();
 			if (passed) {
 				passed_count++;
 				std::cout << "    passed: " << filename << "\n";
