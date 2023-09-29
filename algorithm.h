@@ -137,8 +137,8 @@ struct Token {
 		PointerDataType m_ptr;
 	};
 	std::string str;
-	token_type type;
-	token_data data;
+	token_type type = type_int32;
+	token_data data = { 0 };
 
 	Token();
 	Token(std::string str, token_type type);
@@ -148,6 +148,7 @@ struct Token {
 	bool is_num_or_ptr();
 	std::string to_string() const;
 	static std::string tokens_to_str(std::vector<Token> tokens);
+	static std::vector<Token> str_to_tokens(std::string str);
 	friend bool operator==(const Token& first, const Token& second);
 
 	template <typename T>

@@ -43,7 +43,6 @@ Token::Token(std::string str) {
 		}
 	} else {
 		type = get_token_type<InstructionTokenType>();
-		// TODO: throw exception if instruction info is not found
 		set_data<InstructionDataType>(Program::get_instruction_info(str).index);
 	}
 }
@@ -102,6 +101,17 @@ std::string Token::tokens_to_str(std::vector<Token> tokens) {
 		}
 	}
 	return str;
+}
+
+std::vector<Token> Token::str_to_tokens(std::string str) {
+	std::vector<Token> tokens;
+	std::vector<std::string> strings = utils::split_string(str, ' ');
+	for (ProgramCounterType i = 0; i < strings.size(); i++) {
+		std::string str = strings[i];
+		Token token(str);
+		tokens.push_back(token);
+	}
+	return tokens;
 }
 
 bool operator==(const Token& first, const Token& second) {

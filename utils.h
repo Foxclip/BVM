@@ -24,6 +24,7 @@ namespace utils {
 	}
 
 	std::string file_to_str(std::filesystem::path path);
+	std::vector<std::string> split_string(std::string str, char delimeter);
 	bool is_number_prefix(char c);
 	bool is_valid_word_prefix(char c);
 	bool is_valid_word_middle(char c);

@@ -2,16 +2,36 @@
 
 namespace test {
 
-	struct TestCase {
-		std::filesystem::path path;
-		std::vector<std::string> correct_results_str;
-	};
-
 	const std::filesystem::path test_directory = "tests/";
-	const std::vector<TestCase> test_list = {
-		{ "math.txt", { "0", "2", "4", "0", "0", "3", "-1", "4", "1", "0", "2", "-1", "1", "0" }},
-		{ "mod.txt", { "2", "0", "2", "0", "-4", "-1" } },
-		{ "basic.txt", { "216", "4785" } },
+	const std::vector<std::filesystem::path> test_list = {
+		"math.txt",
+		"mod.txt",
+		"basic.txt",
+		"pow.txt",
+		"basic.txt",
+		"cpy.txt",
+		"del.txt",
+		"label.txt",
+		"cmp.txt",
+		"list.txt",
+		"forloop.txt",
+		"p_shift_1.txt",
+		"p_shift_2.txt",
+		"endfile_label.txt",
+		"p_shift_3.txt",
+		"list_p_shift.txt",
+		"if_p_shift.txt",
+		"del_p_dst.txt",
+		"forloop_2.txt",
+		"repl_1.txt",
+		"repl_2.txt",
+		"replp_1.txt",
+		"replp_2.txt",
+		"get.txt",
+		"ins_1.txt",
+		"ins_2.txt",
+		"factorial.txt",
+		"type_parse.txt",
 	};
 
 	bool is_terminating_char(char c) {
@@ -22,14 +42,10 @@ namespace test {
 		return isspace(c) && !is_terminating_char(c);
 	}
 
-	bool run_test(TestCase test_case, std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p) {
-		std::filesystem::path test_path = test_directory / test_case.path;
+	bool run_test(std::filesystem::path test_path, std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p) {
 		std::string program_text = utils::file_to_str(test_path);
-		std::vector<Token> correct_results;
-		for (ProgramCounterType i = 0; i < test_case.correct_results_str.size(); i++) {
-			Token token(test_case.correct_results_str[i]);
-			correct_results.push_back(token);
-		}
+		std::string correct_results_str = program_text.substr(1, program_text.find('\n') - 1);
+		std::vector<Token> correct_results = Token::str_to_tokens(correct_results_str);
 		Program program(program_text);
 		std::vector<Token> actual_results = program.execute();
 		bool passed = actual_results == correct_results;
@@ -48,8 +64,8 @@ namespace test {
 		std::cout << "Running tests in " << test_directory << "\n";
 		int passed_count = 0;
 		std::vector<std::string> failed_list;
-		for (TestCase test_case : test_list) {
-			std::filesystem::path test_path = test_directory / test_case.path;
+		for (std::filesystem::path test_filename : test_list) {
+			std::filesystem::path test_path = test_directory / test_filename;
 			if (!std::filesystem::exists(test_path)) {
 				throw std::runtime_error(test_path.string() + " not found");
 			}
@@ -62,12 +78,12 @@ namespace test {
 			bool exception = false;
 			std::string exc_message;
 			try {
-				passed = run_test(test_case, actual_results, correct_results);
+				passed = run_test(test_path, actual_results, correct_results);
 			} catch (std::exception exc) {
 				exception = true;
 				exc_message = exc.what();
 			}
-			std::string filename = test_case.path.string();
+			std::string filename = test_path.string();
 			if (passed) {
 				passed_count++;
 				std::cout << "    passed: " << filename << "\n";
@@ -82,6 +98,7 @@ namespace test {
 				}
 			}
 		}
+		std::cout << "\n";
 		std::cout << "Passed " << passed_count << " tests, failed " << failed_list.size() << " tests";
 		if (failed_list.size() > 0) {
 			std::cout << ":";

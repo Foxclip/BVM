@@ -31,12 +31,12 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: program returns tokens, correct results in tests are in the code, not in the files
 	// TODO: test for types
 	// TODO: float numbers, int division by zero
 	// TODO: adding number to pointer test
 	// TODO: pointer literal?
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
+	// TODO: adding numbers to lists and lists to numbers
 	// TODO: block instruction, separates program into blocks, blocks have
 	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values

@@ -12,6 +12,24 @@ namespace utils {
 		return buffer.str();
 	}
 
+	std::vector<std::string> split_string(std::string str, char delimeter) {
+		std::vector<std::string> results;
+		std::string current_word;
+		str += EOF;
+		for (int i = 0; i < str.size(); i++) {
+			char c = str[i];
+			if (c == delimeter || c == EOF) {
+				if (current_word.size() > 0) {
+					results.push_back(current_word);
+				}
+				current_word = "";
+			} else {
+				current_word += c;
+			}
+		}
+		return results;
+	}
+
 	bool is_number_prefix(char c) {
 		return c == '-' || isdigit(c);
 	}
