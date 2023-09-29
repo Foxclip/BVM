@@ -8,138 +8,6 @@ void throwUnexpectedCharException(char c, std::string current_word, ProgramCount
 	);
 }
 
-Token::Token() {}
-
-Token::Token(std::string str, token_type type) {
-	this->str = str;
-	this->type = type;
-}
-
-Token::Token(std::string str) {
-	this->str = str;
-	if (utils::is_number_prefix(str.front())) {
-		if (isdigit(str.back())) {
-			type = type_int32;
-		} else {
-			switch (str.back()) {
-				case 'L': type = type_int64; break;
-				case 'u': type = type_uint32; break;
-				case 'U': type = type_uint64; break;
-				case 'f': type = type_float; break;
-				case 'd': type = type_double; break;
-				case 'p': type = type_ptr; break;
-				default: throw std::runtime_error("Unknown number suffix: " + std::string(1, str.back()));
-			}
-		}
-		switch (type) {
-			case type_int32: set_data<Int32Type>(std::stoi(str)); break;
-			case type_int64: set_data<Int64Type>(std::stoll(str)); break;
-			case type_uint32: set_data<Uint32Type>(std::stoul(str)); break;
-			case type_uint64: set_data<Uint64Type>(std::stoull(str)); break;
-			case type_float: set_data<FloatDataType>(std::stof(str)); break;
-			case type_double: set_data<DoubleDataType>(std::stod(str)); break;
-			case type_ptr: set_data<PointerDataType>(POINTER_DATA_PARSE_FUNC(str)); break;
-			default: throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
-		}
-	} else {
-		type = get_token_type<InstructionTokenType>();
-		set_data<InstructionDataType>(Program::get_instruction_info(str).index);
-	}
-}
-
-bool Token::is_num() {
-	switch (type) {
-		case type_int32:
-		case type_int64:
-		case type_uint32:
-		case type_uint64:
-		case type_float:
-		case type_double:
-			return true;
-		default:
-			return false;
-	}
-}
-
-bool Token::is_ptr() {
-	return type == type_ptr;
-}
-
-bool Token::is_num_or_ptr() {
-	return is_num() || is_ptr();
-}
-
-std::string Token::to_string() const {
-	switch (type) {
-		case type_int32:
-			return std::to_string(data.m_int32);
-		case type_int64:
-			return std::to_string(data.m_int64) + "L";
-		case type_uint32:
-			return std::to_string(data.m_uint32) + "u";
-		case type_uint64:
-			return std::to_string(data.m_uint64) + "U";
-		case type_float:
-			return std::to_string(data.m_float) + "f";
-		case type_double:
-			return std::to_string(data.m_double) + "d";
-		case type_instr:
-			return INSTRUCTION_LIST[get_data<InstructionDataType>()].str;
-		case type_ptr:
-			return std::to_string(get_data<PointerDataType>()) + "p";
-		default:
-			throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
-	}
-}
-
-std::string Token::tokens_to_str(std::vector<Token> tokens) {
-	std::string str;
-	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
-		str += tokens[i].to_string();
-		if (i != tokens.size() - 1) {
-			str += " ";
-		}
-	}
-	return str;
-}
-
-std::vector<Token> Token::str_to_tokens(std::string str) {
-	std::vector<Token> tokens;
-	std::vector<std::string> strings = utils::split_string(str, ' ');
-	for (ProgramCounterType i = 0; i < strings.size(); i++) {
-		std::string str = strings[i];
-		Token token(str);
-		tokens.push_back(token);
-	}
-	return tokens;
-}
-
-bool operator==(const Token& first, const Token& second) {
-	if (first.type == second.type) {
-		switch (first.type) {
-			case type_int32:
-				return first.data.m_int32 == second.data.m_int32;
-			case type_int64:
-				return first.data.m_int64 == second.data.m_int64;
-			case type_uint32:
-				return first.data.m_uint32 == second.data.m_uint32;
-			case type_uint64:
-				return first.data.m_uint64 == second.data.m_uint64;
-			case type_float:
-				return first.data.m_float == second.data.m_float;
-			case type_double:
-				return first.data.m_double == second.data.m_double;
-			case type_instr:
-				return first.get_data<InstructionDataType>() == second.get_data<InstructionDataType>();
-			case type_ptr:
-				return first.get_data<PointerDataType>() == second.get_data<PointerDataType>();
-			default:
-				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
-		}
-	}
-	return false;
-}
-
 Label::Label(std::string str, PointerDataType token_index) {
 	this->str = str;
 	this->token_index = token_index;
@@ -276,7 +144,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 		);
 		if (it != labels.end()) {
 			PointerDataType relative_address = (*it).token_index - i;
-			new_token = Token(str, get_token_type<PointerTokenType>());
+			new_token = Token(str, Token::get_token_type<PointerTokenType>());
 			new_token.set_data<PointerDataType>(relative_address);
 		} else {
 			new_token = Token(str);
@@ -346,74 +214,44 @@ std::vector<Token> Program::execute() {
 		for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
 			Token current_token_read = rel_token(tokens, 0);
 			Token next_token = rel_token(tokens, 1);
-#define BINARY_FUNC(TRet, FN) if (binary_func<TRet>([](TRet a, TRet b) { FN })) { break; }
-#define CALL_BINARY_FUNC(Macro_func) \
-			token_type type1 = rel_token(tokens, 1).type; \
-			token_type type2 = rel_token(tokens, 2).type; \
-			if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) { \
-				token_type return_type = get_return_type(type1, type2); \
-				if (return_type == type_double) { \
-					Macro_func(DoubleDataType) \
-				} else if (return_type == type_float) { \
-					Macro_func(FloatDataType) \
-				} else if (return_type == type_ptr) { \
-					Macro_func(PointerDataType) \
-				} else if (return_type == type_uint64) { \
-					Macro_func(Uint64Type) \
-				} else if (return_type == type_int64) { \
-					Macro_func(Int64Type) \
-				} else if (return_type == type_uint32) { \
-					Macro_func(Uint32Type) \
-				} else if (return_type == type_int32) { \
-					Macro_func(Int32Type) \
-				} \
-			}
 			if (current_token_read.is_num_or_ptr()) {
 				// skipping
 			} else if (current_token_read.str == "add") {
-#define ADD_FUNC(TRet) BINARY_FUNC(TRet, return a + b;)
-				CALL_BINARY_FUNC(ADD_FUNC)
+				if (binary_func([](Token a, Token b) { return Token::add(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "sub") {
-#define SUB_FUNC(TRet) BINARY_FUNC(TRet, return a - b;)
-				CALL_BINARY_FUNC(SUB_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::sub(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "mul") {
-#define MUL_FUNC(TRet) BINARY_FUNC(TRet, return a * b;)
-				CALL_BINARY_FUNC(MUL_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::mul(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "div") {
-#define DIV_FUNC(TRet) BINARY_FUNC(TRet, return a / b;)
-				CALL_BINARY_FUNC(DIV_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::div(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "mod") {
-#define MOD_FUNC(TRet) BINARY_FUNC(TRet, return utils::mod(a, b);)
-				token_type type1 = rel_token(tokens, 1).type;
-				token_type type2 = rel_token(tokens, 2).type;
-				token_type return_type = get_return_type(type1, type2);
-				if (return_type == type_double) {
-					MOD_FUNC(FloatModConversionType)
-				} else if (return_type == type_float) {
-					MOD_FUNC(FloatModConversionType)
-				} else if (return_type == type_ptr) {
-					MOD_FUNC(PointerDataType)
-				} else if (return_type == type_uint64) {
-					MOD_FUNC(Uint64Type)
-				} else if (return_type == type_int64) {
-					MOD_FUNC(Int64Type)
-				} else if (return_type == type_uint32) {
-					MOD_FUNC(Uint32Type)
-				} else if (return_type == type_int32) {
-					MOD_FUNC(Int32Type)
+				if (binary_func([](Token a, Token b) { return Token::mod(a, b); })) {
+					break;
 				}
 			} else if (current_token_read.str == "pow") {
-#define POW_FUNC(TRet) BINARY_FUNC(TRet, return pow(a, b);)
-				CALL_BINARY_FUNC(POW_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::pow(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "cmp") {
-#define CMP_FUNC(TRet) BINARY_FUNC(TRet, return a == b;)
-				CALL_BINARY_FUNC(CMP_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::cmp(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "lt") {
-#define LT_FUNC(TRet) BINARY_FUNC(TRet, return a < b;)
-				CALL_BINARY_FUNC(LT_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::lt(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "gt") {
-#define GT_FUNC(TRet) BINARY_FUNC(TRet, return a > b;)
-				CALL_BINARY_FUNC(GT_FUNC);
+				if (binary_func([](Token a, Token b) { return Token::gt(a, b); })) {
+					break;
+				}
 			} else if (current_token_read.str == "cpy") {
 				if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 					PointerDataType src = rel_token(tokens, 1).get_data_cast<PointerDataType>();
@@ -749,39 +587,18 @@ void Program::shift_pointers(std::vector<Token>& token_list, PointerDataType pos
 	}
 }
 
-InstructionInfo Program::get_instruction_info(std::string token) {
-	auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
-		[&](InstructionDef def) {
-			return def.str == token;
-		}
-	);
-	if (it == INSTRUCTION_LIST.end()) {
-		throw std::runtime_error("Instruction not found: " + token);
+bool Program::binary_func(std::function<Token(Token, Token)> func) {
+	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
+		shift_pointers(tokens, program_counter, -2);
+		Token arg1 = rel_token(tokens, 1);
+		Token arg2 = rel_token(tokens, 2);
+		Token result = func(arg1, arg2);
+		tokens.erase(tokens.begin() + program_counter);
+		tokens.erase(tokens.begin() + program_counter);
+		rel_token(tokens, 0) = result;
+		return true;
 	}
-	const InstructionDef def = *it;
-	int index = it - INSTRUCTION_LIST.begin();
-	InstructionInfo info(def.str, def.arg_count, index);
-	return info;
-}
-
-token_type Program::get_return_type(token_type type1, token_type type2) {
-	if (type1 == type_double || type2 == type_double) {
-		return type_double;
-	} else if (type1 == type_float || type2 == type_float) {
-		return type_float;
-	} else if (type1 == type_ptr || type2 == type_ptr) {
-		return type_ptr;
-	} else if (type1 == type_uint64 || type2 == type_uint64) {
-		return type_uint64;
-	} else if (type1 == type_int64 || type2 == type_int64) {
-		return type_int64;
-	} else if (type1 == type_uint32 || type2 == type_uint32) {
-		return type_uint32;
-	} else if (type1 == type_int32 || type2 == type_int32) {
-		return type_int32;
-	} else {
-		throw std::runtime_error("Cannot determine return type: " + std::to_string(type1) + " " + std::to_string(type2));
-	}
+	return false;
 }
 
 

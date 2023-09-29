@@ -22,7 +22,7 @@ int main() {
 	try {
 
 		//execute_program("program.txt");
-		//execute_program("tests/6_label.txt");
+		//execute_program("tests/p_shift_3.txt");
 		test::run_tests();
 
 	} catch (std::string msg) {
@@ -31,7 +31,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: test for types
+	// TODO: fix type mismatch in the tests
+	// TODO: test for types from program.txt
 	// TODO: float numbers, int division by zero
 	// TODO: adding number to pointer test
 	// TODO: pointer literal?
