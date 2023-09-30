@@ -1,0 +1,10 @@
+# inf -inf nan -nan inff -inff nanf -nanf -nan(ind)
+inf
+-inf
+nan
+-nan
+inff
+-inff
+nanf
+-nanf
+-nan(ind)

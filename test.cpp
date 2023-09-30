@@ -33,6 +33,7 @@ namespace test {
 		"factorial.txt",
 		"type_parse.txt",
 		"float_math.txt",
+		"inf_nan_parse.txt",
 	};
 
 	bool is_terminating_char(char c) {
@@ -92,13 +93,29 @@ namespace test {
 	}
 
 	bool run_test(std::filesystem::path test_path, std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p) {
+		if (!std::filesystem::exists(test_path)) {
+			throw std::runtime_error(test_path.string() + " not found");
+		}
+		if (!std::filesystem::is_regular_file(test_path)) {
+			throw std::runtime_error(test_path.string() + " is not a file");
+		}
 		std::string program_text = utils::file_to_str(test_path);
 		std::string correct_results_str = program_text.substr(1, program_text.find('\n') - 1);
 		std::vector<bool> approx_flags = get_approx_flags(correct_results_str);
 		remove_approx_flags(correct_results_str);
-		std::vector<Token> correct_results = Token::str_to_tokens(correct_results_str);
+		std::vector<Token> correct_results;
+		try {
+			correct_results = Token::str_to_tokens(correct_results_str);
+		} catch (std::exception exc) {
+			throw std::runtime_error("Cannot parse correct results: " + std::string(exc.what()));
+		}
 		Program program(program_text);
-		std::vector<Token> actual_results = program.execute();
+		std::vector<Token> actual_results;
+		try {
+			actual_results = program.execute();
+		} catch (std::exception exc) {
+			throw std::runtime_error("Program execution error: " + std::string(exc.what()));
+		}
 		bool passed = compare_results(actual_results, correct_results, approx_flags);
 		actual_results_p = actual_results;
 		correct_results_p = correct_results;
@@ -106,57 +123,55 @@ namespace test {
 	}
 
 	void run_tests() {
-		if (!std::filesystem::exists(test_directory)) {
-			throw std::runtime_error(test_directory.string() + " not found");
-		}
-		if (!std::filesystem::is_directory(test_directory)) {
-			throw std::runtime_error(test_directory.string() + " is not a directory");
-		}
-		std::cout << "Running tests in " << test_directory << "\n";
-		int passed_count = 0;
-		std::vector<std::string> failed_list;
-		for (std::filesystem::path test_filename : test_list) {
-			std::filesystem::path test_path = test_directory / test_filename;
-			if (!std::filesystem::exists(test_path)) {
-				throw std::runtime_error(test_path.string() + " not found");
+		try {
+			if (!std::filesystem::exists(test_directory)) {
+				throw std::runtime_error(test_directory.string() + " not found");
 			}
-			if (!std::filesystem::is_regular_file(test_path)) {
-				throw std::runtime_error(test_path.string() + " is not a file");
+			if (!std::filesystem::is_directory(test_directory)) {
+				throw std::runtime_error(test_directory.string() + " is not a directory");
 			}
-			std::vector<Token> actual_results;
-			std::vector<Token> correct_results;
-			bool passed = false;
-			bool exception = false;
-			std::string exc_message;
-			try {
-				passed = run_test(test_path, actual_results, correct_results);
-			} catch (std::exception exc) {
-				exception = true;
-				exc_message = exc.what();
-			}
-			std::string filename = test_filename.string();
-			if (passed) {
-				passed_count++;
-				std::cout << "    passed: " << filename << "\n";
-			} else {
-				failed_list.push_back(filename);
-				std::cout << "    FAILED: " << filename << "\n";
-				if (exception) {
-					std::cout << "        EXCEPTION: " << exc_message << "\n";
+			std::cout << "Running tests in " << test_directory << "\n";
+			int passed_count = 0;
+			std::vector<std::string> failed_list;
+			for (std::filesystem::path test_filename : test_list) {
+				std::filesystem::path test_path = test_directory / test_filename;
+				std::vector<Token> actual_results;
+				std::vector<Token> correct_results;
+				bool passed = false;
+				bool exception = false;
+				std::string exc_message;
+				try {
+					passed = run_test(test_path, actual_results, correct_results);
+				} catch (std::exception exc) {
+					exception = true;
+					exc_message = exc.what();
+				}
+				std::string filename = test_filename.string();
+				if (passed) {
+					passed_count++;
+					std::cout << "    passed: " << filename << "\n";
 				} else {
-					std::cout << "        Correct results: " + Token::tokens_to_str(correct_results) << "\n";
-					std::cout << "         Actual results: " + Token::tokens_to_str(actual_results) << "\n";
+					failed_list.push_back(filename);
+					std::cout << "    FAILED: " << filename << "\n";
+					if (exception) {
+						std::cout << "        EXCEPTION: " << exc_message << "\n";
+					} else {
+						std::cout << "        Correct results: " + Token::tokens_to_str(correct_results) << "\n";
+						std::cout << "         Actual results: " + Token::tokens_to_str(actual_results) << "\n";
+					}
 				}
 			}
-		}
-		std::cout << "\n";
-		std::cout << "Passed " << passed_count << " tests, failed " << failed_list.size() << " tests";
-		if (failed_list.size() > 0) {
-			std::cout << ":";
-		}
-		std::cout << "\n";
-		for (int i = 0; i < failed_list.size(); i++) {
-			std::cout << "    " << failed_list[i] << "\n";
+			std::cout << "\n";
+			std::cout << "Passed " << passed_count << " tests, failed " << failed_list.size() << " tests";
+			if (failed_list.size() > 0) {
+				std::cout << ":";
+			}
+			std::cout << "\n";
+			for (int i = 0; i < failed_list.size(); i++) {
+				std::cout << "    " << failed_list[i] << "\n";
+			}
+		} catch (std::exception exc) {
+			throw std::runtime_error("Test system error: " + std::string(exc.what()));
 		}
 	}
 
