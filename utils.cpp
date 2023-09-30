@@ -56,7 +56,7 @@ namespace utils {
 	}
 
 	bool is_float_suffix(char c) {
-		return c == 'f' || c == 'd';
+		return c == 'f';
 	}
 
 	bool is_number_suffix(char c) {

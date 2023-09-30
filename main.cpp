@@ -31,6 +31,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: rename repl to set and replp to repl
 	// TODO: float numbers, int division by zero, float mod
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
