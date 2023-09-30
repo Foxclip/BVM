@@ -776,4 +776,15 @@
 # -nanf
 # -nan(ind)
 
-0
+label2: 0
+label3
+1
+2
+label1
+3
+4
+label1: 5
+label2
+6
+7
+label3: 8

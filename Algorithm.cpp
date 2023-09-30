@@ -14,85 +14,100 @@ Label::Label(std::string str, PointerDataType token_index) {
 }
 
 std::vector<Token> Program::tokenize(std::string str) {
-	std::vector<std::string> words;
-	std::vector<Token> tokens;
-	std::vector<Label> labels;
-	if (str.size() < 1) {
-		return tokens;
-	}
-	enum SplitterState {
-		STATE_SPACE,
-		STATE_WORD,
-		STATE_COMMENT,
-	};
-	str += EOF;
-	SplitterState state = STATE_SPACE;
-	std::string current_word = "";
-	ProgramCounterType current_line = 1;
-	for (ProgramCounterType i = 0; i < str.size(); i++) {
-		char current_char = str[i];
-		if (current_char < -1) {
-			throw std::runtime_error("Invalid char: " + std::to_string(current_char));
+	try {
+
+		std::vector<std::string> words;
+		std::vector<Token> tokens;
+		std::vector<Label> labels;
+		if (str.size() < 1) {
+			return tokens;
 		}
-		if (state == STATE_WORD) {
-			if (isspace(current_char)) {
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_SPACE;
-			} else if (current_char == '#') {
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_COMMENT;
-			} else if (current_char == EOF) {
-				words.push_back(current_word);
-				break;
-			} else {
-				current_word += current_char;
+		enum SplitterState {
+			STATE_SPACE,
+			STATE_WORD,
+			STATE_COMMENT,
+		};
+		str += EOF;
+		SplitterState state = STATE_SPACE;
+		std::string current_word = "";
+		ProgramCounterType current_line = 1;
+		for (ProgramCounterType i = 0; i < str.size(); i++) {
+			char current_char = str[i];
+			if (current_char < -1) {
+				throw std::runtime_error("Invalid char: " + std::to_string(current_char));
 			}
-		} else if (state == STATE_SPACE) {
-			if (isspace(current_char)) {
-				// ok
-			} else if (current_char == '#') {
-				state = STATE_COMMENT;
-			} else if (current_char == EOF) {
-				break;
-			} else {
-				current_word = "";
-				current_word += current_char;
-				state = STATE_WORD;
+			if (state == STATE_WORD) {
+				if (isspace(current_char)) {
+					words.push_back(current_word);
+					current_word = "";
+					state = STATE_SPACE;
+				} else if (current_char == '#') {
+					words.push_back(current_word);
+					current_word = "";
+					state = STATE_COMMENT;
+				} else if (current_char == EOF) {
+					words.push_back(current_word);
+					break;
+				} else {
+					current_word += current_char;
+				}
+			} else if (state == STATE_SPACE) {
+				if (isspace(current_char)) {
+					// ok
+				} else if (current_char == '#') {
+					state = STATE_COMMENT;
+				} else if (current_char == EOF) {
+					break;
+				} else {
+					current_word = "";
+					current_word += current_char;
+					state = STATE_WORD;
+				}
+			} else if (state == STATE_COMMENT) {
+				if (utils::is_newline(current_char)) {
+					state = STATE_SPACE;
+				} else if (current_char == EOF) {
+					break;
+				}
 			}
-		} else if (state == STATE_COMMENT) {
 			if (utils::is_newline(current_char)) {
-				state = STATE_SPACE;
-			} else if (current_char == EOF) {
-				break;
+				current_line++;
 			}
 		}
-		if (utils::is_newline(current_char)) {
-			current_line++;
-		}
-	}
 
-	// insert labels
-
-	for (ProgramCounterType i = 0; i < words.size(); i++) {
-		std::string str = words[i];
-		Token new_token;
-		auto it = std::find_if(labels.begin(), labels.end(),
-			[&](Label& label) {
-				return label.str == str;
+		for (ProgramCounterType i = 0; i < words.size(); i++) {
+			std::string current_word = words[i];
+			if (current_word.back() == ':') {
+				Label new_label(current_word.substr(0, current_word.size() - 1), i);
+				labels.push_back(new_label);
+				words.erase(words.begin() + i);
+				i--;
 			}
-		);
-		if (it != labels.end()) {
-			PointerDataType relative_address = (*it).token_index - i;
-			new_token = Token(str, Token::get_token_type<PointerTokenType>());
-			new_token.set_data<PointerDataType>(relative_address);
-		} else {
-			new_token = Token(str);
 		}
-		tokens.push_back(new_token);
+
+		for (ProgramCounterType i = 0; i < words.size(); i++) {
+			std::string str = words[i];
+			Token new_token;
+			auto it = std::find_if(labels.begin(), labels.end(),
+				[&](Label& label) {
+					return label.str == str;
+				}
+			);
+			if (it != labels.end()) {
+				PointerDataType relative_address = (*it).token_index - i;
+				new_token = Token(str, Token::get_token_type<PointerTokenType>());
+				new_token.set_data<PointerDataType>(relative_address);
+			} else {
+				new_token = Token(str);
+			}
+			tokens.push_back(new_token);
+		}
+
+		return tokens;
+
+	} catch (std::exception exc) {
+		throw std::runtime_error("Tokenizer error: " + std::string(exc.what()));
 	}
-	return tokens;
 }
 
 Node::Node(Token token) {
