@@ -36,6 +36,8 @@ enum token_type {
 	type_ptr,
 };
 
+const token_type INT_ZERO_DIV_RESULT_TYPE = type_float;
+
 class Token {
 public:
 	// adding new data type:
@@ -44,9 +46,12 @@ public:
 	// get_data func
 	// get data cast func
 	// set_data func
-	// is_num func (?)
+	// utils::is_number
 	// is_num_or_ptr func (?)
+	// Token::Token
 	// Token::to_string
+	// Token::div
+	// Token::mod
 	// Token::operator==
 	// Token::approx_compare
 	// TOKEN_BINARY_OP macro
@@ -124,16 +129,20 @@ public:
 
 	template <typename T>
 	T get_data_cast() const {
-		switch (type) {
-			case type_int32: return (T)data.m_int32;
-			case type_uint32: return (T)data.m_uint32;
-			case type_int64: return (T)data.m_int64;
-			case type_uint64: return (T)data.m_uint64;
-			case type_float: return (T)data.m_float;
-			case type_double: return (T)data.m_double;
-			case type_ptr: return (T)get_data<PointerDataType>();
-			case type_instr: return (T)get_data<InstructionDataType>();
-			default: throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
+		try {
+			switch (type) {
+				case type_int32: return (T)data.m_int32;
+				case type_uint32: return (T)data.m_uint32;
+				case type_int64: return (T)data.m_int64;
+				case type_uint64: return (T)data.m_uint64;
+				case type_float: return (T)data.m_float;
+				case type_double: return (T)data.m_double;
+				case type_ptr: return (T)get_data<PointerDataType>();
+				case type_instr: return (T)get_data<InstructionDataType>();
+				default: throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
+			}
+		} catch (std::exception exc) {
+			throw std::runtime_error("Token::get_data_cast: " + std::string(exc.what()));
 		}
 	}
 

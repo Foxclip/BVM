@@ -40,8 +40,6 @@ public:
 	Program(std::string str);
 	void print_tokens(bool print_program_counter = true);
 	void print_nodes();
-	static InstructionInfo get_instruction_info(std::string token);
-	static token_type get_return_type(token_type type1, token_type type2);
 	std::vector<Token> execute();
 
 private:

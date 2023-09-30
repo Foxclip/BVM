@@ -26,6 +26,13 @@ namespace utils {
 	std::string file_to_str(std::filesystem::path path);
 	std::vector<std::string> split_string(std::string str, char delimeter);
 	bool is_number_prefix(char c);
+	bool is_float_inf_str(std::string str);
+	bool is_double_inf_str(std::string str);
+	bool is_inf_str(std::string str);
+	bool is_float_nan_str(std::string str);
+	bool is_double_nan_str(std::string str);
+	bool is_nan_str(std::string str);
+	bool is_number(std::string str);
 	bool is_valid_word_prefix(char c);
 	bool is_valid_word_middle(char c);
 	bool is_int_suffix(char c);

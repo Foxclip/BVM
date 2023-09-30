@@ -23,8 +23,6 @@ std::vector<Token> Program::tokenize(std::string str) {
 	enum SplitterState {
 		STATE_SPACE,
 		STATE_WORD,
-		STATE_NUM,
-		STATE_FLOAT,
 		STATE_COMMENT,
 	};
 	str += EOF;
@@ -37,9 +35,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			throw std::runtime_error("Invalid char: " + std::to_string(current_char));
 		}
 		if (state == STATE_WORD) {
-			if (utils::is_valid_word_middle(current_char)) {
-				current_word += current_char;
-			} else if (isspace(current_char)) {
+			if (isspace(current_char)) {
 				words.push_back(current_word);
 				current_word = "";
 				state = STATE_SPACE;
@@ -47,80 +43,23 @@ std::vector<Token> Program::tokenize(std::string str) {
 				words.push_back(current_word);
 				current_word = "";
 				state = STATE_COMMENT;
-			} else if (current_char == ':') {
-				labels.push_back(Label(current_word, words.size()));
-				current_word = "";
-				state = STATE_SPACE;
 			} else if (current_char == EOF) {
 				words.push_back(current_word);
 				break;
 			} else {
-				throwUnexpectedCharException(current_char, current_word, current_line);
+				current_word += current_char;
 			}
 		} else if (state == STATE_SPACE) {
 			if (isspace(current_char)) {
-				// nothing
-			} else if (utils::is_valid_word_prefix(current_char)) {
+				// ok
+			} else if (current_char == '#') {
+				state = STATE_COMMENT;
+			} else if (current_char == EOF) {
+				break;
+			} else {
 				current_word = "";
 				current_word += current_char;
 				state = STATE_WORD;
-			} else if (utils::is_number_prefix(current_char)) {
-				current_word = "";
-				current_word += current_char;
-				state = STATE_NUM;
-			} else if (current_char == '#') {
-				state = STATE_COMMENT;
-			} else if (current_char == EOF) {
-				break;
-			} else {
-				throwUnexpectedCharException(current_char, current_word, current_line);
-			}
-		} else if (state == STATE_NUM) {
-			if (isspace(current_char)) {
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_SPACE;
-			} else if (isdigit(current_char)) {
-				current_word += current_char;
-			} else if (current_char == '.') {
-				current_word += current_char;
-				state = STATE_FLOAT;
-			} else if (utils::is_number_suffix(current_char)) {
-				current_word += current_char;
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_SPACE;
-			} else if (current_char == '#') {
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_COMMENT;
-			} else if (current_char == EOF) {
-				words.push_back(current_word);
-				break;
-			} else {
-				throwUnexpectedCharException(current_char, current_word, current_line);
-			}
-		} else if (state == STATE_FLOAT) {
-			if (isspace(current_char)) {
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_SPACE;
-			} else if (isdigit(current_char)) {
-				current_word += current_char;
-			} else if (utils::is_float_suffix(current_char)) {
-				current_word += current_char;
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_SPACE;
-			} else if (current_char == '#') {
-				words.push_back(current_word);
-				current_word = "";
-				state = STATE_COMMENT;
-			} else if (current_char == EOF) {
-				words.push_back(current_word);
-				break;
-			} else {
-				throwUnexpectedCharException(current_char, current_word, current_line);
 			}
 		} else if (state == STATE_COMMENT) {
 			if (utils::is_newline(current_char)) {
@@ -133,6 +72,8 @@ std::vector<Token> Program::tokenize(std::string str) {
 			current_line++;
 		}
 	}
+
+	// insert labels
 
 	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		std::string str = words[i];

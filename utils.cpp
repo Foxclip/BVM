@@ -34,8 +34,104 @@ namespace utils {
 		return c == '-' || isdigit(c);
 	}
 
+	bool is_float_inf_str(std::string str) {
+		return str == "inff" || str == "-inff";
+	}
+
+	bool is_double_inf_str(std::string str) {
+		return str == "inf" || str == "-inf";
+	}
+
+	bool is_inf_str(std::string str) {
+		return is_float_inf_str(str) || is_double_inf_str(str);
+	}
+
+	bool is_float_nan_str(std::string str) {
+		return str == "nanf" || str == "-nanf" || str == "-nan(ind)f";
+	}
+
+	bool is_double_nan_str(std::string str) {
+		return str == "nan" || str == "-nan" || str == "-nan(ind)";
+	}
+
+	bool is_nan_str(std::string str) {
+		return is_float_nan_str(str) || is_double_nan_str(str);
+	}
+
 	bool is_number(std::string str) {
-		return is_number_prefix(str[0]);
+		enum TokenizerState {
+			STATE_BEGIN,
+			STATE_BEFOREPOINT,
+			STATE_AFTERPOINT,
+			STATE_MANTISSA,
+			STATE_MANTISSA_SIGN,
+		};
+		TokenizerState state = STATE_BEGIN;
+		std::string str_orig = str;
+		str += EOF;
+		for (int i = 0; i < str.size(); i++) {
+			char current_char = str[i];
+			switch (state) {
+				case STATE_BEGIN:
+					if (is_number_prefix(current_char)) {
+						state = STATE_BEFOREPOINT;
+					} else if (current_char == 'i') {
+						return is_inf_str(str_orig);
+					} else if (current_char == 'n') {
+						return is_nan_str(str_orig);
+					} else {
+						return false;
+					}
+					break;
+				case STATE_BEFOREPOINT:
+					if (isdigit(current_char)) {
+						// ok
+					} else if (current_char == 'i') {
+						return is_inf_str(str_orig);
+					} else if (current_char == 'n') {
+						return is_nan_str(str_orig);
+					} else if (current_char == '.') {
+						state = STATE_AFTERPOINT;
+					} else if (is_int_suffix(current_char)) {
+						return i == str_orig.size() - 1;
+					} else {
+						return false;
+					}
+					break;
+				case STATE_AFTERPOINT:
+					if (isdigit(current_char)) {
+						// ok
+					} else if (current_char == 'e') {
+						state = STATE_MANTISSA_SIGN;
+					} else if (is_float_suffix(current_char)) {
+						return i == str_orig.size() - 1;
+					} else if (current_char == EOF) {
+						return true;
+					} else {
+						return false;
+					}
+					break;
+				case STATE_MANTISSA_SIGN:
+					if (current_char == '+' || current_char == '-') {
+						state = STATE_MANTISSA;
+					} else {
+						return false;
+					}
+					break;
+				case STATE_MANTISSA:
+					if (isdigit(current_char)) {
+						// ok
+					} else if (is_number_suffix(current_char)) {
+						return i == str_orig.size() - 1;
+					} else if (current_char == EOF) {
+						return true;
+					} else {
+						return false;
+					}
+					break;
+			}
+		}
+		return false;
 	}
 
 	bool is_valid_word_prefix(char c) {

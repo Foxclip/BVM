@@ -11,16 +11,18 @@ Token::Token(std::string str, token_type type) {
 Token::Token(std::string str) {
 	try {
 		this->str = str;
-		if (utils::is_number_prefix(str.front())) {
+		if (utils::is_number(str)) {
 			if (isdigit(str.back())) {
 				int dot_count = std::ranges::count(str, '.');
-				if (dot_count > 1) {
-					throw std::runtime_error("Too many dots");
-				} else if (dot_count == 1) {
+				if (dot_count == 1) {
 					type = type_double;
 				} else {
 					type = type_int32;
 				}
+			} else if (utils::is_float_inf_str(str) || utils::is_float_nan_str(str)) {
+				type = type_float;
+			} else if (utils::is_double_inf_str(str) || utils::is_double_nan_str(str)) {
+				type = type_double;
 			} else {
 				switch (str.back()) {
 					case 'L': type = type_int64; break;
@@ -46,7 +48,7 @@ Token::Token(std::string str) {
 			set_data<InstructionDataType>(get_instruction_info(str).index);
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Invalid token string: " + std::string(exc.what()));
+		throw std::runtime_error("Token::Token: " + std::string(exc.what()));
 	}
 }
 
@@ -191,8 +193,39 @@ Token Token::mul(const Token& first, const Token& second) {
 	TOKEN_BINARY_OP( return a * b; )
 }
 
+#define FUNC return a / b;
+#define R_TYPE_IF(TP_1, TP_2) \
+	if (return_type == TP_1 && second.get_data_cast<TP_2>() == 0) { \
+		return_type = INT_ZERO_DIV_RESULT_TYPE; \
+	}
 Token Token::div(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a / b; )
+	try {
+		token_type return_type = get_return_type(first.type, second.type);
+		R_TYPE_IF(type_int32, Int32Type)
+		R_TYPE_IF(type_int64, Int64Type)
+		R_TYPE_IF(type_uint32, Uint32Type)
+		R_TYPE_IF(type_uint64, Uint64Type)
+		R_TYPE_IF(type_instr, InstructionDataType)
+		R_TYPE_IF(type_ptr, PointerDataType)
+		Token result;
+		result.type = return_type;
+		switch (return_type) {
+			TOKEN_BINARY_OP_CASE(type_int32, Int32Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_int64, Int64Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_uint32, Uint32Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_uint64, Uint64Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_float, FloatDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_double, DoubleDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_instr, InstructionDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_ptr, PointerDataType, FUNC)
+			default:
+				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
+		}
+			result.str = result.to_string();
+				return result;
+	} catch (std::exception exc) {
+		throw std::runtime_error("Token::div: " + std::string(exc.what()));
+	}
 }
 
 #define FUNC return utils::mod(a, b);
@@ -252,8 +285,14 @@ bool operator==(const Token& first, const Token& second) {
 			case type_uint64:
 				return first.data.m_uint64 == second.data.m_uint64;
 			case type_float:
+				if (std::isnan(first.data.m_float) && std::isnan(second.data.m_float)) {
+					return true;
+				}
 				return first.data.m_float == second.data.m_float;
 			case type_double:
+				if (std::isnan(first.data.m_double) && std::isnan(second.data.m_double)) {
+					return true;
+				}
 				return first.data.m_double == second.data.m_double;
 			case type_instr:
 				return first.get_data<InstructionDataType>() == second.get_data<InstructionDataType>();
