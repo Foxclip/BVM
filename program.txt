@@ -775,3 +775,5 @@
 # nanf
 # -nanf
 # -nan(ind)
+
+0

@@ -68,12 +68,18 @@ namespace utils {
 		};
 		TokenizerState state = STATE_BEGIN;
 		std::string str_orig = str;
+		int before_point_count = 0;
+		int after_point_count = 0;
+		int mantissa_count = 0;
 		str += EOF;
 		for (int i = 0; i < str.size(); i++) {
 			char current_char = str[i];
 			switch (state) {
 				case STATE_BEGIN:
 					if (is_number_prefix(current_char)) {
+						if (isdigit(current_char)) {
+							before_point_count++;
+						}
 						state = STATE_BEFOREPOINT;
 					} else if (current_char == 'i') {
 						return is_inf_str(str_orig);
@@ -85,7 +91,7 @@ namespace utils {
 					break;
 				case STATE_BEFOREPOINT:
 					if (isdigit(current_char)) {
-						// ok
+						before_point_count++;
 					} else if (current_char == 'i') {
 						return is_inf_str(str_orig);
 					} else if (current_char == 'n') {
@@ -94,13 +100,15 @@ namespace utils {
 						state = STATE_AFTERPOINT;
 					} else if (is_int_suffix(current_char)) {
 						return i == str_orig.size() - 1;
+					} else if (current_char == EOF) {
+						return before_point_count > 0;
 					} else {
 						return false;
 					}
 					break;
 				case STATE_AFTERPOINT:
 					if (isdigit(current_char)) {
-						// ok
+						after_point_count++;
 					} else if (current_char == 'e') {
 						state = STATE_MANTISSA_SIGN;
 					} else if (is_float_suffix(current_char)) {
@@ -120,7 +128,7 @@ namespace utils {
 					break;
 				case STATE_MANTISSA:
 					if (isdigit(current_char)) {
-						// ok
+						mantissa_count++;
 					} else if (is_number_suffix(current_char)) {
 						return i == str_orig.size() - 1;
 					} else if (current_char == EOF) {
