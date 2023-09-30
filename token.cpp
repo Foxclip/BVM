@@ -239,30 +239,60 @@ Token Token::gt(const Token& first, const Token& second) {
 
 bool operator==(const Token& first, const Token& second) {
 	try {
-		if (first.type == second.type) {
-			switch (first.type) {
-				case type_int32:
-					return first.data.m_int32 == second.data.m_int32;
-				case type_int64:
-					return first.data.m_int64 == second.data.m_int64;
-				case type_uint32:
-					return first.data.m_uint32 == second.data.m_uint32;
-				case type_uint64:
-					return first.data.m_uint64 == second.data.m_uint64;
-				case type_float:
-					return first.data.m_float == second.data.m_float;
-				case type_double:
-					return first.data.m_double == second.data.m_double;
-				case type_instr:
-					return first.get_data<InstructionDataType>() == second.get_data<InstructionDataType>();
-				case type_ptr:
-					return first.get_data<PointerDataType>() == second.get_data<PointerDataType>();
-				default:
-					throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
-			}
+		if (first.type != second.type) {
+			return false;
 		}
-		return false;
+		switch (first.type) {
+			case type_int32:
+				return first.data.m_int32 == second.data.m_int32;
+			case type_int64:
+				return first.data.m_int64 == second.data.m_int64;
+			case type_uint32:
+				return first.data.m_uint32 == second.data.m_uint32;
+			case type_uint64:
+				return first.data.m_uint64 == second.data.m_uint64;
+			case type_float:
+				return first.data.m_float == second.data.m_float;
+			case type_double:
+				return first.data.m_double == second.data.m_double;
+			case type_instr:
+				return first.get_data<InstructionDataType>() == second.get_data<InstructionDataType>();
+			case type_ptr:
+				return first.get_data<PointerDataType>() == second.get_data<PointerDataType>();
+			default:
+				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
+		}
 	} catch (std::exception exc) {
 		throw std::runtime_error("Token::operator==: " + std::string(exc.what()));
+	}
+}
+
+bool approx_compare(const Token& first, const Token& second, float epsilon) {
+	try {
+		if (first.type != second.type) {
+			return false;
+		}
+		switch (first.type) {
+			case type_int32:
+				return first.data.m_int32 == second.data.m_int32;
+			case type_int64:
+				return first.data.m_int64 == second.data.m_int64;
+			case type_uint32:
+				return first.data.m_uint32 == second.data.m_uint32;
+			case type_uint64:
+				return first.data.m_uint64 == second.data.m_uint64;
+			case type_float:
+				return first.data.m_float - second.data.m_float < epsilon;
+			case type_double:
+				return first.data.m_double - second.data.m_double < epsilon;
+			case type_instr:
+				return first.get_data<InstructionDataType>() == second.get_data<InstructionDataType>();
+			case type_ptr:
+				return first.get_data<PointerDataType>() == second.get_data<PointerDataType>();
+			default:
+				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
+		}
+	} catch (std::exception exc) {
+		throw std::runtime_error("Token::approx_compare: " + std::string(exc.what()));
 	}
 }

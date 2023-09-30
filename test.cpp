@@ -32,6 +32,7 @@ namespace test {
 		"ins_2.txt",
 		"factorial.txt",
 		"type_parse.txt",
+		"float_math.txt",
 	};
 
 	bool is_terminating_char(char c) {
@@ -42,13 +43,63 @@ namespace test {
 		return isspace(c) && !is_terminating_char(c);
 	}
 
+	bool compare_results(const std::vector<Token>& vec1, const std::vector<Token>& vec2, const std::vector<bool>& approx_flags) {
+		if (vec1.size() != vec2.size()) {
+			return false;
+		}
+		for (int i = 0; i < vec1.size(); i++) {
+			const Token& token1 = vec1[i];
+			const Token& token2 = vec2[i];
+			const bool approx_flag = approx_flags[i];
+			if (approx_flag) {
+				if (!approx_compare(token1, token2, 0.0001)) {
+					return false;
+				}
+			} else {
+				if (token1 != token2) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	std::vector<bool> get_approx_flags(std::string str) {
+		std::vector<bool> results;
+		std::vector<std::string> strings = utils::split_string(str, ' ');
+		for (int i = 0; i < strings.size(); i++) {
+			std::string current_str = strings[i];
+			bool flag = current_str[0] == '?';
+			results.push_back(flag);
+		}
+		return results;
+	}
+
+	void remove_approx_flags(std::string& str) {
+		std::vector<std::string> strings = utils::split_string(str, ' ');
+		str = "";
+		for (int i = 0; i < strings.size(); i++) {
+			std::string current_str = strings[i];
+			if (current_str[0] == '?') {
+				str += current_str.substr(1, current_str.size() - 1);
+			} else {
+				str += current_str;
+			}
+			if (i < strings.size() - 1) {
+				str += " ";
+			}
+		}
+	}
+
 	bool run_test(std::filesystem::path test_path, std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p) {
 		std::string program_text = utils::file_to_str(test_path);
 		std::string correct_results_str = program_text.substr(1, program_text.find('\n') - 1);
+		std::vector<bool> approx_flags = get_approx_flags(correct_results_str);
+		remove_approx_flags(correct_results_str);
 		std::vector<Token> correct_results = Token::str_to_tokens(correct_results_str);
 		Program program(program_text);
 		std::vector<Token> actual_results = program.execute();
-		bool passed = actual_results == correct_results;
+		bool passed = compare_results(actual_results, correct_results, approx_flags);
 		actual_results_p = actual_results;
 		correct_results_p = correct_results;
 		return passed;

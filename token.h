@@ -46,8 +46,9 @@ public:
 	// set_data func
 	// is_num func (?)
 	// is_num_or_ptr func (?)
-	// to_string func
-	// operator==
+	// Token::to_string
+	// Token::operator==
+	// Token::approx_compare
 	// TOKEN_BINARY_OP macro
 	// get_return_type func
 	// parsing literals in tokenize func
@@ -67,6 +68,7 @@ public:
 	static std::string tokens_to_str(std::vector<Token> tokens);
 	static std::vector<Token> str_to_tokens(std::string str);
 	friend bool operator==(const Token& first, const Token& second);
+	friend bool approx_compare(const Token& first, const Token& second, float epsilon);
 	static Token add(const Token& first, const Token& second);
 	static Token sub(const Token& first, const Token& second);
 	static Token mul(const Token& first, const Token& second);
