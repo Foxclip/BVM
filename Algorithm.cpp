@@ -154,9 +154,6 @@ void Program::print_nodes() {
 
 std::vector<Token> Program::execute() {
 	try {
-		if (tokens.size() == 0) {
-			throw std::runtime_error("Empty program");
-		}
 		prev_tokens = tokens;
 		if (print_iterations) {
 			std::cout << "Iteration *: ";
