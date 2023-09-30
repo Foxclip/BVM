@@ -311,7 +311,7 @@ std::vector<Token> Program::execute() {
 					}
 					break;
 				}
-			} else if (current_token_read.str == "repl") {
+			} else if (current_token_read.str == "set") {
 				if (rel_token(tokens, 1).is_num_or_ptr()) {
 					PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 					PointerDataType dst_index_begin = token_index(tokens, program_counter + 1 + dst);
@@ -342,7 +342,7 @@ std::vector<Token> Program::execute() {
 					tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 					break;
 				}
-			} else if (current_token_read.str == "replp") {
+			} else if (current_token_read.str == "repl") {
 				if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 					PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 					PointerDataType src = rel_token(tokens, 2).get_data_cast<PointerDataType>();

@@ -1,0 +1,17 @@
+# 1 2 3 55 6 7 55 9
+one: 1
+2
+3
+four: 4
+set
+    3
+    cpy
+        set_p
+        0
+6
+7
+set_p: set
+    four
+    55
+8
+9

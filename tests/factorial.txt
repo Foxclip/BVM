@@ -1,13 +1,13 @@
 # 120
 lst: list
-    replp
+    repl
         replthis
         lst
     sub_p: sub
         get
             arg
         1
-    replp
+    repl
         add
             before_replthis
             17
