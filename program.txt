@@ -741,40 +741,40 @@
 #             replthis: 0
 #     end
 
-# div
-#     5
-#     0
-# div
-#     5.0f
-#     0.0f
-# div
-#     5.0
-#     0.0
-# div
-#     -5.0f
-#     0.0
-# div
-#     5.0
-#     0.0f
-# div
-#     0
-#     0
-# div
-#     0.0f
-#     0.0f
-# div
-#     0.0
-#     0.0
+div
+    5
+    0
+div
+    5.0f
+    0.0f
+div
+    5.0
+    0.0
+div
+    -5.0f
+    0.0
+div
+    5.0
+    0.0f
+div
+    0
+    0
+div
+    0.0f
+    0.0f
+div
+    0.0
+    0.0
 
-inf
--inf
-nan
--nan
-inff
--inff
-nanf
--nanf
--nan(ind)
+# inf
+# -inf
+# nan
+# -nan
+# inff
+# -inff
+# nanf
+# -nanf
+# -nan(ind)
 
 # label2: 0
 # label3

@@ -31,7 +31,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: division by zero, pow and mod zero, floating point comparisons test (nan != nan), float mod
+	// TODO: pow and mod zero, floating point comparisons test (nan != nan), float mod
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: adding numbers to lists and lists to numbers
