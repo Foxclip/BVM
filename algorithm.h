@@ -10,6 +10,7 @@
 #include "utils.h"
 
 const long long MAX_ITERATIONS = 1000;
+const long long MAX_NESTED_NODES = 100;
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
@@ -50,7 +51,10 @@ private:
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
-	std::unique_ptr<Node> parse_token(std::vector<Token>& token_list, PointerDataType token_index, Node* parent_node, PointerDataType& new_token_index);
+	std::unique_ptr<Node> parse_token(
+		std::vector<Token>& token_list, PointerDataType token_index,
+		Node* parent_node, PointerDataType& new_token_index, int depth = 0
+	);
 	void print_node(Node* node, int indent_level);
 	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
 	bool binary_func(std::function<Token(Token, Token)> func);
