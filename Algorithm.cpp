@@ -194,6 +194,42 @@ std::vector<Token> Program::execute() {
 					if (binary_func([](Token a, Token b) { return Token::pow(a, b); })) {
 						break;
 					}
+				} else if (current_token_read.str == "log") {
+					if (unary_func([](Token a) { return Token::log(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "log2") {
+					if (unary_func([](Token a) { return Token::log2(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "sin") {
+					if (unary_func([](Token a) { return Token::sin(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "cos") {
+					if (unary_func([](Token a) { return Token::cos(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "tan") {
+					if (unary_func([](Token a) { return Token::tan(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "asin") {
+					if (unary_func([](Token a) { return Token::asin(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "acos") {
+					if (unary_func([](Token a) { return Token::acos(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "atan") {
+					if (unary_func([](Token a) { return Token::atan(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "atan2") {
+					if (binary_func([](Token a, Token b) { return Token::atan2(a, b); })) {
+						break;
+					}
 				} else if (current_token_read.str == "cmp") {
 					if (binary_func([](Token a, Token b) { return Token::cmp(a, b); })) {
 						break;
@@ -557,6 +593,18 @@ void Program::shift_pointers(std::vector<Token>& token_list, PointerDataType pos
 			get_token(token_list, token_i).set_data<PointerDataType>(new_pointer);
 		}
 	}
+}
+
+bool Program::unary_func(std::function<Token(Token)> func) {
+	if (rel_token(tokens, 1).is_num_or_ptr()) {
+		shift_pointers(tokens, program_counter, -1);
+		Token arg = rel_token(tokens, 1);
+		Token result = func(arg);
+		tokens.erase(tokens.begin() + program_counter);
+		rel_token(tokens, 0) = result;
+		return true;
+	}
+	return false;
 }
 
 bool Program::binary_func(std::function<Token(Token, Token)> func) {

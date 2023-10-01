@@ -860,27 +860,54 @@
 #     nan
 #     -nan
 
-mod
-    nan
-    nan
-mod
-    -nan
+# mod
+#     nan
+#     nan
+# mod
+#     -nan
+#     5
+# mod
+#     nanf
+#     -nan
+# pow
+#     5.5f
+#     nan
+# pow
+#     nan
+#     0
+# pow
+#     -inff
+#     nanf
+# pow
+#     -nanf
+#     5
+# pow
+#     1
+#     nan
+
+log
     5
-mod
-    nanf
-    -nan
-pow
-    5.5f
-    nan
-pow
-    nan
-    0
-pow
-    -inff
-    nanf
-pow
-    -nanf
-    5
-pow
+log
+    5.0
+log2
+    8
+log2
+    10.0
+sin
+    0.52359877559
+cos
+    1.0471975512f
+tan
+    0.78539816339
+asin
+    0.5
+acos
+    0.5
+atan
+    1.0
+atan2
     1
-    nan
+    1
+atan2
+    1.0
+    0.0

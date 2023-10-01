@@ -87,6 +87,15 @@ public:
 	static Token div(const Token& first, const Token& second);
 	static Token mod(const Token& first, const Token& second);
 	static Token pow(const Token& first, const Token& second);
+	static Token log(const Token& arg);
+	static Token log2(const Token& arg);
+	static Token sin(const Token& arg);
+	static Token cos(const Token& arg);
+	static Token tan(const Token& arg);
+	static Token asin(const Token& arg);
+	static Token acos(const Token& arg);
+	static Token atan(const Token& arg);
+	static Token atan2(const Token& first, const Token& second);
 	static Token cmp(const Token& first, const Token& second);
 	static Token lt(const Token& first, const Token& second);
 	static Token gt(const Token& first, const Token& second);

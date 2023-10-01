@@ -40,6 +40,7 @@ namespace test {
 		"float_inf_nan_2.txt",
 		"float_inf_nan_3.txt",
 		"float_cmp.txt",
+		"math_log_trig.txt",
 	};
 
 	bool is_terminating_char(char c) {

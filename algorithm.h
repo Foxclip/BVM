@@ -57,6 +57,7 @@ private:
 	);
 	void print_node(Node* node, int indent_level);
 	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
+	bool unary_func(std::function<Token(Token)> func);
 	bool binary_func(std::function<Token(Token, Token)> func);
 
 };

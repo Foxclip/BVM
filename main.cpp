@@ -31,22 +31,23 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: log and trig functions
+	// TODO: add log and trig functions to inf nan test
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
+	// TODO: and, or and not instructions
 	// TODO: adding numbers to lists and lists to numbers
 	// TODO: block instruction, separates program into blocks, blocks have
-	// TODO: functions can return pointers
 	// TODO: replace command string tokens in the code with enum values
 	// TODO: next and prev instructions, return address of the next and previous subtree
+	// TODO: make parse_token function not recursive
 	// TODO: modifying instructions shift pointers in the tokens that are being moved around
 	// if pointers lead inside then leave them as is, otherwise shift them so they point where they were pointing
+	// TODO: move and swap instructions, for moving and swapping subtrees
 	// TODO: shift pointers from pointer list, instead of scanning the whole token list
 	// TODO: place program counter at the leftmost change position at new iteration
 	// TODO: undeletable end instruction
-	// TODO: move instruction, moves a node
-	// TODO: do something with integer division by 0 (convert it to float and return inf?)
 	// TODO: conv instruction, converts list of numbers to code
+	// TODO: sys instruction, executes external code
 	// TODO: getsize instruction, returns size of the subtree
 	// TODO: get instruction, returns two numbers: first number signifies whether token is an instruction or a number,
 	// second number is num_value if it is a number, or instruction index if it is an instruction

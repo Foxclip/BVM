@@ -178,6 +178,16 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 	return tokens;
 }
 
+#define TOKEN_UNARY_OP_CASE(TP1, TP2, FUNC) \
+	case TP1: \
+		{ \
+			auto func = [](TP2 a) { FUNC }; \
+			TP2 a_data = arg.get_data_cast<TP2>(); \
+			TP2 result_data = func(a_data); \
+			result.set_data<TP2>(result_data); \
+		} \
+		break;
+
 #define TOKEN_BINARY_OP_CASE(TP1, TP2, FUNC) \
 	case TP1: \
 		{ \
@@ -188,6 +198,30 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 			result.set_data<TP2>(result_data); \
 		} \
 		break;
+
+#define TOKEN_UNARY_OP_BODY(RET_TYPE, FUNC, POST_CALC) \
+	try { \
+		RET_TYPE \
+		Token result; \
+		result.type = return_type; \
+		switch (return_type) { \
+			TOKEN_UNARY_OP_CASE(type_int32, Int32Type, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_int64, Int64Type, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_uint32, Uint32Type, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_uint64, Uint64Type, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_float, FloatDataType, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_double, DoubleDataType, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_instr, InstructionDataType, FUNC) \
+			TOKEN_UNARY_OP_CASE(type_ptr, PointerDataType, FUNC) \
+			default: \
+				throw std::runtime_error("Unknown token_data type: " + std::to_string(arg.type)); \
+		} \
+		POST_CALC \
+		result.str = result.to_string(); \
+		return result; \
+	} catch (std::exception exc) { \
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what())); \
+	}
 
 #define TOKEN_BINARY_OP_BODY(RET_TYPE, FUNC, POST_CALC) \
 	try { \
@@ -213,6 +247,21 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what())); \
 	}
 
+#define TOKEN_UNARY_OP_DEFAULT(FUNC) \
+	TOKEN_UNARY_OP_BODY( \
+		token_type return_type = arg.type;, \
+		FUNC, \
+	)
+
+#define TOKEN_UNARY_OP_FLOAT(FUNC) \
+	TOKEN_UNARY_OP_BODY( \
+		token_type return_type = arg.type; \
+		if (is_int_type(return_type)) { \
+			return_type = type_float; \
+		}, \
+		FUNC, \
+	)
+
 #define TOKEN_BINARY_OP_DEFAULT(FUNC) \
 	TOKEN_BINARY_OP_BODY( \
 		token_type return_type = get_return_type(first.type, second.type);, \
@@ -231,6 +280,15 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 		token_type return_type = get_return_type(first.type, second.type); \
 		if (is_int_type(return_type) && numeric_compare(second, Token("0"))) { \
 			return_type = INT_ZERO_DIV_RESULT_TYPE; \
+		}, \
+		FUNC, \
+	)
+
+#define TOKEN_BINARY_OP_FLOAT(FUNC) \
+	TOKEN_BINARY_OP_BODY( \
+		token_type return_type = get_return_type(first.type, second.type); \
+		if (is_int_type(return_type)) { \
+			return_type = type_float; \
 		}, \
 		FUNC, \
 	)
@@ -257,6 +315,42 @@ Token Token::mod(const Token& first, const Token& second) {
 
 Token Token::pow(const Token& first, const Token& second) {
 	TOKEN_BINARY_OP_DEFAULT( return std::pow(a, b); )
+}
+
+Token Token::log(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::log(a); )
+}
+
+Token Token::log2(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::log2(a); )
+}
+
+Token Token::sin(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::sin(a); )
+}
+
+Token Token::cos(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::cos(a); )
+}
+
+Token Token::tan(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::tan(a); )
+}
+
+Token Token::asin(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::asin(a); )
+}
+
+Token Token::acos(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::acos(a); )
+}
+
+Token Token::atan(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT( return std::atan(a); )
+}
+
+Token Token::atan2(const Token& first, const Token& second) {
+	TOKEN_BINARY_OP_FLOAT( return std::atan2(a, b); )
 }
 
 Token Token::cmp(const Token& first, const Token& second) {
