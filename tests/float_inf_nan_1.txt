@@ -1,0 +1,22 @@
+# -nan(ind) inf -nan(ind) inf -inf -nan(ind) -nan(ind)
+add
+    inf
+    -inf
+add
+    inf
+    inf
+sub
+    inf
+    inf
+mul
+    inf
+    inf
+mul
+    inf
+    -inf
+mul
+    inf
+    0
+div
+    inf
+    inf

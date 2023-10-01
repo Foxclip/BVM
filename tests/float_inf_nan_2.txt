@@ -1,0 +1,22 @@
+# nan -nan(ind)f -nan(ind)f 1 -nan(ind) 1.0 1.0
+mod
+    inf
+    5
+mod
+    5
+    0
+mod
+    inf
+    0
+pow
+    0
+    0
+pow
+    -1
+    0.5
+pow
+    1
+    inf
+pow
+    inf
+    0
