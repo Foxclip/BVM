@@ -37,6 +37,7 @@ enum token_type {
 };
 
 const token_type INT_ZERO_DIV_RESULT_TYPE = type_float;
+const token_type CMP_RETURN_TYPE = type_int32;
 
 class Token {
 public:
@@ -50,13 +51,15 @@ public:
 	// is_num_or_ptr func (?)
 	// Token::Token
 	// Token::to_string
+	// Token::cast
 	// Token::div
 	// Token::mod
 	// Token::operator==
 	// Token::numeric_compare
 	// Token::approx_compare
 	// TOKEN_BINARY_OP macro
-	// get_return_type func
+	// Token::get_return_type
+	// Token::is_int_type
 	// parsing literals in tokenize func
 	// is_int_suffix func and is_float_suffix func in utils
 
@@ -69,8 +72,10 @@ public:
 	bool is_num();
 	bool is_ptr();
 	bool is_num_or_ptr();
+	void cast(token_type new_type);
 	std::string to_string() const;
 	static token_type get_return_type(token_type type1, token_type type2);
+	static bool is_int_type(token_type type);
 	static std::string tokens_to_str(std::vector<Token> tokens);
 	static std::vector<Token> str_to_tokens(std::string str);
 	friend bool operator==(const Token& first, const Token& second);

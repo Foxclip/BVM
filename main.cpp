@@ -21,9 +21,9 @@ void execute_program(std::string path) {
 int main() {
 	try {
 
-		//execute_program("program.txt");
+		execute_program("program.txt");
 		//execute_program("tests/type_parse.txt");
-		test::run_tests();
+		//test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";

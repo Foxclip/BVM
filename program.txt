@@ -810,24 +810,56 @@
 # div
 #     inf
 #     inf
-mod
-    inf
-    5
-mod
-    5
-    0
-mod
-    inf
-    0
-pow
-    0
-    0
-pow
-    -1
+# mod
+#     inf
+#     5
+# mod
+#     5
+#     0
+# mod
+#     inf
+#     0
+# pow
+#     0
+#     0
+# pow
+#     -1
+#     0.5
+# pow
+#     1
+#     inf
+# pow
+#     inf
+#     0
+
+cmp
     0.5
-pow
+    0.5
+cmp
+    0.1
+    0.3
+cmp
+    inf
+    inf
+cmp
+    inf
+    -inf
+cmp
+    inf
     1
-    inf
-pow
-    inf
-    0
+cmp
+    nan
+    1
+cmp
+    1
+    nan
+cmp
+    nan
+    nan
+cmp
+    nan
+    -nan
+
+# cmp
+#     0.1
+#     0.3

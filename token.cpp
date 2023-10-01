@@ -74,6 +74,25 @@ bool Token::is_num_or_ptr() {
 	return is_num() || is_ptr();
 }
 
+void Token::cast(token_type new_type) {
+	try {
+		switch (new_type) {
+			case type_int32: set_data<Int32Type>(get_data_cast<Int32Type>()); break;
+			case type_int64: set_data<Int64Type>(get_data_cast<Int64Type>()); break;
+			case type_uint32: set_data<Uint32Type>(get_data_cast<Uint32Type>()); break;
+			case type_uint64: set_data<Uint64Type>(get_data_cast<Uint64Type>()); break;
+			case type_float: set_data<FloatDataType>(get_data_cast<FloatDataType>()); break;
+			case type_double: set_data<DoubleDataType>(get_data_cast<DoubleDataType>()); break;
+			case type_instr: set_data<InstructionDataType>(get_data_cast<InstructionDataType>()); break;
+			case type_ptr: set_data<PointerDataType>(get_data_cast<PointerDataType>()); break;
+			default: throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
+		}
+		type = new_type;
+	} catch (std::exception exc) {
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
+	}
+}
+
 std::string Token::to_string() const {
 	try {
 		switch (type) {
@@ -125,6 +144,18 @@ token_type Token::get_return_type(token_type type1, token_type type2) {
 	}
 }
 
+bool Token::is_int_type(token_type type) {
+	return 
+		   type == type_int32
+		|| type == type_int64
+		|| type == type_uint32
+		|| type == type_uint64
+		|| type == type_int64
+		|| type == type_ptr
+		|| type == type_instr
+	;
+}
+
 std::string Token::tokens_to_str(std::vector<Token> tokens) {
 	std::string str;
 	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
@@ -158,9 +189,9 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 		} \
 		break;
 
-#define TOKEN_BINARY_OP(FUNC) \
+#define TOKEN_BINARY_OP_BODY(RET_TYPE, FUNC, POST_CALC) \
 	try { \
-		token_type return_type = get_return_type(first.type, second.type); \
+		RET_TYPE \
 		Token result; \
 		result.type = return_type; \
 		switch (return_type) { \
@@ -175,101 +206,69 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 			default: \
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type)); \
 		} \
+		POST_CALC \
 		result.str = result.to_string(); \
 		return result; \
 	} catch (std::exception exc) { \
-		throw std::runtime_error("Token binary op: " + std::string(exc.what())); \
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what())); \
 	}
 
+#define TOKEN_BINARY_OP_DEFAULT(FUNC) \
+	TOKEN_BINARY_OP_BODY( \
+		token_type return_type = get_return_type(first.type, second.type);, \
+		FUNC, \
+	)
+
+#define TOKEN_BINARY_OP_CMP(FUNC) \
+	TOKEN_BINARY_OP_BODY( \
+		token_type return_type = get_return_type(first.type, second.type);, \
+		FUNC, \
+		result.cast(CMP_RETURN_TYPE); \
+	)
+
+#define TOKEN_BINARY_OP_DIV(FUNC) \
+	TOKEN_BINARY_OP_BODY( \
+		token_type return_type = get_return_type(first.type, second.type); \
+		if (is_int_type(return_type) && numeric_compare(second, Token("0"))) { \
+			return_type = INT_ZERO_DIV_RESULT_TYPE; \
+		}, \
+		FUNC, \
+	)
+
 Token Token::add(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a + b; )
+	TOKEN_BINARY_OP_DEFAULT( return a + b; )
 }
 
 Token Token::sub(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a - b; )
+	TOKEN_BINARY_OP_DEFAULT( return a - b; )
 }
 
 Token Token::mul(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a * b; )
+	TOKEN_BINARY_OP_DEFAULT( return a * b; )
 }
 
-#define FUNC return a / b;
-#define R_TYPE_IF(TP_1, TP_2) \
-	if (return_type == TP_1 && second.get_data_cast<TP_2>() == 0) { \
-		return_type = INT_ZERO_DIV_RESULT_TYPE; \
-	}
 Token Token::div(const Token& first, const Token& second) {
-	try {
-		token_type return_type = get_return_type(first.type, second.type);
-		R_TYPE_IF(type_int32, Int32Type)
-		R_TYPE_IF(type_int64, Int64Type)
-		R_TYPE_IF(type_uint32, Uint32Type)
-		R_TYPE_IF(type_uint64, Uint64Type)
-		R_TYPE_IF(type_instr, InstructionDataType)
-		R_TYPE_IF(type_ptr, PointerDataType)
-		Token result;
-		result.type = return_type;
-		switch (return_type) {
-			TOKEN_BINARY_OP_CASE(type_int32, Int32Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_int64, Int64Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_uint32, Uint32Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_uint64, Uint64Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_float, FloatDataType, FUNC)
-			TOKEN_BINARY_OP_CASE(type_double, DoubleDataType, FUNC)
-			TOKEN_BINARY_OP_CASE(type_instr, InstructionDataType, FUNC)
-			TOKEN_BINARY_OP_CASE(type_ptr, PointerDataType, FUNC)
-			default:
-				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
-		}
-			result.str = result.to_string();
-				return result;
-	} catch (std::exception exc) {
-		throw std::runtime_error("Token::div: " + std::string(exc.what()));
-	}
+	TOKEN_BINARY_OP_DIV( return a / b; )
 }
 
-#define FUNC return utils::mod(a, b);
 Token Token::mod(const Token& first, const Token& second) {
-	try {
-		token_type return_type = get_return_type(first.type, second.type);
-		if (numeric_compare(second, Token("0"))) {
-			return_type = type_float;
-		}
-		Token result;
-		result.type = return_type;
-		switch (return_type) {
-			TOKEN_BINARY_OP_CASE(type_int32, Int32Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_int64, Int64Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_uint32, Uint32Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_uint64, Uint64Type, FUNC)
-			TOKEN_BINARY_OP_CASE(type_float, FloatDataType, FUNC)
-			TOKEN_BINARY_OP_CASE(type_double, DoubleDataType, FUNC)
-			TOKEN_BINARY_OP_CASE(type_instr, InstructionDataType, FUNC)
-			TOKEN_BINARY_OP_CASE(type_ptr, PointerDataType, FUNC)
-			default:
-				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
-		}
-		result.str = result.to_string();
-		return result;
-	} catch (std::exception exc) {
-		throw std::runtime_error("Token::mod: " + std::string(exc.what()));
-	}
+	TOKEN_BINARY_OP_DIV( return utils::mod(a, b); )
 }
 
 Token Token::pow(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return std::pow(a, b); )
+	TOKEN_BINARY_OP_DEFAULT( return std::pow(a, b); )
 }
 
 Token Token::cmp(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a == b; )
+	TOKEN_BINARY_OP_CMP( return a == b; )
 }
 
 Token Token::lt(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a < b; )
+	TOKEN_BINARY_OP_CMP( return a < b; )
 }
 
 Token Token::gt(const Token& first, const Token& second) {
-	TOKEN_BINARY_OP( return a > b; )
+	TOKEN_BINARY_OP_CMP( return a > b; )
 }
 
 bool operator==(const Token& first, const Token& second) {
