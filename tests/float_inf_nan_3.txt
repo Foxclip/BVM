@@ -1,0 +1,25 @@
+# nan -nan -nan nan 1.0 nanf -nanf 1.0
+mod
+    nan
+    nan
+mod
+    -nan
+    5
+mod
+    nanf
+    -nan
+pow
+    5.5f
+    nan
+pow
+    nan
+    0
+pow
+    -inff
+    nanf
+pow
+    -nanf
+    5
+pow
+    1
+    nan

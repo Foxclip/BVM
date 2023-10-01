@@ -6,7 +6,7 @@ mod
     5
     0
 mod
-    inf
+    inff
     0
 pow
     0
