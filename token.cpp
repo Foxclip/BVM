@@ -48,7 +48,7 @@ Token::Token(std::string str) {
 			set_data<InstructionDataType>(get_instruction_info(str).index);
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Token::Token: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -116,7 +116,7 @@ std::string Token::to_string() const {
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Token::to_string: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -140,7 +140,7 @@ token_type Token::get_return_type(token_type type1, token_type type2) {
 			throw std::runtime_error("Cannot determine return type: " + std::to_string(type1) + " " + std::to_string(type2));
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Token::get_return_type: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -303,7 +303,7 @@ bool operator==(const Token& first, const Token& second) {
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Token::operator==: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -330,7 +330,7 @@ bool numeric_compare(const Token& first, const Token& second) {
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Token::numeric_compare: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -360,6 +360,6 @@ bool approx_compare(const Token& first, const Token& second, float epsilon) {
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Token::approx_compare: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }

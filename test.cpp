@@ -177,7 +177,7 @@ namespace test {
 				std::cout << "    " << failed_list[i] << "\n";
 			}
 		} catch (std::exception exc) {
-			throw std::runtime_error("Test system error: " + std::string(exc.what()));
+			throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 		}
 	}
 

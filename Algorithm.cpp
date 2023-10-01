@@ -106,7 +106,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 		return tokens;
 
 	} catch (std::exception exc) {
-		throw std::runtime_error("Tokenizer error: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -430,7 +430,7 @@ std::vector<Token> Program::execute() {
 		}
 		return tokens;
 	} catch (std::exception exc) {
-		throw std::runtime_error("Execution error: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
