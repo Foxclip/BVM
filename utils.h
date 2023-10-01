@@ -44,7 +44,7 @@ namespace utils {
 
 	template <typename T>
 	T mod(T a, T b) {
-		return (a % b + b) % b;
+		return std::fmod((std::fmod(a, b) + b), b);
 	}
 
 }

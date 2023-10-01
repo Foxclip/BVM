@@ -35,6 +35,7 @@ namespace test {
 		"float_math.txt",
 		"inf_nan_parse.txt",
 		"div_zero.txt",
+		"float_mod.txt",
 	};
 
 	bool is_terminating_char(char c) {

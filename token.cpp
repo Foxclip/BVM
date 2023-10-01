@@ -232,18 +232,20 @@ Token Token::div(const Token& first, const Token& second) {
 Token Token::mod(const Token& first, const Token& second) {
 	try {
 		token_type return_type = get_return_type(first.type, second.type);
-		if (return_type == type_float || return_type == type_double) {
-			return_type = type_int64;
+		if (numeric_compare(second, Token("0"))) {
+			return_type = type_float;
 		}
 		Token result;
 		result.type = return_type;
 		switch (return_type) {
 			TOKEN_BINARY_OP_CASE(type_int32, Int32Type, FUNC)
-				TOKEN_BINARY_OP_CASE(type_int64, Int64Type, FUNC)
-				TOKEN_BINARY_OP_CASE(type_uint32, Uint32Type, FUNC)
-				TOKEN_BINARY_OP_CASE(type_uint64, Uint64Type, FUNC)
-				TOKEN_BINARY_OP_CASE(type_instr, InstructionDataType, FUNC)
-				TOKEN_BINARY_OP_CASE(type_ptr, PointerDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_int64, Int64Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_uint32, Uint32Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_uint64, Uint64Type, FUNC)
+			TOKEN_BINARY_OP_CASE(type_float, FloatDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_double, DoubleDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_instr, InstructionDataType, FUNC)
+			TOKEN_BINARY_OP_CASE(type_ptr, PointerDataType, FUNC)
 			default:
 				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
 		}
@@ -303,6 +305,33 @@ bool operator==(const Token& first, const Token& second) {
 		}
 	} catch (std::exception exc) {
 		throw std::runtime_error("Token::operator==: " + std::string(exc.what()));
+	}
+}
+
+bool numeric_compare(const Token& first, const Token& second) {
+	try {
+		switch (first.type) {
+			case type_int32:
+				return first.data.m_int32 == second.data.m_int32;
+			case type_int64:
+				return first.data.m_int64 == second.data.m_int64;
+			case type_uint32:
+				return first.data.m_uint32 == second.data.m_uint32;
+			case type_uint64:
+				return first.data.m_uint64 == second.data.m_uint64;
+			case type_float:
+				return first.data.m_float == second.data.m_float;
+			case type_double:
+				return first.data.m_double == second.data.m_double;
+			case type_instr:
+				return first.get_data<InstructionDataType>() == second.get_data<InstructionDataType>();
+			case type_ptr:
+				return first.get_data<PointerDataType>() == second.get_data<PointerDataType>();
+			default:
+				throw std::runtime_error("Unknown token_data type: " + std::to_string(first.type));
+		}
+	} catch (std::exception exc) {
+		throw std::runtime_error("Token::numeric_compare: " + std::string(exc.what()));
 	}
 }
 

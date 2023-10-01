@@ -53,6 +53,7 @@ public:
 	// Token::div
 	// Token::mod
 	// Token::operator==
+	// Token::numeric_compare
 	// Token::approx_compare
 	// TOKEN_BINARY_OP macro
 	// get_return_type func
@@ -73,6 +74,7 @@ public:
 	static std::string tokens_to_str(std::vector<Token> tokens);
 	static std::vector<Token> str_to_tokens(std::string str);
 	friend bool operator==(const Token& first, const Token& second);
+	friend bool numeric_compare(const Token& first, const Token& second);
 	friend bool approx_compare(const Token& first, const Token& second, float epsilon);
 	static Token add(const Token& first, const Token& second);
 	static Token sub(const Token& first, const Token& second);
