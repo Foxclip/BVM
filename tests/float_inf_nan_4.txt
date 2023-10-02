@@ -1,0 +1,38 @@
+# -nan(ind)f -nan(ind) nanf nanf -nan(ind) nan -nan(ind) nanf -nan(ind) -nan(ind) ?204223803255.973297 -nan(ind)f -nan(ind)f ?1.570796 ?1.570796 ?0.000000 nan
+log
+    -5
+log
+    -5.0
+log2
+    -5.0f
+log2
+    -5
+sin
+    inf
+sin
+    nan
+cos
+    inf
+cos
+    nanf
+tan
+    inf
+tan
+    -inf
+tan
+    1.57079632679
+asin
+    -5
+acos
+    5.0f
+atan
+    inf
+atan2
+    inf
+    1
+atan2
+    1
+    inf
+atan2
+    nan
+    0.0
