@@ -14,13 +14,6 @@ const long long MAX_NESTED_NODES = 100;
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
-struct Label {
-	std::string str;
-	PointerDataType token_index;
-
-	Label(std::string str, PointerDataType token_index);
-};
-
 class Node {
 public:
 	Token token;

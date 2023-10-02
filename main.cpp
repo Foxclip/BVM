@@ -31,12 +31,12 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: show line when token cannot be parsed
 	// TODO: floor and ceil instructions
 	// TODO: adding number to pointer test
 	// TODO: and, or, xor and not instructions
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: math functions take lists as arguments (and possibly other functions?)
+	// TODO: make Token.str debug-only
 	// TODO: adding numbers to lists and lists to numbers
 	// TODO: block instruction, separates program into blocks, blocks have
 	// TODO: replace command string tokens in the code with enum values
