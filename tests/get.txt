@@ -2,14 +2,14 @@
 1
 get
     add_p
-two: 2
-three: 3
-add_p: add
+2 :two
+3 :three
+add :add_p
     get
         four
     get
         two
-four: 4
+4 :four
 5
 get
     add_p

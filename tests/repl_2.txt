@@ -1,22 +1,22 @@
 # 25 25 1 3 3 1 2 3
-add_p: add
+add :add_p
     5
     5
 repl
     add_p
     mul_p
-mul_p: mul
+mul :mul_p
     5
     5
 repl
     lst2
     lst1
-lst1: list
+list :lst1
     1
-    two: 2
-    three: 3
+    2 :two
+    3 :three
     end
-lst2: list
+list :lst2
     5
     6
     7

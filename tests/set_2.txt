@@ -1,8 +1,8 @@
 # 1 2 3 55 6 7 55 9
-one: 1
+1 :one
 2
 3
-four: 4
+4 :four
 set
     3
     cpy
@@ -10,7 +10,7 @@ set
         0
 6
 7
-set_p: set
+set :set_p
     four
     55
 8

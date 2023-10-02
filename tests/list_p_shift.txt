@@ -7,5 +7,5 @@ list
     six   
     end
 5
-six: 6
+6 :six
 7

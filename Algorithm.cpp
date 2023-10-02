@@ -77,8 +77,11 @@ std::vector<Token> Program::tokenize(std::string str) {
 
 		for (ProgramCounterType i = 0; i < words.size(); i++) {
 			std::string current_word = words[i];
-			if (current_word.back() == ':') {
-				Label new_label(current_word.substr(0, current_word.size() - 1), i);
+			if (current_word.front() == ':') {
+				Label new_label(current_word.substr(1, current_word.size() - 1), i - 1);
+				if (i < 1) {
+					throw std::runtime_error("Label points at -1: " + current_word);
+				}
 				labels.push_back(new_label);
 				words.erase(words.begin() + i);
 				i--;

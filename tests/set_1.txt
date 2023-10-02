@@ -4,7 +4,7 @@ set
     5
 1
 2
-three: 3
+3 :three
 set
     three
-    ff: 55
+    55 :ff

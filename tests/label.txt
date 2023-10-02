@@ -3,8 +3,8 @@
 1
 2
 3
-DelThis: 4
-CpyThis: 5
+4 :DelThis
+5 :CpyThis
 6
 del
     DelThis

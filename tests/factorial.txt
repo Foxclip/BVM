@@ -1,9 +1,9 @@
 # 120
-lst: list
+list :lst
     repl
         replthis
         lst
-    sub_p: sub
+    sub :sub_p
         get
             arg
         1
@@ -14,13 +14,13 @@ lst: list
         sub_p
     del
         sub_p
-    mul_p: mul
-        arg: 5
+    mul :mul_p
+        5 :arg
         if
             cmp
                 get
                     arg
                 1
-            before_replthis: 1
-            replthis: 0
+            1 :before_replthis
+            0 :replthis
     end

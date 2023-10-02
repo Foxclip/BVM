@@ -1,5 +1,5 @@
 # 0 1 2 4 5 6 0 6 7 10 8 9 10 11 0 0p
-zero: 0
+0 :zero
 1
 cpy
     zero
@@ -8,12 +8,12 @@ cpy
 cpy
     ten
     eight
-three: 3
+3 :three
 del
     three
 4
 5
-six: 6
+6 :six
 cpy
     zero
     0
@@ -21,10 +21,10 @@ cpy
     six
     0
 7
-eight: 8
+8 :eight
 9
-ten: 10
+10 :ten
 11
 cpy
     zero
-    dst2: dst2
+    dst2 :dst2

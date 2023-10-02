@@ -2,18 +2,18 @@
 list
     list
         0
-        cur: end
-    lst: list
+        end :cur
+    list :lst
         cpy
             lst
             end2
-        inc: add
-                cpy
-                    sub
-                        cur
-                        1
-                    0
-                1
+        add :inc
+            cpy
+                sub
+                    cur
+                    1
+                0
+            1
         if
             cmp
                 cpy
@@ -30,5 +30,5 @@ list
                 end
             del
                 0
-        end1: end
-    end2: end
+        end :end1
+    end :end2

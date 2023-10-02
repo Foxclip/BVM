@@ -1,9 +1,0 @@
-# 0 1 2 3 0
-cpy
-    zero
-    endf
-zero: 0
-1
-2
-3
-endf:

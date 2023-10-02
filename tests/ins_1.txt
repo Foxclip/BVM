@@ -1,8 +1,8 @@
 # 1 55 2 3 33 -2 -1 99 4 5 6
 1
-two: 2
+2 :two
 3
-ins_p: ins
+ins :ins_p
     two
     55
 ins

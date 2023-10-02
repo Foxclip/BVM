@@ -17,7 +17,6 @@ namespace test {
 		"forloop.txt",
 		"p_shift_1.txt",
 		"p_shift_2.txt",
-		"endfile_label.txt",
 		"p_shift_3.txt",
 		"list_p_shift.txt",
 		"if_p_shift.txt",

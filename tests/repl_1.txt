@@ -1,14 +1,14 @@
 # 1 9 4 6 -5p 9
-one: 1
+1 :one
 2
-three: 3
+3 :three
 4
 repl
     0
     repl_p
 6
 7
-repl_p: repl
+repl :repl_p
     three
     one
 8

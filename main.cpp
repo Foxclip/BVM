@@ -31,7 +31,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: add log and trig functions to inf nan test
+	// TODO: show line when token cannot be parsed
+	// TODO: floor and ceil instructions
 	// TODO: adding number to pointer test
 	// TODO: and, or, xor and not instructions
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
