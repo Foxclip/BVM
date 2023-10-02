@@ -2,7 +2,7 @@
 
 #include <string>
 #include <filesystem>
-#include "algorithm.h"
+#include "program.h"
 
 namespace test {
 

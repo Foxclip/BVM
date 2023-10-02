@@ -1,4 +1,4 @@
-#include "algorithm.h"
+#include "program.h"
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line) {
 	throw std::runtime_error(

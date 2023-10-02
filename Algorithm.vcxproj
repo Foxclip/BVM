@@ -129,7 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="algorithm.cpp" />
+    <ClCompile Include="program.cpp" />
     <ClCompile Include="instruction.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="test.cpp" />
@@ -137,7 +137,7 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="algorithm.h" />
+    <ClInclude Include="program.h" />
     <ClInclude Include="instruction.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="token.h" />
