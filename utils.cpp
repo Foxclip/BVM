@@ -98,7 +98,8 @@ namespace utils {
 						return is_nan_str(str_orig);
 					} else if (current_char == '.') {
 						state = STATE_AFTERPOINT;
-					} else if (is_int_suffix(current_char)) {
+					} else if (is_int_suffix(current_char)
+						    || is_float_suffix(current_char)) {
 						return i == str_orig.size() - 1;
 					} else if (current_char == EOF) {
 						return before_point_count > 0;

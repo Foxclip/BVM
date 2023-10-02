@@ -31,7 +31,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: fix 0f parsing
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: math functions take lists as arguments (and possibly other functions?)
