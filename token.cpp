@@ -262,6 +262,12 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 		FUNC, \
 	)
 
+#define TOKEN_UNARY_OP_LOGIC(FUNC) \
+	TOKEN_UNARY_OP_BODY( \
+		token_type return_type = CMP_RETURN_TYPE;, \
+		FUNC, \
+	)
+
 #define TOKEN_BINARY_OP_DEFAULT(FUNC) \
 	TOKEN_BINARY_OP_BODY( \
 		token_type return_type = get_return_type(first.type, second.type);, \
@@ -273,6 +279,12 @@ std::vector<Token> Token::str_to_tokens(std::string str) {
 		token_type return_type = get_return_type(first.type, second.type);, \
 		FUNC, \
 		result.cast(CMP_RETURN_TYPE); \
+	)
+
+#define TOKEN_BINARY_OP_LOGIC(FUNC) \
+	TOKEN_BINARY_OP_BODY( \
+		token_type return_type = CMP_RETURN_TYPE;, \
+		FUNC, \
 	)
 
 #define TOKEN_BINARY_OP_DIV(FUNC) \
@@ -354,11 +366,27 @@ Token Token::atan2(const Token& first, const Token& second) {
 }
 
 Token Token::floor(const Token& arg) {
-	TOKEN_UNARY_OP_FLOAT(return std::floor(a); )
+	TOKEN_UNARY_OP_FLOAT( return std::floor(a); )
 }
 
 Token Token::ceil(const Token& arg) {
-	TOKEN_UNARY_OP_FLOAT(return std::ceil(a); )
+	TOKEN_UNARY_OP_FLOAT( return std::ceil(a); )
+}
+
+Token Token::and_op(const Token& first, const Token& second) {
+	TOKEN_BINARY_OP_LOGIC( return a && b; )
+}
+
+Token Token::or_op(const Token& first, const Token& second) {
+	TOKEN_BINARY_OP_LOGIC( return a || b; )
+}
+
+Token Token::xor_op(const Token& first, const Token& second) {
+	TOKEN_BINARY_OP_LOGIC( return !a != !b; )
+}
+
+Token Token::not_op(const Token& arg) {
+	TOKEN_UNARY_OP_LOGIC( return !a; )
 }
 
 Token Token::cmp(const Token& first, const Token& second) {

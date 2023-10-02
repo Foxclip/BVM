@@ -280,6 +280,22 @@ std::vector<Token> Program::execute() {
 					if (binary_func([](Token a, Token b) { return Token::gt(a, b); })) {
 						break;
 					}
+				} else if (current_token_read.str == "and") {
+					if (binary_func([](Token a, Token b) { return Token::and_op(a, b); })) {
+						break;
+					}
+				} else if (current_token_read.str == "or") {
+					if (binary_func([](Token a, Token b) { return Token::or_op(a, b); })) {
+						break;
+					}
+				} else if (current_token_read.str == "xor") {
+					if (binary_func([](Token a, Token b) { return Token::xor_op(a, b); })) {
+						break;
+					}
+				} else if (current_token_read.str == "not") {
+					if (unary_func([](Token a) { return Token::not_op(a); })) {
+						break;
+					}
 				} else if (current_token_read.str == "cpy") {
 					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 						PointerDataType src = rel_token(tokens, 1).get_data_cast<PointerDataType>();

@@ -98,6 +98,10 @@ public:
 	static Token atan2(const Token& first, const Token& second);
 	static Token floor(const Token& arg);
 	static Token ceil(const Token& arg);
+	static Token and_op(const Token& first, const Token& second);
+	static Token or_op(const Token& first, const Token& second);
+	static Token xor_op(const Token& first, const Token& second);
+	static Token not_op(const Token& arg);
 	static Token cmp(const Token& first, const Token& second);
 	static Token lt(const Token& first, const Token& second);
 	static Token gt(const Token& first, const Token& second);

@@ -934,27 +934,74 @@
 # five
 # zero
 
-floor
+# floor
+#     0
+# floor
+#     1.5f
+# floor
+#     2.9
+# floor
+#     -2.9
+# ceil
+#     0
+# ceil
+#     1.5
+# ceil
+#     2.9f
+# ceil
+#     -2.9f
+# floor
+#     inf
+# floor
+#     nanf
+# ceil
+#     inff
+# ceil
+#     nan
+
+and
     0
-floor
-    1.5f
-floor
-    2.9
-floor
-    -2.9
-ceil
     0
-ceil
-    1.5
-ceil
-    2.9f
-ceil
-    -2.9f
-floor
+and
+    1
+    0
+and
+    -1
+    5
+and
     inf
-floor
-    nanf
-ceil
-    inff
-ceil
+    1
+and
     nan
+    nan
+or
+    5.5
+    1.1f
+or
+    5
+    0
+or
+    0.0
+    0
+xor
+    0
+    0
+xor
+    0
+    1
+xor
+    1
+    0
+xor
+    1
+    1
+not
+    0
+not
+    1
+not
+    5
+not
+    -5
+not
+    nanf
