@@ -1,0 +1,25 @@
+# 0.000000f 1.000000f 2.000000 -3.000000 0.000000f 2.000000 3.000000f -2.000000f inf nanf inff nan
+floor
+    0
+floor
+    1.5f
+floor
+    2.9
+floor
+    -2.9
+ceil
+    0
+ceil
+    1.5
+ceil
+    2.9f
+ceil
+    -2.9f
+floor
+    inf
+floor
+    nanf
+ceil
+    inff
+ceil
+    nan

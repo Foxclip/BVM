@@ -933,3 +933,28 @@
 # 5 :five
 # five
 # zero
+
+floor
+    0
+floor
+    1.5f
+floor
+    2.9
+floor
+    -2.9
+ceil
+    0
+ceil
+    1.5
+ceil
+    2.9f
+ceil
+    -2.9f
+floor
+    inf
+floor
+    nanf
+ceil
+    inff
+ceil
+    nan

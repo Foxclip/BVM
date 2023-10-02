@@ -41,6 +41,7 @@ namespace test {
 		"float_cmp.txt",
 		"math_log_trig.txt",
 		"float_inf_nan_4.txt",
+		"floor_ceil.txt",
 	};
 
 	bool is_terminating_char(char c) {

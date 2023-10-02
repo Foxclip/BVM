@@ -353,6 +353,14 @@ Token Token::atan2(const Token& first, const Token& second) {
 	TOKEN_BINARY_OP_FLOAT( return std::atan2(a, b); )
 }
 
+Token Token::floor(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT(return std::floor(a); )
+}
+
+Token Token::ceil(const Token& arg) {
+	TOKEN_UNARY_OP_FLOAT(return std::ceil(a); )
+}
+
 Token Token::cmp(const Token& first, const Token& second) {
 	TOKEN_BINARY_OP_CMP( return a == b; )
 }

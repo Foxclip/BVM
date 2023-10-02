@@ -40,6 +40,8 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("acos", 1),
 	InstructionDef("atan", 1),
 	InstructionDef("atan2", 2),
+	InstructionDef("floor", 1),
+	InstructionDef("ceil", 1),
 	InstructionDef("cmp", 2),
 	InstructionDef("lt", 2),
 	InstructionDef("gt", 2),

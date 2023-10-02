@@ -260,6 +260,14 @@ std::vector<Token> Program::execute() {
 					if (binary_func([](Token a, Token b) { return Token::atan2(a, b); })) {
 						break;
 					}
+				} else if (current_token_read.str == "floor") {
+					if (unary_func([](Token a) { return Token::floor(a); })) {
+						break;
+					}
+				} else if (current_token_read.str == "ceil") {
+					if (unary_func([](Token a) { return Token::ceil(a); })) {
+						break;
+					}
 				} else if (current_token_read.str == "cmp") {
 					if (binary_func([](Token a, Token b) { return Token::cmp(a, b); })) {
 						break;

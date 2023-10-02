@@ -96,6 +96,8 @@ public:
 	static Token acos(const Token& arg);
 	static Token atan(const Token& arg);
 	static Token atan2(const Token& first, const Token& second);
+	static Token floor(const Token& arg);
+	static Token ceil(const Token& arg);
 	static Token cmp(const Token& first, const Token& second);
 	static Token lt(const Token& first, const Token& second);
 	static Token gt(const Token& first, const Token& second);
