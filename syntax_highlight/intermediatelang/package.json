@@ -1,0 +1,34 @@
+{
+  "name": "intermediatelang",
+  "displayName": "IntermediateLang",
+  "description": "Syntax highlighting for intermediate language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "intermediatelang",
+        "aliases": [
+          "IntermediateLang",
+          "intermediatelang"
+        ],
+        "extensions": [
+          ".bvmi"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "intermediatelang",
+        "scopeName": "source.bvmi",
+        "path": "./syntaxes/intermediatelang.tmLanguage.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+    "name": "BVMI",
+    "scopeName": "source.bvmi",
+    "patterns": [
+        {
+            "match": "^#.*",
+            "name": "comment.line.number-sign.ignore"
+        }
+    ]
+}

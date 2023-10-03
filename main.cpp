@@ -21,7 +21,7 @@ void execute_program(std::string path) {
 int main() {
 	try {
 
-		//execute_program("program.txt");
+		//execute_program("program.bvmi");
 		//execute_program("tests/type_parse.txt");
 		test::run_tests();
 
@@ -33,16 +33,18 @@ int main() {
 
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
+	// TODO: move and swap instructions, for moving and swapping subtrees
+	// TODO: builtin macros
 	// TODO: math functions take lists as arguments (and possibly other functions?)
-	// TODO: make Token.str debug-only
 	// TODO: adding numbers to lists and lists to numbers
+	// TODO: make Token.str debug-only
 	// TODO: block instruction, separates program into blocks, blocks have
 	// TODO: replace command string tokens in the code with enum values
 	// TODO: next and prev instructions, return address of the next and previous subtree
 	// TODO: make parse_token function not recursive
+	// TODO: do not parse code every time, keep parsed nodes around if they are not touched by modifying instructiions
 	// TODO: modifying instructions shift pointers in the tokens that are being moved around
 	// if pointers lead inside then leave them as is, otherwise shift them so they point where they were pointing
-	// TODO: move and swap instructions, for moving and swapping subtrees
 	// TODO: shift pointers from pointer list, instead of scanning the whole token list
 	// TODO: place program counter at the leftmost change position at new iteration
 	// TODO: undeletable end instruction
