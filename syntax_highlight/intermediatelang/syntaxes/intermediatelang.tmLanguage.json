@@ -3,7 +3,7 @@
     "scopeName": "source.bvmi",
     "patterns": [
         {
-            "match": "^#.*",
+            "match": "#.*",
             "name": "comment.line.number-sign.ignore"
         }
     ]
