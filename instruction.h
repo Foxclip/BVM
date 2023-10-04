@@ -59,6 +59,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("list", -1),
 	InstructionDef("end", 0),
 	InstructionDef("p", 1),
+	InstructionDef("cast", 2),
 };
 
 InstructionInfo get_instruction_info(std::string token);

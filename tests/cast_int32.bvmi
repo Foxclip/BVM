@@ -1,0 +1,27 @@
+# 5 5L 5u 5U 5.000000f 5.000000 8 5p
+cast
+    int32
+    5
+cast
+    int64
+    5
+cast
+    uint32
+    5
+cast
+    uint64
+    5
+cast
+    float
+    5
+cast
+    double
+    5
+cast
+    instr
+    5
+2
+3
+cast
+    ptr
+    5

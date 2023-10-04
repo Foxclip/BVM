@@ -522,6 +522,20 @@ std::vector<Token> Program::execute() {
 						rel_token(tokens, 0).type = type_ptr;
 						break;
 					}
+				} else if (current_token_read.str == "cast") {
+					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
+						shift_pointers(tokens, program_counter, -2);
+						Token arg1 = rel_token(tokens, 1);
+						Token arg2 = rel_token(tokens, 2);
+						token_type type = (token_type)arg1.get_data_cast<int>();
+						arg2.cast(type);
+						Token result = arg2;
+						result.str = result.to_string();
+						tokens.erase(tokens.begin() + program_counter);
+						tokens.erase(tokens.begin() + program_counter);
+						rel_token(tokens, 0) = result;
+						break;
+					}
 				} else {
 					throw std::runtime_error("Unexpected token: " + current_token_read.str);
 				}

@@ -44,6 +44,7 @@ namespace test {
 		"floor_ceil.bvmi",
 		"logic.bvmi",
 		"type_strings.bvmi",
+		"cast_int32.bvmi",
 	};
 
 	bool is_terminating_char(char c) {

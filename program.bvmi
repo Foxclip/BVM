@@ -1006,11 +1006,29 @@
 # not
 #     nanf
 
-int32
-int64
-uint32
-uint64
-float
-double
-instr
-ptr
+cast
+    int32
+    5
+cast
+    int64
+    5
+cast
+    uint32
+    5
+cast
+    uint64
+    5
+cast
+    float
+    5
+cast
+    double
+    5
+cast
+    instr
+    5
+2
+3
+cast
+    ptr
+    5
