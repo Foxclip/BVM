@@ -43,6 +43,7 @@ namespace test {
 		"float_inf_nan_4.bvmi",
 		"floor_ceil.bvmi",
 		"logic.bvmi",
+		"type_strings.bvmi",
 	};
 
 	bool is_terminating_char(char c) {

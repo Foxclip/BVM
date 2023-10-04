@@ -92,6 +92,22 @@ std::vector<Token> Program::tokenize(std::string str) {
 			throw std::runtime_error("Line " + std::to_string(current_line) + ": " + std::string(exc.what()));
 		}
 
+		// replacing type strings with type indices
+		for (ProgramCounterType i = 0; i < words.size(); i++) {
+			WordToken current_word_token = words[i];
+			try {
+				std::string current_word = current_word_token.str;
+				token_type type = string_to_type(current_word);
+				if (type != type_unknown) {
+					int type_index = (int)type;
+					words[i].str = std::to_string(type_index);
+				}
+			} catch (std::exception exc) {
+				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
+			}
+		}
+
+		// creating labels
 		for (ProgramCounterType i = 0; i < words.size(); i++) {
 			WordToken current_word_token = words[i];
 			try {
@@ -110,6 +126,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			}
 		}
 
+		// creating tokens
 		for (ProgramCounterType i = 0; i < words.size(); i++) {
 			WordToken current_word_token = words[i];
 			try {

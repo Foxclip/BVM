@@ -31,10 +31,14 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: cast instruction
+	// TODO: synchronous execution
+	// TODO: nodes disappear if they are not connected to anything
+	// TODO: wait instruction, like get but executes only if its target is a number
 	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction to stop code from executing
 	// TODO: move and swap instructions, for moving and swapping subtrees
-	// TODO: builtin macros
+	// TODO: builtin macros (which are part of the intermediate language itself)
 	// TODO: math functions take lists as arguments (and possibly other functions?)
 	// TODO: adding numbers to lists and lists to numbers
 	// TODO: make Token.str debug-only
@@ -59,7 +63,8 @@ int main() {
 	// TODO: getaddr instruction, get absolute address of the current node
 	// TODO: modifying instructions can only address stuff inside its list (block instruction?)
 	// TODO: fractal lists?
-	// TODO: parallel computation of lists and CUDA version
+	// TODO: parallel computation of lists
+	// TODO: CUDA version
 
 	return 0;
 }
