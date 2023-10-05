@@ -1039,6 +1039,9 @@
 # "a\nb\nc"
 # "\"abc\""
 
-sys
-    0
+0
+1
+print
     "Hello, World!\n"
+2
+3

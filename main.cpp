@@ -35,8 +35,8 @@ void execute_program_normal(std::string path) {
 int main() {
 	try {
 
-		//execute_program_debug("program.bvmi");
-		execute_program_normal("program.bvmi");
+		execute_program_debug("program.bvmi");
+		//execute_program_normal("program.bvmi");
 		//test::run_tests();
 
 	} catch (std::string msg) {
@@ -45,8 +45,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: quote autocomplete and string highlight
-	// TODO: print macro
 	// TODO: string printing test
 	// TODO: function call macro
 	// TODO: synchronous execution

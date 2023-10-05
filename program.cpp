@@ -120,6 +120,20 @@ std::vector<Token> Program::tokenize(std::string str) {
 			throw std::runtime_error("Line " + std::to_string(current_line) + ": " + std::string(exc.what()));
 		}
 
+		// replacing macros
+		for (ProgramCounterType i = 0; i < words.size(); i++) {
+			WordToken current_word_token = words[i];
+			try {
+				std::string current_word = current_word_token.str;
+				if (current_word == "print") {
+					words[i] = WordToken("sys", current_line);
+					words.insert(words.begin() + i + 1, WordToken("0", current_line));
+				}
+			} catch (std::exception exc) {
+				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
+			}
+		}
+
 		// replacing string literals with lists
 		for (ProgramCounterType i = 0; i < words.size(); i++) {
 			WordToken current_word_token = words[i];
