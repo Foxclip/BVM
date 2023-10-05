@@ -1006,15 +1006,26 @@
 # not
 #     nanf
 
-sys
-    0
-    "Hello,"
-sys
-    0
-    32
-sys
-    0
-    "World!"
-sys
-    0
-    10
+# sys
+#     0
+#     "Hello,"
+# sys
+#     0
+#     32
+# sys
+#     0
+#     "World!"
+# sys
+#     0
+#     10
+
+0
+"abc"
+1
+"string"
+2
+"Hello, World!"
+3
+"Line 1
+Line 2"
+4

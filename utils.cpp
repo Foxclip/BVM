@@ -172,6 +172,29 @@ namespace utils {
 		return c == '\n' || c == '\r';
 	}
 
+	std::string char_to_str(char c) {
+		if (c == '\n') {
+			return "\\n";
+		} else if (c == '\r') {
+			return "\\r";
+		} else if (c == '\t') {
+			return "\\t";
+		} else if (c == '\0') {
+			return "\\0";
+		} else {
+			return std::string(1, c);
+		}
+	}
+
+	std::string string_conv(std::string str) {
+		std::string result;
+		for (int i = 0; i < str.size(); i++) {
+			char current_char = str[i];
+			result += char_to_str(current_char);
+		}
+		return result;
+	}
+
 	LongNumberType get_prefix_number(std::string str) {
 		char* end;
 		LongNumberType result = std::strtoull(str.c_str(), &end, 10);

@@ -45,6 +45,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 		enum SplitterState {
 			STATE_SPACE,
 			STATE_WORD,
+			STATE_STRING,
 			STATE_COMMENT,
 		};
 		str += EOF;
@@ -75,6 +76,10 @@ std::vector<Token> Program::tokenize(std::string str) {
 				} else if (state == STATE_SPACE) {
 					if (isspace(current_char)) {
 						// ok
+					} else if (current_char == '"') {
+						current_word = "";
+						current_word += current_char;
+						state = STATE_STRING;
 					} else if (current_char == '#') {
 						state = STATE_COMMENT;
 					} else if (current_char == EOF) {
@@ -83,6 +88,14 @@ std::vector<Token> Program::tokenize(std::string str) {
 						current_word = "";
 						current_word += current_char;
 						state = STATE_WORD;
+					}
+				} else if (state == STATE_STRING) {
+					if (current_char == '"') {
+						current_word += current_char;
+						words.push_back(WordToken(current_word, current_line));
+						state = STATE_SPACE;
+					} else {
+						current_word += current_char;
 					}
 				} else if (state == STATE_COMMENT) {
 					if (utils::is_newline(current_char)) {
@@ -106,13 +119,13 @@ std::vector<Token> Program::tokenize(std::string str) {
 				std::string current_word = current_word_token.str;
 				if (current_word.size() > 1 && current_word.front() == '"' && current_word.back() == '"') {
 					std::string string_content = current_word.substr(1, current_word.size() - 2);
-					std::string list_display_string = "list #\"" + string_content + "\"";
+					std::string list_display_string = "list #\"" + utils::string_conv(string_content) + "\"";
 					WordToken list_token = WordToken("list", list_display_string, current_word_token.line);
 					words[i] = list_token;
 					for (ProgramCounterType char_i = 0; char_i < string_content.size(); char_i++) {
 						char c = string_content[char_i];
 						std::string char_string = std::to_string(c);
-						std::string char_display_string = char_string + " #'" + std::string(1, c) + "'";
+						std::string char_display_string = char_string + " #'" + utils::char_to_str(c) + "'";
 						WordToken char_token = WordToken(char_string, char_display_string, current_word_token.line);
 						ProgramCounterType char_token_index = i + char_i + 1;
 						words.insert(words.begin() + char_token_index, char_token);
