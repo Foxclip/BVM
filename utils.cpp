@@ -181,6 +181,10 @@ namespace utils {
 			return "\\t";
 		} else if (c == '\0') {
 			return "\\0";
+		} else if (c == '\\') {
+			return "\\\\";
+		} else if (c == '"') {
+			return "\\\"";
 		} else {
 			return std::string(1, c);
 		}
@@ -193,6 +197,53 @@ namespace utils {
 			result += char_to_str(current_char);
 		}
 		return result;
+	}
+
+	std::string replace_escape_seq(std::string str) {
+		try {
+			std::string result;
+			enum TokenizerState {
+				STATE_NORMAL,
+				STATE_ESCAPE,
+			};
+			TokenizerState state = STATE_NORMAL;
+			std::string str_orig = str;
+			str += EOF;
+			for (int i = 0; i < str.size(); i++) {
+				char current_char = str[i];
+				switch (state) {
+					case STATE_NORMAL:
+						if (current_char == '\\') {
+							state = STATE_ESCAPE;
+						} else if (current_char == EOF) {
+							break;
+						} else {
+							result += current_char;
+						}
+						break;
+					case STATE_ESCAPE:
+						if (current_char == 'n') {
+							result += "\n";
+							state = STATE_NORMAL;
+						} else if (current_char == 'r') {
+							result += "\r";
+							state = STATE_NORMAL;
+						} else if (current_char == 't') {
+							result += "\t";
+							state = STATE_NORMAL;
+						} else if (current_char == '\\') {
+							result += "\\";
+							state = STATE_NORMAL;
+						} else {
+							throw std::runtime_error("Unexpected char: " + char_to_str(current_char));
+						}
+						break;
+				}
+			}
+			return result;
+		} catch (std::exception exc) {
+			throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
+		}
 	}
 
 	LongNumberType get_prefix_number(std::string str) {

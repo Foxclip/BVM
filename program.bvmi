@@ -1019,13 +1019,22 @@
 #     0
 #     10
 
-0
-"abc"
-1
-"string"
-2
-"Hello, World!"
-3
-"Line 1
-Line 2"
-4
+# 0
+# "abc"
+# 1
+# "string"
+# 2
+# "Hello, World!"
+# 3
+# "Line 1
+# Line 2"
+# 4
+
+"\n"
+"\r"
+"\t"
+"\\"
+"\""
+"a\\b\\c"
+"a\nb\nc"
+"\"abc\""

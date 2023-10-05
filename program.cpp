@@ -1,11 +1,7 @@
 #include "program.h"
 
-void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line) {
-	throw std::runtime_error(
-		"Line " + std::to_string(line)
-		+ ", current word: " + current_word 
-		+ ", unexpected char: " + std::string(1, c)
-	);
+void throwUnexpectedCharException(char c, std::string current_word) {
+	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + utils::char_to_str(c));
 }
 
 std::vector<Token> Program::tokenize(std::string str) {
@@ -46,6 +42,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			STATE_SPACE,
 			STATE_WORD,
 			STATE_STRING,
+			STATE_ESCAPE,
 			STATE_COMMENT,
 		};
 		str += EOF;
@@ -78,7 +75,6 @@ std::vector<Token> Program::tokenize(std::string str) {
 						// ok
 					} else if (current_char == '"') {
 						current_word = "";
-						current_word += current_char;
 						state = STATE_STRING;
 					} else if (current_char == '#') {
 						state = STATE_COMMENT;
@@ -91,12 +87,24 @@ std::vector<Token> Program::tokenize(std::string str) {
 					}
 				} else if (state == STATE_STRING) {
 					if (current_char == '"') {
-						current_word += current_char;
-						words.push_back(WordToken(current_word, current_line));
+						std::string repl_esc = utils::replace_escape_seq(current_word);
+						repl_esc.insert(repl_esc.begin(), '"');
+						repl_esc.insert(repl_esc.end(), '"');
+						words.push_back(WordToken(repl_esc, current_line));
 						state = STATE_SPACE;
+					} else if (current_char == '\\') {
+						state = STATE_ESCAPE;
+					} else if (current_char == EOF) {
+						throwUnexpectedCharException(current_char, current_word);
 					} else {
 						current_word += current_char;
 					}
+				} else if (state == STATE_ESCAPE) {
+					if (current_char != '"') {
+						current_word += '\\';
+					}
+					current_word += current_char;
+					state = STATE_STRING;
 				} else if (state == STATE_COMMENT) {
 					if (utils::is_newline(current_char)) {
 						state = STATE_SPACE;

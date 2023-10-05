@@ -45,9 +45,10 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: quote autocomplete and string highlight
 	// TODO: print macro
-	// TODO: string escape sequences
 	// TODO: string printing test
+	// TODO: function call macro
 	// TODO: synchronous execution
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number

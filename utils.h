@@ -41,6 +41,7 @@ namespace utils {
 	bool is_newline(char c);
 	std::string char_to_str(char c);
 	std::string string_conv(std::string str);
+	std::string replace_escape_seq(std::string str);
 	bool alphanum_less(std::string str1, std::string str2);
 	std::vector<std::filesystem::path> list_directory(std::filesystem::path path, bool alphanum = false);
 
