@@ -29,6 +29,9 @@ public:
 	std::vector<Token> tokens;
 	std::vector<Token> prev_tokens;
 	std::vector<std::unique_ptr<Node>> nodes;
+	std::string local_print_buffer;
+	std::string global_print_buffer;
+	bool print_buffer_enabled = false;
 	bool print_iterations = false;
 
 	Program(std::string str);
@@ -52,5 +55,7 @@ private:
 	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
 	bool unary_func(std::function<Token(Token)> func);
 	bool binary_func(std::function<Token(Token, Token)> func);
+	std::vector<Token> sys_call(int index, std::vector<Token> input);
+	std::vector<Token> sys_println(std::vector<Token> input);
 
 };

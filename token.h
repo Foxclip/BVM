@@ -17,6 +17,9 @@ public:
 	bool is_num();
 	bool is_ptr();
 	bool is_num_or_ptr();
+	bool is_list_header();
+	bool is_list_end();
+	bool is_singular_data();
 	void cast(token_type new_type);
 	std::string to_string() const;
 	static token_type get_return_type(token_type type1, token_type type2);

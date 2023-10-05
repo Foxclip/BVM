@@ -2,17 +2,31 @@
 #include "utils.h"
 #include "test.h"
 
-void execute_program(std::string path) {
+void execute_program_debug(std::string path) {
 	try {
 		std::string program_text = utils::file_to_str(path);
 		Program program(program_text);
 		program.print_iterations = true;
+		program.print_buffer_enabled = true;
 		std::cout << "Nodes:";
 		std::cout << "\n";
 		program.print_nodes();
 		std::vector<Token> results = program.execute();
 		std::cout << "Results: ";
 		program.print_tokens(false);
+		std::cout << "Print buffer:\n";
+		std::cout << program.global_print_buffer;
+	} catch (std::exception exc) {
+		throw std::runtime_error(path + ": " + exc.what());
+	}
+}
+
+void execute_program_normal(std::string path) {
+	try {
+		std::string program_text = utils::file_to_str(path);
+		Program program(program_text);
+		program.print_buffer_enabled = true;
+		std::vector<Token> results = program.execute();
 	} catch (std::exception exc) {
 		throw std::runtime_error(path + ": " + exc.what());
 	}
@@ -21,9 +35,9 @@ void execute_program(std::string path) {
 int main() {
 	try {
 
-		//execute_program("program.bvmi");
-		//execute_program("tests/type_parse.txt");
-		test::run_tests();
+		//execute_program_debug("program.bvmi");
+		execute_program_normal("program.bvmi");
+		//test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
@@ -31,8 +45,10 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: string printing
+	// TODO: proper string tokenizing
+	// TODO: print macro
 	// TODO: string escape sequences
+	// TODO: string printing test
 	// TODO: synchronous execution
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number

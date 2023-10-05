@@ -1006,8 +1006,15 @@
 # not
 #     nanf
 
-0
-"abc"
-1
-"string"
-2
+sys
+    0
+    "Hello,"
+sys
+    0
+    32
+sys
+    0
+    "World!"
+sys
+    0
+    10

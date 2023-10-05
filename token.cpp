@@ -74,6 +74,18 @@ bool Token::is_num_or_ptr() {
 	return is_num() || is_ptr();
 }
 
+bool Token::is_list_header() {
+	return str == "list";
+}
+
+bool Token::is_list_end() {
+	return str == "end";
+}
+
+bool Token::is_singular_data() {
+	return type != type_instr && !is_list_header();
+}
+
 void Token::cast(token_type new_type) {
 	try {
 		switch (new_type) {

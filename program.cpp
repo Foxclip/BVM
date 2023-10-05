@@ -104,7 +104,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			WordToken current_word_token = words[i];
 			try {
 				std::string current_word = current_word_token.str;
-				if (current_word.front() == '"' && current_word.back() == '"') {
+				if (current_word.size() > 1 && current_word.front() == '"' && current_word.back() == '"') {
 					std::string string_content = current_word.substr(1, current_word.size() - 2);
 					std::string list_display_string = "list #\"" + string_content + "\"";
 					WordToken list_token = WordToken("list", list_display_string, current_word_token.line);
@@ -248,6 +248,7 @@ std::vector<Token> Program::execute() {
 			}
 			ProgramCounterType steps = 0;
 			std::stack<ProgramCounterType> list_scope_stack;
+			local_print_buffer = "";
 			for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
 				Token current_token_read = rel_token(tokens, 0);
 				Token next_token = rel_token(tokens, 1);
@@ -581,6 +582,31 @@ std::vector<Token> Program::execute() {
 						rel_token(tokens, 0) = result;
 						break;
 					}
+				} else if (current_token_read.str == "sys") {
+					bool arg1_valid = rel_token(tokens, 1).is_num_or_ptr();
+					bool arg2_valid = rel_token(tokens, 2).is_list_header() || rel_token(tokens, 2).is_singular_data();
+					if (arg1_valid && arg2_valid) {
+						ProgramCounterType sys_position = program_counter;
+						int sys_call_index = rel_token(tokens, 1).get_data_cast<int>();
+						std::vector<Token> arg_list;
+						if (rel_token(tokens, 2).is_singular_data()) {
+							arg_list.push_back(rel_token(tokens, 2));
+							shift_pointers(tokens, sys_position, -3);
+							tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + 3);
+						} else {
+							ProgramCounterType current_token_offset = 3;
+							while (!rel_token(tokens, current_token_offset).is_list_end()) {
+								Token arg_token = rel_token(tokens, current_token_offset);
+								arg_list.push_back(arg_token);
+								current_token_offset++;
+							}
+							ProgramCounterType sys_tokens_size = current_token_offset - sys_position + 1;
+							shift_pointers(tokens, sys_position, -(PointerDataType)sys_tokens_size);
+							tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + current_token_offset + 1);
+						}
+						sys_call(sys_call_index, arg_list);
+						break;
+					}
 				} else {
 					throw std::runtime_error("Unexpected token: " + current_token_read.str);
 				}
@@ -588,6 +614,16 @@ std::vector<Token> Program::execute() {
 			}
 			if (print_iterations) {
 				print_tokens();
+			}
+			if (print_buffer_enabled && local_print_buffer.size() > 0) {
+				if (print_iterations) {
+					std::cout << "Print: ";
+				}
+				std::cout << local_print_buffer;
+				if (print_iterations && !utils::is_newline(local_print_buffer.back())) {
+					std::cout << "\n";
+				}
+				global_print_buffer += local_print_buffer;
 			}
 			if (tokens == prev_tokens) {
 				break;
@@ -749,4 +785,21 @@ bool Program::binary_func(std::function<Token(Token, Token)> func) {
 		return true;
 	}
 	return false;
+}
+
+std::vector<Token> Program::sys_call(int index, std::vector<Token> input) {
+	switch (index) {
+		case 0: return sys_println(input); break;
+		default: return std::vector<Token>();
+	}
+}
+
+std::vector<Token> Program::sys_println(std::vector<Token> input) {
+	std::string str;
+	for (Token token : input) {
+		char c = token.get_data_cast<int>();
+		str += c;
+	}
+	local_print_buffer += str;
+	return std::vector<Token>();
 }
