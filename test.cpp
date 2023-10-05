@@ -47,6 +47,7 @@ namespace test {
 		"cast.bvmi",
 		"cast_int32.bvmi",
 		"cast_float.bvmi",
+		"string_literal.bvmi",
 	};
 
 	bool is_terminating_char(char c) {

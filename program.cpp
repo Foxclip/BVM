@@ -13,11 +13,16 @@ std::vector<Token> Program::tokenize(std::string str) {
 
 		struct WordToken {
 			std::string str;
-			std::string orig_str;
+			std::string display_str;
 			ProgramCounterType line;
 			WordToken(std::string str, ProgramCounterType line) {
 				this->str = str;
-				this->orig_str = str;
+				this->display_str = str;
+				this->line = line;
+			}
+			WordToken(std::string str, std::string display_str, ProgramCounterType line) {
+				this->str = str;
+				this->display_str = display_str;
 				this->line = line;
 			}
 		};
@@ -94,6 +99,33 @@ std::vector<Token> Program::tokenize(std::string str) {
 			throw std::runtime_error("Line " + std::to_string(current_line) + ": " + std::string(exc.what()));
 		}
 
+		// replacing string literals with lists
+		for (ProgramCounterType i = 0; i < words.size(); i++) {
+			WordToken current_word_token = words[i];
+			try {
+				std::string current_word = current_word_token.str;
+				if (current_word.front() == '"' && current_word.back() == '"') {
+					std::string string_content = current_word.substr(1, current_word.size() - 2);
+					std::string list_display_string = "list #\"" + string_content + "\"";
+					WordToken list_token = WordToken("list", list_display_string, current_word_token.line);
+					words[i] = list_token;
+					for (ProgramCounterType char_i = 0; char_i < string_content.size(); char_i++) {
+						char c = string_content[char_i];
+						std::string char_string = std::to_string(c);
+						std::string char_display_string = char_string + " #'" + std::string(1, c) + "'";
+						WordToken char_token = WordToken(char_string, char_display_string, current_word_token.line);
+						ProgramCounterType char_token_index = i + char_i + 1;
+						words.insert(words.begin() + char_token_index, char_token);
+					}
+					WordToken end_token = WordToken("end", current_word_token.line);
+					ProgramCounterType end_token_index = i + string_content.size() + 1;
+					words.insert(words.begin() + end_token_index, end_token);
+				}
+			} catch (std::exception exc) {
+				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
+			}
+		}
+
 		// replacing type strings with type indices
 		for (ProgramCounterType i = 0; i < words.size(); i++) {
 			WordToken current_word_token = words[i];
@@ -146,7 +178,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 				} else {
 					new_token = Token(str);
 				}
-				new_token.orig_str = current_word_token.orig_str;
+				new_token.orig_str = current_word_token.display_str;
 				tokens.push_back(new_token);
 			} catch (std::exception exc) {
 				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
@@ -718,5 +750,3 @@ bool Program::binary_func(std::function<Token(Token, Token)> func) {
 	}
 	return false;
 }
-
-

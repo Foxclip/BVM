@@ -32,6 +32,7 @@ int main() {
 	}
 
 	// TODO: string printing
+	// TODO: string escape sequences
 	// TODO: synchronous execution
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number
