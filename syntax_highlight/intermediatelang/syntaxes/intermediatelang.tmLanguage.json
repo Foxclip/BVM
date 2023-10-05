@@ -4,7 +4,11 @@
     "patterns": [
         {
             "match": "#.*",
-            "name": "comment.line.number-sign.ignore"
+            "name": "comment.line.number-sign.bvmi"
+        },
+        {
+            "match": "\"(?:[^\"\\]|\\.)*\"",
+            "name": "string.quoted.double.bvmi"
         }
     ]
 }

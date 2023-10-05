@@ -1,5 +1,14 @@
 {
     "comments": {
         "lineComment": "#"
-    }
+    },
+    "autoClosingPairs": [
+        {
+            "open": "\"",
+            "close": "\"",
+            "notIn": [
+                "string"
+            ]
+        },
+    ],
 }
