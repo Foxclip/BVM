@@ -13,12 +13,18 @@ struct InstructionDef {
 };
 
 struct InstructionInfo {
-	std::string str;
-	int arg_count;
-	int index;
+	std::string str = "";
+	int arg_count = 0;
+	int index = -1;
+	InstructionInfo() { }
 	InstructionInfo(std::string str, int arg_count, int index) {
 		this->str = str;
 		this->arg_count = arg_count;
+		this->index = index;
+	}
+	InstructionInfo(InstructionDef def, int index) {
+		this->str = def.str;
+		this->arg_count = def.arg_count;
 		this->index = index;
 	}
 };
@@ -63,3 +69,4 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 };
 
 InstructionInfo get_instruction_info(std::string token);
+InstructionInfo get_instruction_info(int index);

@@ -14,3 +14,10 @@ InstructionInfo get_instruction_info(std::string token) {
 	InstructionInfo info(def.str, def.arg_count, index);
 	return info;
 }
+
+InstructionInfo get_instruction_info(int index) {
+	if (index < 0 || index >= INSTRUCTION_LIST.size()) {
+		return InstructionInfo();
+	}
+	return InstructionInfo(INSTRUCTION_LIST[index], index);
+}

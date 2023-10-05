@@ -21,9 +21,9 @@ void execute_program(std::string path) {
 int main() {
 	try {
 
-		execute_program("program.bvmi");
+		//execute_program("program.bvmi");
 		//execute_program("tests/type_parse.txt");
-		//test::run_tests();
+		test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
@@ -31,7 +31,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: cast instruction tests for other types, out of bounds cast test, nan cast test
 	// TODO: string printing
 	// TODO: synchronous execution
 	// TODO: nodes disappear if they are not connected to anything

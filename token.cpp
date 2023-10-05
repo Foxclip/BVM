@@ -85,7 +85,7 @@ void Token::cast(token_type new_type) {
 			case type_double: set_data<DoubleDataType>(get_data_cast<DoubleDataType>()); break;
 			case type_instr: set_data<InstructionDataType>(get_data_cast<InstructionDataType>()); break;
 			case type_ptr: set_data<PointerDataType>(get_data_cast<PointerDataType>()); break;
-			default: throw std::runtime_error("Unknown token_data type: " + std::to_string(type));
+			default: throw std::runtime_error("Unknown token_data type: " + std::to_string(new_type));
 		}
 		type = new_type;
 	} catch (std::exception exc) {

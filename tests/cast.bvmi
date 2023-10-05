@@ -1,0 +1,44 @@
+# 5f 5 5.0 -5 -2147483648 nanf inf 3f -5.0 -1 nan 5 25
+cast
+    -1
+    5.0f
+cast
+    -1.5
+    5
+cast
+    55
+    5.0
+cast
+    nan
+    -5
+cast
+    int32
+    inf
+cast
+    float
+    nan
+cast
+    double
+    inff
+cast
+    inf
+    3.0f
+cast
+    nan
+    -5.0
+cast
+    instr
+    -1
+cast
+    instr
+    nan
+cast
+    instr
+    0
+2
+3
+cast
+    instr
+    2
+5
+5

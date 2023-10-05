@@ -1008,27 +1008,27 @@
 
 cast
     int32
-    5
+    5.0f
 cast
     int64
-    5
+    5.0f
 cast
     uint32
-    5
+    5.0f
 cast
     uint64
-    5
+    5.0f
 cast
     float
-    5
+    5.0f
 cast
     double
-    5
+    5.0f
 cast
     instr
-    5
+    5.0f
 2
 3
 cast
     ptr
-    5
+    5.0f

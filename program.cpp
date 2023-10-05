@@ -531,8 +531,17 @@ std::vector<Token> Program::execute() {
 						shift_pointers(tokens, program_counter, -2);
 						Token arg1 = rel_token(tokens, 1);
 						Token arg2 = rel_token(tokens, 2);
-						token_type type = (token_type)arg1.get_data_cast<int>();
-						arg2.cast(type);
+						token_type type = static_cast<token_type>(arg1.get_data_cast<int>());
+						if (type >= 0 && type < type_unknown) {
+							if (type == type_instr) {
+								int instruction_index = arg2.get_data_cast<int>();
+								if (get_instruction_info(instruction_index).index != -1) {
+									arg2.cast(type);
+								}
+							} else {
+								arg2.cast(type);
+							}
+						}
 						Token result = arg2;
 						result.str = result.to_string();
 						tokens.erase(tokens.begin() + program_counter);
