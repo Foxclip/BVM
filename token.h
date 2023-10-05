@@ -8,6 +8,7 @@
 class Token {
 public:
 	std::string str;
+	std::string orig_str = "<token_orig_str>";
 	token_type type = type_int32;
 
 	Token();

@@ -55,7 +55,7 @@ enum token_type {
 	type_double,
 	type_instr,
 	type_ptr,
-	type_unknown,
+	type_unknown, // keep last
 };
 
 const token_type INT_ZERO_DIV_RESULT_TYPE = type_float;

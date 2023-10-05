@@ -13,9 +13,11 @@ std::vector<Token> Program::tokenize(std::string str) {
 
 		struct WordToken {
 			std::string str;
+			std::string orig_str;
 			ProgramCounterType line;
 			WordToken(std::string str, ProgramCounterType line) {
 				this->str = str;
+				this->orig_str = str;
 				this->line = line;
 			}
 		};
@@ -144,6 +146,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 				} else {
 					new_token = Token(str);
 				}
+				new_token.orig_str = current_word_token.orig_str;
 				tokens.push_back(new_token);
 			} catch (std::exception exc) {
 				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
@@ -162,7 +165,8 @@ Node::Node(Token token) {
 }
 
 std::string Node::to_string() {
-	return token.to_string();
+	//return token.to_string();
+	return token.orig_str;
 }
 
 std::vector<Token> Node::tokenize() {
