@@ -82,8 +82,16 @@ bool Token::is_list_end() {
 	return str == "end";
 }
 
+bool Token::is_list() {
+	return is_list_header() || is_list_end();
+}
+
 bool Token::is_singular_data() {
-	return type != type_instr && !is_list_header();
+	return type != type_instr && !is_list();
+}
+
+bool Token::is_nlist_instr() {
+	return type == type_instr && !is_list();
 }
 
 void Token::cast(token_type new_type) {

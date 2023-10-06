@@ -279,112 +279,67 @@ std::vector<Token> Program::execute() {
 		}
 		for (ProgramCounterType iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 			if (print_iterations) {
-				std::cout << "Iteration " << iteration << ": ";
+				std::cout << "Iteration " << iteration << "\n";
 			}
 			ProgramCounterType steps = 0;
 			std::stack<ProgramCounterType> list_scope_stack;
 			local_print_buffer = "";
 			for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
+				if (print_iterations) {
+					std::cout << "Step " << steps << ": ";
+				}
 				Token current_token_read = rel_token(tokens, 0);
 				Token next_token = rel_token(tokens, 1);
 				if (current_token_read.is_num_or_ptr()) {
 					// skipping
 				} else if (current_token_read.str == "add") {
-					if (binary_func([](Token a, Token b) { return Token::add(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::add(a, b); });
 				} else if (current_token_read.str == "sub") {
-					if (binary_func([](Token a, Token b) { return Token::sub(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::sub(a, b); });
 				} else if (current_token_read.str == "mul") {
-					if (binary_func([](Token a, Token b) { return Token::mul(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::mul(a, b); });
 				} else if (current_token_read.str == "div") {
-					if (binary_func([](Token a, Token b) { return Token::div(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::div(a, b); });
 				} else if (current_token_read.str == "mod") {
-					if (binary_func([](Token a, Token b) { return Token::mod(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::mod(a, b); });
 				} else if (current_token_read.str == "pow") {
-					if (binary_func([](Token a, Token b) { return Token::pow(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::pow(a, b); });
 				} else if (current_token_read.str == "log") {
-					if (unary_func([](Token a) { return Token::log(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::log(a); });
 				} else if (current_token_read.str == "log2") {
-					if (unary_func([](Token a) { return Token::log2(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::log2(a); });
 				} else if (current_token_read.str == "sin") {
-					if (unary_func([](Token a) { return Token::sin(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::sin(a); });
 				} else if (current_token_read.str == "cos") {
-					if (unary_func([](Token a) { return Token::cos(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::cos(a); });
 				} else if (current_token_read.str == "tan") {
-					if (unary_func([](Token a) { return Token::tan(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::tan(a); });
 				} else if (current_token_read.str == "asin") {
-					if (unary_func([](Token a) { return Token::asin(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::asin(a); });
 				} else if (current_token_read.str == "acos") {
-					if (unary_func([](Token a) { return Token::acos(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::acos(a); });
 				} else if (current_token_read.str == "atan") {
-					if (unary_func([](Token a) { return Token::atan(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::atan(a); });
 				} else if (current_token_read.str == "atan2") {
-					if (binary_func([](Token a, Token b) { return Token::atan2(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::atan2(a, b); });
 				} else if (current_token_read.str == "floor") {
-					if (unary_func([](Token a) { return Token::floor(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::floor(a); });
 				} else if (current_token_read.str == "ceil") {
-					if (unary_func([](Token a) { return Token::ceil(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::ceil(a); });
 				} else if (current_token_read.str == "cmp") {
-					if (binary_func([](Token a, Token b) { return Token::cmp(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::cmp(a, b); });
 				} else if (current_token_read.str == "lt") {
-					if (binary_func([](Token a, Token b) { return Token::lt(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::lt(a, b); });
 				} else if (current_token_read.str == "gt") {
-					if (binary_func([](Token a, Token b) { return Token::gt(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::gt(a, b); });
 				} else if (current_token_read.str == "and") {
-					if (binary_func([](Token a, Token b) { return Token::and_op(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::and_op(a, b); });
 				} else if (current_token_read.str == "or") {
-					if (binary_func([](Token a, Token b) { return Token::or_op(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::or_op(a, b); });
 				} else if (current_token_read.str == "xor") {
-					if (binary_func([](Token a, Token b) { return Token::xor_op(a, b); })) {
-						break;
-					}
+					binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
 				} else if (current_token_read.str == "not") {
-					if (unary_func([](Token a) { return Token::not_op(a); })) {
-						break;
-					}
+					unary_func([](Token a) { return Token::not_op(a); });
 				} else if (current_token_read.str == "cpy") {
 					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 						PointerDataType src = rel_token(tokens, 1).get_data_cast<PointerDataType>();
@@ -635,6 +590,9 @@ std::vector<Token> Program::execute() {
 				} else {
 					throw std::runtime_error("Unexpected token: " + current_token_read.str);
 				}
+				if (print_iterations) {
+					print_tokens();
+				}
 				steps++;
 			}
 			if (print_iterations) {
@@ -798,7 +756,7 @@ bool Program::unary_func(std::function<Token(Token)> func) {
 	return false;
 }
 
-bool Program::binary_func(std::function<Token(Token, Token)> func) {
+void Program::binary_func(std::function<Token(Token, Token)> func) {
 	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 		shift_pointers(tokens, program_counter, -2);
 		Token arg1 = rel_token(tokens, 1);
@@ -807,19 +765,17 @@ bool Program::binary_func(std::function<Token(Token, Token)> func) {
 		tokens.erase(tokens.begin() + program_counter);
 		tokens.erase(tokens.begin() + program_counter);
 		rel_token(tokens, 0) = result;
-		return true;
 	}
-	return false;
 }
 
 std::vector<Token> Program::sys_call(int index, std::vector<Token> input) {
 	switch (index) {
-		case 0: return sys_println(input); break;
+		case 0: return sys_print(input); break;
 		default: return std::vector<Token>();
 	}
 }
 
-std::vector<Token> Program::sys_println(std::vector<Token> input) {
+std::vector<Token> Program::sys_print(std::vector<Token> input) {
 	std::string str;
 	for (Token token : input) {
 		char c = token.get_data_cast<int>();

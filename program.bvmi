@@ -1039,9 +1039,22 @@
 # "a\nb\nc"
 # "\"abc\""
 
-0
-1
-print
-    "Hello, World!\n"
-2
-3
+# 0
+# 1
+# print
+#     "Hello, World!\n"
+# 2
+# 3
+
+
+add
+    2
+    add
+        1
+        2
+add
+    5
+    add
+        3
+        3
+
