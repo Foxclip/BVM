@@ -35,9 +35,9 @@ void execute_program_normal(std::string path) {
 int main() {
 	try {
 
-		execute_program_debug("program.bvmi");
+		//execute_program_debug("program.bvmi");
 		//execute_program_normal("program.bvmi");
-		//test::run_tests();
+		test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "EXCEPTION: " << msg << "\n";
@@ -45,9 +45,10 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
+	// TODO: synchronous execution
+	// TODO: seq instruction
 	// TODO: string printing test
 	// TODO: function call macro
-	// TODO: synchronous execution
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number
 	// TODO: adding number to pointer test

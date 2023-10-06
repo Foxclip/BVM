@@ -584,16 +584,6 @@ std::vector<Token> Program::execute() {
 					program_counter = list_pos;
 					list_scope_stack.pop();
 					break;
-				} else if (current_token_read.str == "p") {
-					if (rel_token(tokens, 1).is_num_or_ptr()) {
-						shift_pointers(tokens, program_counter, -1);
-						PointerDataType result = rel_token(tokens, 1).get_data_cast<PointerDataType>();
-						tokens.erase(tokens.begin() + program_counter);
-						rel_token(tokens, 0).str = std::to_string(result);
-						rel_token(tokens, 0).set_data<PointerDataType>(result);
-						rel_token(tokens, 0).type = type_ptr;
-						break;
-					}
 				} else if (current_token_read.str == "cast") {
 					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 						shift_pointers(tokens, program_counter, -2);
