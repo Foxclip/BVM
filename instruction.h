@@ -31,12 +31,12 @@ struct InstructionInfo {
 
 const std::vector<InstructionDef> INSTRUCTION_LIST =
 {
-	InstructionDef("add", 2),
-	InstructionDef("sub", 2),
-	InstructionDef("mul", 2),
-	InstructionDef("div", 2),
-	InstructionDef("mod", 2),
-	InstructionDef("pow", 2),
+	InstructionDef("add", 1),
+	InstructionDef("sub", 1),
+	InstructionDef("mul", 1),
+	InstructionDef("div", 1),
+	InstructionDef("mod", 1),
+	InstructionDef("pow", 1),
 	InstructionDef("log", 1),
 	InstructionDef("log2", 1),
 	InstructionDef("sin", 1),
@@ -45,7 +45,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("asin", 1),
 	InstructionDef("acos", 1),
 	InstructionDef("atan", 1),
-	InstructionDef("atan2", 2),
+	InstructionDef("atan2", 1),
 	InstructionDef("floor", 1),
 	InstructionDef("ceil", 1),
 	InstructionDef("cmp", 2),

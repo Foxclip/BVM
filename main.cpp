@@ -11,6 +11,7 @@ void execute_program_debug(std::string path) {
 		std::cout << "Nodes:";
 		std::cout << "\n";
 		program.print_nodes();
+		std::cout << "\n";
 		std::vector<Token> results = program.execute();
 		std::cout << "Results: ";
 		program.print_tokens(false);

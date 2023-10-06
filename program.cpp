@@ -213,7 +213,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 				} else {
 					new_token = Token(str);
 				}
-				new_token.orig_str = current_word_token.display_str;
+				new_token.display_str = current_word_token.display_str;
 				tokens.push_back(new_token);
 			} catch (std::exception exc) {
 				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
@@ -233,7 +233,7 @@ Node::Node(Token token) {
 
 std::string Node::to_string() {
 	//return token.to_string();
-	return token.orig_str;
+	return token.display_str;
 }
 
 std::vector<Token> Node::tokenize() {
@@ -276,6 +276,7 @@ std::vector<Token> Program::execute() {
 		if (print_iterations) {
 			std::cout << "Iteration *: ";
 			print_tokens();
+			std::cout << "\n";
 		}
 		for (ProgramCounterType iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 			if (print_iterations) {
@@ -528,17 +529,17 @@ std::vector<Token> Program::execute() {
 						break;
 					}
 				} else if (current_token_read.str == "list") {
-					list_scope_stack.push(program_counter);
+					//list_scope_stack.push(program_counter);
 				} else if (current_token_read.str == "end") {
-					ProgramCounterType list_pos = list_scope_stack.top();
-					shift_pointers(tokens, list_pos, -1);
-					tokens.erase(tokens.begin() + list_pos);
-					program_counter--;
-					shift_pointers(tokens, program_counter, -1);
-					tokens.erase(tokens.begin() + program_counter);
-					program_counter = list_pos;
-					list_scope_stack.pop();
-					break;
+					//ProgramCounterType list_pos = list_scope_stack.top();
+					//shift_pointers(tokens, list_pos, -1);
+					//tokens.erase(tokens.begin() + list_pos);
+					//program_counter--;
+					//shift_pointers(tokens, program_counter, -1);
+					//tokens.erase(tokens.begin() + program_counter);
+					//program_counter = list_pos;
+					//list_scope_stack.pop();
+					//break;
 				} else if (current_token_read.str == "cast") {
 					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 						shift_pointers(tokens, program_counter, -2);
@@ -597,6 +598,7 @@ std::vector<Token> Program::execute() {
 			}
 			if (print_iterations) {
 				print_tokens();
+				std::cout << "\n";
 			}
 			if (print_buffer_enabled && local_print_buffer.size() > 0) {
 				if (print_iterations) {
@@ -757,15 +759,35 @@ bool Program::unary_func(std::function<Token(Token)> func) {
 }
 
 void Program::binary_func(std::function<Token(Token, Token)> func) {
-	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
-		shift_pointers(tokens, program_counter, -2);
-		Token arg1 = rel_token(tokens, 1);
-		Token arg2 = rel_token(tokens, 2);
-		Token result = func(arg1, arg2);
-		tokens.erase(tokens.begin() + program_counter);
-		tokens.erase(tokens.begin() + program_counter);
-		rel_token(tokens, 0) = result;
+	if (!rel_token(prev_tokens, 1).is_list_header()) {
+		return;
 	}
+	ProgramCounterType list_offset = 2;
+	while (!rel_token(prev_tokens, list_offset).is_list_end()) {
+		if (!rel_token(prev_tokens, list_offset).is_num_or_ptr()) {
+			return;
+		}
+		list_offset++;
+	}
+	ProgramCounterType func_index = program_counter;
+	PointerDataType list_end_index;
+	std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, program_counter), nullptr, list_end_index);
+	ProgramCounterType func_tokens_size = list_end_index - func_index + 1;
+	ProgramCounterType list_content_size = func_tokens_size - 3;
+	shift_pointers(tokens, program_counter, -(PointerDataType)func_tokens_size);
+	ProgramCounterType offset = 2;
+	Token result;
+	if (!rel_token(prev_tokens, offset).is_list_end()) {
+		result = rel_token(prev_tokens, offset);
+		offset++;
+		while (!rel_token(prev_tokens, offset).is_list_end()) {
+			Token arg = rel_token(prev_tokens, offset);
+			result = func(result, arg);
+			offset++;
+		}
+	}
+	tokens.erase(tokens.begin() + func_index, tokens.begin() + func_index + func_tokens_size);
+	tokens.insert(tokens.begin() + func_index, result);
 }
 
 std::vector<Token> Program::sys_call(int index, std::vector<Token> input) {

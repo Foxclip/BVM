@@ -1048,13 +1048,29 @@
 
 
 add
-    2
-    add
-        1
-        2
-add
-    5
-    add
-        3
-        3
+    list
+        10
+        add
+            list
+                5
+                15
+            end
+        30
+    end
 
+# add
+#     list
+#         2
+#         add
+#             list
+#                 1
+#                 2
+#             end
+#     end
+# add
+#     list
+#         5
+#         add
+#             3
+#             3
+#     end
