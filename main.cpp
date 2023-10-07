@@ -13,7 +13,7 @@ void execute_program_debug(std::string path) {
 		program.print_nodes();
 		std::vector<Token> results = program.execute();
 		std::cout << "Results: ";
-		program.print_tokens(false);
+		program.print_tokens(program.tokens, false);
 		std::cout << "Print buffer:\n";
 		std::cout << program.global_print_buffer;
 	} catch (std::exception exc) {
@@ -45,7 +45,8 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: synchronous execution
+	// TODO: tes cpy looping pointer (index % (tokens.size() + 1))
+	// TODO: parallel cpy test
 	// TODO: seq instruction
 	// TODO: string printing test
 	// TODO: function call macro

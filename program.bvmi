@@ -1047,14 +1047,52 @@
 # 3
 
 
-add
-    2
-    add
-        1
-        2
-add
-    5
-    add
-        3
-        3
+# add
+#     2
+#     add
+#         1
+#         2
+# add
+#     5
+#     add
+#         3
+#         3
 
+# 0
+# list
+#     cpy
+#         -2
+#         21
+#     add
+#         cpy
+#             -4
+#             0
+#         1
+#     if
+#         cmp
+#             cpy
+#                 -4
+#                 0
+#             10
+#         list
+#             del
+#                 5
+#             del
+#                 -4
+#             end
+#         del
+#             0
+#     end
+
+5
+cpy
+    -2
+    2
+6
+cpy
+    -2
+    5
+7
+cpy
+    -2
+    0

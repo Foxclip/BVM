@@ -250,14 +250,14 @@ Program::Program(std::string str) {
 	tokens = tokenize(str);
 }
 
-void Program::print_tokens(bool print_program_counter) {
-	for (ProgramCounterType i = 0; i < tokens.size(); i++) {
+void Program::print_tokens(std::vector<Token>& token_list, bool print_program_counter) {
+	for (ProgramCounterType i = 0; i < token_list.size(); i++) {
 		if (print_program_counter && i == program_counter) {
 			std::cout << "*";
 		}
-		std::cout << tokens[i].to_string() << " ";
+		std::cout << token_list[i].to_string() << " ";
 	}
-	if (print_program_counter && program_counter == tokens.size()) {
+	if (print_program_counter && program_counter == token_list.size()) {
 		std::cout << "*";
 	}
 	std::cout << "\n";
@@ -275,7 +275,7 @@ std::vector<Token> Program::execute() {
 		prev_tokens = tokens;
 		if (print_iterations) {
 			std::cout << "Iteration *: ";
-			print_tokens();
+			print_tokens(tokens);
 		}
 		for (ProgramCounterType iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 			if (print_iterations) {
@@ -283,93 +283,112 @@ std::vector<Token> Program::execute() {
 			}
 			ProgramCounterType steps = 0;
 			std::stack<ProgramCounterType> list_scope_stack;
+			std::vector<ProgramCounterType> index_shift(prev_tokens.size() + 1);
+			auto to_dst_index = [&](ProgramCounterType old_index) {
+				return index_shift[old_index];
+			};
+			auto shift_indices = [&](ProgramCounterType pos, PointerDataType offset) {
+				for (ProgramCounterType index = pos; index < index_shift.size(); index++) {
+					if (offset < 0) {
+						if (index < pos - offset) {
+							index_shift[index] -= index - pos;
+						} else {
+							index_shift[index] += offset;
+						}
+					} else {
+						index_shift[index] += offset;
+					}
+				}
+			};
+			for (ProgramCounterType index = 0; index < index_shift.size(); index++) {
+				index_shift[index] = index;
+			}
 			local_print_buffer = "";
-			for (program_counter = 0; program_counter < tokens.size(); program_counter++) {
+			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
 				if (print_iterations) {
 					std::cout << "Step " << steps << ": ";
+					std::cout << "\n";
 				}
-				Token current_token_read = rel_token(tokens, 0);
-				Token next_token = rel_token(tokens, 1);
-				if (current_token_read.is_num_or_ptr()) {
+				Token current_token = rel_token(prev_tokens, 0);
+				if (current_token.is_num_or_ptr()) {
 					// skipping
-				} else if (current_token_read.str == "add") {
+				} else if (current_token.str == "add") {
 					binary_func([](Token a, Token b) { return Token::add(a, b); });
-				} else if (current_token_read.str == "sub") {
+				} else if (current_token.str == "sub") {
 					binary_func([](Token a, Token b) { return Token::sub(a, b); });
-				} else if (current_token_read.str == "mul") {
+				} else if (current_token.str == "mul") {
 					binary_func([](Token a, Token b) { return Token::mul(a, b); });
-				} else if (current_token_read.str == "div") {
+				} else if (current_token.str == "div") {
 					binary_func([](Token a, Token b) { return Token::div(a, b); });
-				} else if (current_token_read.str == "mod") {
+				} else if (current_token.str == "mod") {
 					binary_func([](Token a, Token b) { return Token::mod(a, b); });
-				} else if (current_token_read.str == "pow") {
+				} else if (current_token.str == "pow") {
 					binary_func([](Token a, Token b) { return Token::pow(a, b); });
-				} else if (current_token_read.str == "log") {
+				} else if (current_token.str == "log") {
 					unary_func([](Token a) { return Token::log(a); });
-				} else if (current_token_read.str == "log2") {
+				} else if (current_token.str == "log2") {
 					unary_func([](Token a) { return Token::log2(a); });
-				} else if (current_token_read.str == "sin") {
+				} else if (current_token.str == "sin") {
 					unary_func([](Token a) { return Token::sin(a); });
-				} else if (current_token_read.str == "cos") {
+				} else if (current_token.str == "cos") {
 					unary_func([](Token a) { return Token::cos(a); });
-				} else if (current_token_read.str == "tan") {
+				} else if (current_token.str == "tan") {
 					unary_func([](Token a) { return Token::tan(a); });
-				} else if (current_token_read.str == "asin") {
+				} else if (current_token.str == "asin") {
 					unary_func([](Token a) { return Token::asin(a); });
-				} else if (current_token_read.str == "acos") {
+				} else if (current_token.str == "acos") {
 					unary_func([](Token a) { return Token::acos(a); });
-				} else if (current_token_read.str == "atan") {
+				} else if (current_token.str == "atan") {
 					unary_func([](Token a) { return Token::atan(a); });
-				} else if (current_token_read.str == "atan2") {
+				} else if (current_token.str == "atan2") {
 					binary_func([](Token a, Token b) { return Token::atan2(a, b); });
-				} else if (current_token_read.str == "floor") {
+				} else if (current_token.str == "floor") {
 					unary_func([](Token a) { return Token::floor(a); });
-				} else if (current_token_read.str == "ceil") {
+				} else if (current_token.str == "ceil") {
 					unary_func([](Token a) { return Token::ceil(a); });
-				} else if (current_token_read.str == "cmp") {
+				} else if (current_token.str == "cmp") {
 					binary_func([](Token a, Token b) { return Token::cmp(a, b); });
-				} else if (current_token_read.str == "lt") {
+				} else if (current_token.str == "lt") {
 					binary_func([](Token a, Token b) { return Token::lt(a, b); });
-				} else if (current_token_read.str == "gt") {
+				} else if (current_token.str == "gt") {
 					binary_func([](Token a, Token b) { return Token::gt(a, b); });
-				} else if (current_token_read.str == "and") {
+				} else if (current_token.str == "and") {
 					binary_func([](Token a, Token b) { return Token::and_op(a, b); });
-				} else if (current_token_read.str == "or") {
+				} else if (current_token.str == "or") {
 					binary_func([](Token a, Token b) { return Token::or_op(a, b); });
-				} else if (current_token_read.str == "xor") {
+				} else if (current_token.str == "xor") {
 					binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
-				} else if (current_token_read.str == "not") {
+				} else if (current_token.str == "not") {
 					unary_func([](Token a) { return Token::not_op(a); });
-				} else if (current_token_read.str == "cpy") {
-					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
-						PointerDataType src = rel_token(tokens, 1).get_data_cast<PointerDataType>();
-						PointerDataType dst = rel_token(tokens, 2).get_data_cast<PointerDataType>();
+				} else if (current_token.str == "cpy") {
+					if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
+						PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+						PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
 						PointerDataType new_token_index;
 						PointerDataType src_index_begin = program_counter + 1 + src;
 						PointerDataType dst_index = program_counter + 2 + dst;
 						PointerDataType cpy_position = program_counter;
-						std::unique_ptr<Node> node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, new_token_index);
+						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						PointerDataType insertion_index_old;
-						if (dst_index == tokens.size()) {
-							insertion_index_old = tokens.size();
+						PointerDataType insertion_index;
+						if (dst_index == prev_tokens.size()) {
+							insertion_index = prev_tokens.size();
 						} else {
-							insertion_index_old = token_index(tokens, dst_index);
+							insertion_index = token_index(prev_tokens, dst_index);
 						}
 						PointerDataType erase_index = program_counter;
-						shift_pointers(tokens, erase_index, -3);
-						tokens.erase(tokens.begin() + erase_index);
-						tokens.erase(tokens.begin() + erase_index);
-						tokens.erase(tokens.begin() + erase_index);
-						PointerDataType insertion_index_new = insertion_index_old;
-						if (insertion_index_old > cpy_position) {
-							insertion_index_new -= std::min(insertion_index_old - cpy_position, (PointerDataType)3);
-						}
-						shift_pointers(tokens, insertion_index_new, node_tokens.size());
-						tokens.insert(tokens.begin() + insertion_index_new, node_tokens.begin(), node_tokens.end());
-						break;
+						PointerDataType dst_erase_index = to_dst_index(erase_index);
+						shift_pointers(tokens, dst_erase_index, -3);
+						shift_indices(erase_index, -3);
+						tokens.erase(tokens.begin() + dst_erase_index);
+						tokens.erase(tokens.begin() + dst_erase_index);
+						tokens.erase(tokens.begin() + dst_erase_index);
+						PointerDataType dst_insertion_index = to_dst_index(insertion_index);
+						shift_pointers(tokens, dst_insertion_index, node_tokens.size());
+						shift_indices(insertion_index, node_tokens.size());
+						tokens.insert(tokens.begin() + dst_insertion_index, node_tokens.begin(), node_tokens.end());
 					}
-				} else if (current_token_read.str == "del") {
+				} else if (current_token.str == "del") {
 					if (rel_token(tokens, 1).is_num_or_ptr()) {
 						PointerDataType arg = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType new_token_index;
@@ -399,7 +418,7 @@ std::vector<Token> Program::execute() {
 						}
 						break;
 					}
-				} else if (current_token_read.str == "set") {
+				} else if (current_token.str == "set") {
 					if (rel_token(tokens, 1).is_num_or_ptr()) {
 						PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType dst_index_begin = token_index(tokens, program_counter + 1 + dst);
@@ -430,7 +449,7 @@ std::vector<Token> Program::execute() {
 						tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 						break;
 					}
-				} else if (current_token_read.str == "repl") {
+				} else if (current_token.str == "repl") {
 					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 						PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType src = rel_token(tokens, 2).get_data_cast<PointerDataType>();
@@ -462,7 +481,7 @@ std::vector<Token> Program::execute() {
 						tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 						break;
 					}
-				} else if (current_token_read.str == "get") {
+				} else if (current_token.str == "get") {
 					if (rel_token(tokens, 1).is_num_or_ptr()) {
 						PointerDataType src = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType src_index_begin = token_index(tokens, program_counter + 1 + src);
@@ -476,7 +495,7 @@ std::vector<Token> Program::execute() {
 						tokens.insert(tokens.begin() + get_index, src_node_tokens.begin(), src_node_tokens.end());
 						break;
 					}
-				} else if (current_token_read.str == "ins") {
+				} else if (current_token.str == "ins") {
 					if (rel_token(tokens, 1).is_num_or_ptr()) {
 						PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType dst_index = token_index(tokens, program_counter + 1 + dst);
@@ -501,7 +520,7 @@ std::vector<Token> Program::execute() {
 						tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
 						break;
 					}
-				} else if (current_token_read.str == "if") {
+				} else if (current_token.str == "if") {
 					if (rel_token(tokens, 1).is_num_or_ptr()) {
 						BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
 						PointerDataType new_token_index;
@@ -527,9 +546,9 @@ std::vector<Token> Program::execute() {
 						}
 						break;
 					}
-				} else if (current_token_read.str == "list") {
+				} else if (current_token.str == "list") {
 					list_scope_stack.push(program_counter);
-				} else if (current_token_read.str == "end") {
+				} else if (current_token.str == "end") {
 					ProgramCounterType list_pos = list_scope_stack.top();
 					shift_pointers(tokens, list_pos, -1);
 					tokens.erase(tokens.begin() + list_pos);
@@ -539,7 +558,7 @@ std::vector<Token> Program::execute() {
 					program_counter = list_pos;
 					list_scope_stack.pop();
 					break;
-				} else if (current_token_read.str == "cast") {
+				} else if (current_token.str == "cast") {
 					if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 						shift_pointers(tokens, program_counter, -2);
 						Token arg1 = rel_token(tokens, 1);
@@ -562,7 +581,7 @@ std::vector<Token> Program::execute() {
 						rel_token(tokens, 0) = result;
 						break;
 					}
-				} else if (current_token_read.str == "sys") {
+				} else if (current_token.str == "sys") {
 					bool arg1_valid = rel_token(tokens, 1).is_num_or_ptr();
 					bool arg2_valid = rel_token(tokens, 2).is_list_header() || rel_token(tokens, 2).is_singular_data();
 					if (arg1_valid && arg2_valid) {
@@ -588,15 +607,18 @@ std::vector<Token> Program::execute() {
 						break;
 					}
 				} else {
-					throw std::runtime_error("Unexpected token: " + current_token_read.str);
+					throw std::runtime_error("Unexpected token: " + current_token.str);
 				}
 				if (print_iterations) {
-					print_tokens();
+					std::cout << "prev_tokens: ";
+					print_tokens(prev_tokens);
+					std::cout << "     tokens: ";
+					print_tokens(tokens, false);
 				}
 				steps++;
 			}
 			if (print_iterations) {
-				print_tokens();
+				print_tokens(tokens);
 			}
 			if (print_buffer_enabled && local_print_buffer.size() > 0) {
 				if (print_iterations) {

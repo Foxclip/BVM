@@ -35,7 +35,7 @@ public:
 	bool print_iterations = false;
 
 	Program(std::string str);
-	void print_tokens(bool print_program_counter = true);
+	void print_tokens(std::vector<Token>& token_list, bool print_program_counter = true);
 	void print_nodes();
 	std::vector<Token> execute();
 
