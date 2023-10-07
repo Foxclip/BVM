@@ -701,6 +701,9 @@ std::unique_ptr<Node> Program::parse_token(
 
 void Program::print_node(Node* node, int indent_level) {
 	std::string indent_string = "";
+	if (node->token.is_list_end()) {
+		indent_level--;
+	}
 	for (int j = 0; j < indent_level; j++) {
 		indent_string += "    ";
 	}

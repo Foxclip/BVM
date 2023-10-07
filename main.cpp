@@ -52,7 +52,7 @@ int main() {
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number
 	// TODO: adding number to pointer test
-	// TODO: repl executes its second argument, also add code instruction to stop code from executing
+	// TODO: repl executes its second argument, also add code instruction (quote, written in source as ') to stop code from executing
 	// TODO: move and swap instructions, for moving and swapping subtrees
 	// TODO: builtin macros (which are part of the intermediate language itself)
 	// TODO: math functions take lists as arguments (and possibly other functions?)
