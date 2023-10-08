@@ -45,7 +45,8 @@ private:
 		ProgramCounterType count;
 	};
 	struct InsertOp {
-		ProgramCounterType pos;
+		ProgramCounterType old_pos;
+		ProgramCounterType new_pos;
 		std::vector<Token> insert_tokens;
 	};
 	ProgramCounterType program_counter = 0;
@@ -68,7 +69,10 @@ private:
 	void delete_tokens(DeleteOp delete_op);
 	void insert_tokens(InsertOp insert_op);
 	void print_node(Node* node, int indent_level);
+	PointerDataType recalc_pointer(std::vector<Token>& parent_token_list, PointerDataType pointer_index, PointerDataType pointer, PointerDataType pos, PointerDataType offset);
+	void _shift_pointers(std::vector<Token>& token_list, std::vector<Token>& parent_token_list, PointerDataType list_pos, PointerDataType pos, PointerDataType offset);
 	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
+	void shift_pointers_rel(std::vector<Token>& token_list, std::vector<Token>& parent_token_list, ProgramCounterType list_pos, PointerDataType pos, PointerDataType offset);
 	bool unary_func(std::function<Token(Token)> func);
 	void binary_func(std::function<Token(Token, Token)> func);
 	std::vector<Token> sys_call(int index, std::vector<Token> input);

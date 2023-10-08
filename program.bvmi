@@ -1084,20 +1084,20 @@
 #             0
 #     end
 
-5 :five
-cpy
-    five
-    cpy_p
-6 :six
-cpy :cpy_p
-    six
-    add
-        end_p
-        1
-7 :seven
-cpy
-    seven
-    0 :end_p
+# 5 :five
+# cpy
+#     five
+#     cpy_p
+# 6 :six
+# cpy :cpy_p
+#     six
+#     add
+#         end_p
+#         1
+# 7 :seven
+# cpy
+#     seven
+#     0 :end_p
 
 # 1
 # 2
@@ -1141,3 +1141,64 @@ cpy
 #     four
 # 3
 # 4 :four
+
+# 5 :five
+# cpy
+#     five
+#     sub
+#         five
+#         1
+# 6
+
+# 1
+# 2 :two
+# 3
+# cpy
+#     two
+#     add
+#         end_p
+#         1 :end_p
+
+# 1
+# 2
+# 3
+# add
+#     1p
+#     1
+# 4
+# 5
+# 6
+
+# 6 :six
+# cpy :cpy_p
+#     six
+#     add
+#         end_p
+#         1
+# 7 :seven
+# cpy
+#     seven
+#     0 :end_p
+
+# 5 :five
+# cpy
+#     five
+#     cpy_p
+# 6 :six
+# cpy :cpy_p
+#     six
+#     add
+#         end_p
+#         1
+# 7 :seven
+# cpy
+#     seven
+#     0 :end_p
+
+5 :five
+cpy
+    five
+    sub
+        five
+        1
+6
