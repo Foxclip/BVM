@@ -279,7 +279,7 @@ std::vector<Token> Program::execute() {
 		}
 		for (ProgramCounterType iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
 			if (print_iterations) {
-				std::cout << "Iteration " << iteration << "\n";
+				std::cout << "Iteration " << iteration << ": ";
 			}
 			ProgramCounterType steps = 0;
 			std::stack<ProgramCounterType> list_scope_stack;
@@ -303,12 +303,18 @@ std::vector<Token> Program::execute() {
 			for (ProgramCounterType index = 0; index < index_shift.size(); index++) {
 				index_shift[index] = index;
 			}
+			struct DeleteOp {
+				ProgramCounterType pos;
+				ProgramCounterType count;
+			};
+			struct InsertOp {
+				ProgramCounterType pos;
+				std::vector<Token> insert_tokens;
+			};
+			std::vector<DeleteOp> delete_ops;
+			std::vector<InsertOp> insert_ops;
 			local_print_buffer = "";
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
-				if (print_iterations) {
-					std::cout << "Step " << steps << ": ";
-					std::cout << "\n";
-				}
 				Token current_token = rel_token(prev_tokens, 0);
 				if (current_token.is_num_or_ptr()) {
 					// skipping
@@ -367,26 +373,19 @@ std::vector<Token> Program::execute() {
 						PointerDataType new_token_index;
 						PointerDataType src_index_begin = program_counter + 1 + src;
 						PointerDataType dst_index = program_counter + 2 + dst;
-						PointerDataType cpy_position = program_counter;
 						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						PointerDataType insertion_index;
+						PointerDataType insert_index;
 						if (dst_index == prev_tokens.size()) {
-							insertion_index = prev_tokens.size();
+							insert_index = prev_tokens.size();
 						} else {
-							insertion_index = token_index(prev_tokens, dst_index);
+							insert_index = token_index(prev_tokens, dst_index);
 						}
 						PointerDataType erase_index = program_counter;
-						PointerDataType dst_erase_index = to_dst_index(erase_index);
-						shift_pointers(tokens, dst_erase_index, -3);
-						shift_indices(erase_index, -3);
-						tokens.erase(tokens.begin() + dst_erase_index);
-						tokens.erase(tokens.begin() + dst_erase_index);
-						tokens.erase(tokens.begin() + dst_erase_index);
-						PointerDataType dst_insertion_index = to_dst_index(insertion_index);
-						shift_pointers(tokens, dst_insertion_index, node_tokens.size());
-						shift_indices(insertion_index, node_tokens.size());
-						tokens.insert(tokens.begin() + dst_insertion_index, node_tokens.begin(), node_tokens.end());
+						DeleteOp delete_op { erase_index, 3 };
+						InsertOp insert_op { insert_index, node_tokens };
+						delete_ops.push_back(delete_op);
+						insert_ops.push_back(insert_op);
 					}
 				} else if (current_token.str == "del") {
 					if (rel_token(tokens, 1).is_num_or_ptr()) {
@@ -609,13 +608,21 @@ std::vector<Token> Program::execute() {
 				} else {
 					throw std::runtime_error("Unexpected token: " + current_token.str);
 				}
-				if (print_iterations) {
-					std::cout << "prev_tokens: ";
-					print_tokens(prev_tokens);
-					std::cout << "     tokens: ";
-					print_tokens(tokens, false);
-				}
 				steps++;
+			}
+			for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
+				DeleteOp& op = delete_ops[op_index];
+				PointerDataType dst_erase_index = to_dst_index(op.pos);
+				shift_pointers(tokens, dst_erase_index, -(PointerDataType)op.count);
+				shift_indices(op.pos, -(PointerDataType)op.count);
+				tokens.erase(tokens.begin() + dst_erase_index, tokens.begin() + dst_erase_index + op.count);
+			}
+			for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
+				InsertOp& op = insert_ops[op_index];
+				PointerDataType dst_insert_index = to_dst_index(op.pos);
+				shift_pointers(tokens, dst_insert_index, op.insert_tokens.size());
+				shift_indices(op.pos, op.insert_tokens.size());
+				tokens.insert(tokens.begin() + dst_insert_index, op.insert_tokens.begin(), op.insert_tokens.end());
 			}
 			if (print_iterations) {
 				print_tokens(tokens);

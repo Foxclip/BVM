@@ -1084,15 +1084,50 @@
 #             0
 #     end
 
-5
+# 5
+# cpy
+#     -2
+#     2
+# 6
+# cpy
+#     -2
+#     5
+# 7
+# cpy
+#     -2
+#     0
+
+# 1
+# 2
+# 3 :three
+# 4
+# 5 :five
+# cpy
+#     three
+#     five
+
+# 1 :one
+# 2 :two
+# 3 :three
+# cpy
+#     two
+#     cpy_p
+# cpy
+#     two
+#     cpy_p :cpy_p
+# cpy
+#     one
+#     0
+
+1 :one
+2 :two
+3 :three
+cpy :cpy_p
+    one
+    cpy_p
 cpy
-    -2
-    2
-6
+    two
+    cpy_p
 cpy
-    -2
-    5
-7
-cpy
-    -2
-    0
+    three
+    cpy_p
