@@ -40,7 +40,18 @@ public:
 	std::vector<Token> execute();
 
 private:
-	PointerDataType program_counter = 0;
+	struct DeleteOp {
+		ProgramCounterType pos;
+		ProgramCounterType count;
+	};
+	struct InsertOp {
+		ProgramCounterType pos;
+		std::vector<Token> insert_tokens;
+	};
+	ProgramCounterType program_counter = 0;
+	std::vector<ProgramCounterType> index_shift;
+	std::vector<DeleteOp> delete_ops;
+	std::vector<InsertOp> insert_ops;
 
 	std::vector<Token> tokenize(std::string str);
 	void parse();
@@ -51,6 +62,11 @@ private:
 		std::vector<Token>& token_list, PointerDataType token_index,
 		Node* parent_node, PointerDataType& new_token_index, int depth = 0
 	);
+	ProgramCounterType to_dst_index(ProgramCounterType old_index);
+	void shift_indices(ProgramCounterType pos, PointerDataType offset);
+	void reset_index_shift();
+	void delete_tokens(DeleteOp delete_op);
+	void insert_tokens(InsertOp insert_op);
 	void print_node(Node* node, int indent_level);
 	void shift_pointers(std::vector<Token>& token_list, PointerDataType pos, PointerDataType offset);
 	bool unary_func(std::function<Token(Token)> func);

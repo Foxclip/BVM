@@ -1,0 +1,15 @@
+# 5 6 6 5 7 7
+5 :five
+cpy
+    five
+    cpy_p
+6 :six
+cpy :cpy_p
+    six
+    add
+        end_p
+        1
+7 :seven
+cpy
+    seven
+    0 :end_p

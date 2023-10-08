@@ -1,0 +1,13 @@
+# 1 2 3 1 2 3
+1 :one
+2 :two
+3 :three
+cpy :cpy_p
+    one
+    cpy_p
+cpy
+    two
+    cpy_p
+cpy
+    three
+    cpy_p

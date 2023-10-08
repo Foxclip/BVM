@@ -45,7 +45,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: parallel cpy test
 	// TODO: test cpy looping pointer (index % (tokens.size() + 1))
 	// TODO: duplicate label error
 	// TODO: seq instruction
