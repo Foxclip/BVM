@@ -42,9 +42,12 @@ public:
 private:
 	class ModifyOp {
 	public:
-		ProgramCounterType pos;
+		ProgramCounterType new_pos;
+		ProgramCounterType old_pos;
 		Token new_token;
+		bool recalc_pointers = true;
 		ModifyOp(ProgramCounterType pos, Token new_token);
+		ModifyOp(ProgramCounterType old_pos, ProgramCounterType new_pos, Token new_token);
 	};
 	class DeleteOp {
 	public:
@@ -57,6 +60,8 @@ private:
 		ProgramCounterType old_pos;
 		ProgramCounterType new_pos;
 		std::vector<Token> insert_tokens;
+		bool recalc_pointers = true;
+		InsertOp(ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	};
 	ProgramCounterType program_counter = 0;
@@ -78,8 +83,12 @@ private:
 	void shift_indices(ProgramCounterType pos, PointerDataType offset);
 	void reset_index_shift();
 	void modify_token(ProgramCounterType pos, Token new_token);
-	void delete_tokens(ProgramCounterType pos, ProgramCounterType count);
+	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
+	void replace_tokens(
+		ProgramCounterType pos_begin, ProgramCounterType pos_end,
+		ProgramCounterType old_pos, std::vector<Token> replace_tokens
+	);
 	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);
 	PointerDataType recalc_pointer(

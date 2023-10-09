@@ -1261,32 +1261,46 @@
 #     3
 # end
 
-0 :zero
-1
-cpy
-    zero
-    dst2
-2
-cpy
-    ten
-    eight
-3 :three
-del
-    three
-4
+# 10
+# 11
+# 12
+# list :list_p
+#     1
+#     2
+#     3
+# end
+# 20
+# 21
+# 22
+# set
+#     list_p
+#     5
+# 30
+# 31
+# 32
+
+# 1
+# 2 :two
+# 3
+# get
+#     two
+
+# 1
+# 2 :two
+# 3
+# two :two_p
+# 4
+# get
+#     two_p
+# 5
+
+list :lst
+    1
+    2
+    3
+end
 5
-6 :six
-cpy
-    zero
-    0
-cpy
-    six
-    0
+6
 7
-8 :eight
-9
-10 :ten
-11
-cpy
-    zero
-    dst2 :dst2
+get
+    lst
