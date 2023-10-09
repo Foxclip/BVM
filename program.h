@@ -68,6 +68,7 @@ private:
 	void reset_index_shift();
 	void delete_tokens(DeleteOp delete_op);
 	void insert_tokens(InsertOp insert_op);
+	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);
 	PointerDataType recalc_pointer(std::vector<Token>& parent_token_list, PointerDataType pointer_index, PointerDataType pointer, PointerDataType pos, PointerDataType offset);
 	void _shift_pointers(std::vector<Token>& token_list, std::vector<Token>& parent_token_list, PointerDataType list_pos, PointerDataType pos, PointerDataType offset);

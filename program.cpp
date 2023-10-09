@@ -574,34 +574,7 @@ std::vector<Token> Program::execute() {
 				}
 				steps++;
 			}
-			for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
-				DeleteOp& op = delete_ops[op_index];
-				PointerDataType dst_erase_index = to_dst_index(op.pos);
-				PointerDataType offset = -(PointerDataType)op.count;
-				shift_pointers(tokens, dst_erase_index, offset);
-				shift_indices(op.pos, offset);
-				tokens.erase(tokens.begin() + dst_erase_index, tokens.begin() + dst_erase_index + op.count);
-			}
-			for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
-				InsertOp& op = insert_ops[op_index];
-				PointerDataType dst_insert_index = to_dst_index(op.new_pos);
-				PointerDataType offset = op.insert_tokens.size();
-				shift_pointers(tokens, dst_insert_index, offset);
-				shift_indices(op.new_pos, offset);
-				for (ProgramCounterType token_i = 0; token_i < op.insert_tokens.size(); token_i++) {
-					Token current_token = op.insert_tokens[token_i];
-					if (current_token.is_ptr()) {
-						PointerDataType pointer_index_old = op.old_pos + token_i;
-						PointerDataType pointer_old = current_token.get_data_cast<PointerDataType>();
-						PointerDataType pointer_dst_old = token_index(prev_tokens, pointer_index_old + pointer_old);
-						PointerDataType pointer_index_new = dst_insert_index + token_i;
-						PointerDataType pointer_dst_new = to_dst_index(pointer_dst_old);
-						PointerDataType pointer_new = pointer_dst_new - pointer_index_new;
-						op.insert_tokens[token_i].set_data<PointerDataType>(pointer_new);
-					}
-				}
-				tokens.insert(tokens.begin() + dst_insert_index, op.insert_tokens.begin(), op.insert_tokens.end());
-			}
+			exec_pending_ops();
 			if (print_iterations) {
 				print_tokens(tokens);
 			}
@@ -734,8 +707,40 @@ void Program::reset_index_shift() {
 void Program::delete_tokens(DeleteOp delete_op) {
 	delete_ops.push_back(delete_op);
 }
+
 void Program::insert_tokens(InsertOp insert_op) {
 	insert_ops.push_back(insert_op);
+}
+
+void Program::exec_pending_ops() {
+	for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
+		DeleteOp& op = delete_ops[op_index];
+		PointerDataType dst_erase_index = to_dst_index(op.pos);
+		PointerDataType offset = -(PointerDataType)op.count;
+		shift_pointers(tokens, dst_erase_index, offset);
+		shift_indices(op.pos, offset);
+		tokens.erase(tokens.begin() + dst_erase_index, tokens.begin() + dst_erase_index + op.count);
+	}
+	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
+		InsertOp& op = insert_ops[op_index];
+		PointerDataType dst_insert_index = to_dst_index(op.new_pos);
+		PointerDataType offset = op.insert_tokens.size();
+		shift_pointers(tokens, dst_insert_index, offset);
+		shift_indices(op.new_pos, offset);
+		for (ProgramCounterType token_i = 0; token_i < op.insert_tokens.size(); token_i++) {
+			Token current_token = op.insert_tokens[token_i];
+			if (current_token.is_ptr()) {
+				PointerDataType pointer_index_old = op.old_pos + token_i;
+				PointerDataType pointer_old = current_token.get_data_cast<PointerDataType>();
+				PointerDataType pointer_dst_old = token_index(prev_tokens, pointer_index_old + pointer_old);
+				PointerDataType pointer_index_new = dst_insert_index + token_i;
+				PointerDataType pointer_dst_new = to_dst_index(pointer_dst_old);
+				PointerDataType pointer_new = pointer_dst_new - pointer_index_new;
+				op.insert_tokens[token_i].set_data<PointerDataType>(pointer_new);
+			}
+		}
+		tokens.insert(tokens.begin() + dst_insert_index, op.insert_tokens.begin(), op.insert_tokens.end());
+	}
 }
 
 void Program::print_node(Node* node, int indent_level) {
