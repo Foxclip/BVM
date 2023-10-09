@@ -1202,3 +1202,52 @@
 #         five
 #         1
 # 6
+
+# 1
+# 2 :two
+# 3
+# del
+#     two
+
+# add
+#     5
+#     6
+# del
+#     -4
+
+# 4
+# add
+#     5
+#     6
+# del
+#     -4
+
+# 1 :one
+# 2 :two
+# 3 :three
+# cpy :cpy_p
+#     one
+#     cpy_p
+# cpy
+#     two
+#     cpy_p
+# cpy
+#     three
+#     cpy_p
+
+# 5 :five
+# cpy
+#     five
+#     sub
+#         five
+#         1
+# 6
+
+# add
+#     two
+#     1
+# del
+#     0
+# 1
+# 2 :two
+# 3

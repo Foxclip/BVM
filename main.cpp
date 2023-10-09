@@ -45,7 +45,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: test cpy looping pointer (index % (tokens.size() + 1))
+	// TODO: ModifyOp modifies subtrees
 	// TODO: duplicate label error
 	// TODO: seq instruction
 	// TODO: string printing test
