@@ -1195,10 +1195,10 @@
 #     seven
 #     0 :end_p
 
-5 :five
-cpy
-    five
-    sub
-        five
-        1
-6
+# 5 :five
+# cpy
+#     five
+#     sub
+#         five
+#         1
+# 6

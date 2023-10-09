@@ -40,17 +40,28 @@ public:
 	std::vector<Token> execute();
 
 private:
-	struct DeleteOp {
+	class ModifyOp {
+	public:
+		ProgramCounterType pos;
+		Token new_token;
+		ModifyOp(ProgramCounterType pos, Token new_token);
+	};
+	class DeleteOp {
+	public:
 		ProgramCounterType pos;
 		ProgramCounterType count;
+		DeleteOp(ProgramCounterType pos, ProgramCounterType count);
 	};
-	struct InsertOp {
+	class InsertOp {
+	public:
 		ProgramCounterType old_pos;
 		ProgramCounterType new_pos;
 		std::vector<Token> insert_tokens;
+		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	};
 	ProgramCounterType program_counter = 0;
 	std::vector<ProgramCounterType> index_shift;
+	std::vector<ModifyOp> modify_ops;
 	std::vector<DeleteOp> delete_ops;
 	std::vector<InsertOp> insert_ops;
 
@@ -66,8 +77,9 @@ private:
 	ProgramCounterType to_dst_index(ProgramCounterType old_index);
 	void shift_indices(ProgramCounterType pos, PointerDataType offset);
 	void reset_index_shift();
-	void delete_tokens(DeleteOp delete_op);
-	void insert_tokens(InsertOp insert_op);
+	void modify_token(ProgramCounterType pos, Token new_token);
+	void delete_tokens(ProgramCounterType pos, ProgramCounterType count);
+	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);
 	PointerDataType recalc_pointer(std::vector<Token>& parent_token_list, PointerDataType pointer_index, PointerDataType pointer, PointerDataType pos, PointerDataType offset);

@@ -1,5 +1,22 @@
 #include "program.h"
 
+Program::DeleteOp::DeleteOp(ProgramCounterType pos, ProgramCounterType count) {
+	this->pos = pos;
+	this->count = count;
+}
+
+Program::InsertOp::InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens) {
+	this->old_pos = old_pos;
+	this->new_pos = new_pos;
+	this->insert_tokens = insert_tokens;
+}
+
+Program::ModifyOp::ModifyOp(ProgramCounterType pos, Token new_token) {
+	this->pos = pos;
+	this->new_token = new_token;
+}
+
+
 void throwUnexpectedCharException(char c, std::string current_word) {
 	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + utils::char_to_str(c));
 }
@@ -284,6 +301,7 @@ std::vector<Token> Program::execute() {
 			ProgramCounterType steps = 0;
 			std::stack<ProgramCounterType> list_scope_stack;
 			reset_index_shift();
+			modify_ops.clear();
 			delete_ops.clear();
 			insert_ops.clear();
 			local_print_buffer = "";
@@ -348,8 +366,8 @@ std::vector<Token> Program::execute() {
 						ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
 						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
 						std::vector<Token> node_tokens = node.get()->tokenize();
-						delete_tokens({ program_counter, 3 });
-						insert_tokens({ src_index_begin, dst_index, node_tokens });
+						delete_tokens(program_counter, 3);
+						insert_tokens(src_index_begin, dst_index, node_tokens);
 					}
 				//} else if (current_token.str == "del") {
 				//	if (rel_token(tokens, 1).is_num_or_ptr()) {
@@ -704,15 +722,24 @@ void Program::reset_index_shift() {
 	}
 }
 
-void Program::delete_tokens(DeleteOp delete_op) {
-	delete_ops.push_back(delete_op);
+void Program::delete_tokens(ProgramCounterType pos, ProgramCounterType count) {
+	delete_ops.push_back(DeleteOp(pos, count));
 }
 
-void Program::insert_tokens(InsertOp insert_op) {
-	insert_ops.push_back(insert_op);
+void Program::insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens) {
+	insert_ops.push_back(InsertOp(old_pos, new_pos, insert_tokens));
+}
+
+void Program::modify_token(ProgramCounterType pos, Token new_token) {
+	modify_ops.push_back(ModifyOp(pos, new_token));
 }
 
 void Program::exec_pending_ops() {
+	for (ProgramCounterType op_index = 0; op_index < modify_ops.size(); op_index++) {
+		ModifyOp& op = modify_ops[op_index];
+		PointerDataType modify_index = to_dst_index(op.pos);
+		tokens[modify_index] = op.new_token;
+	}
 	for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
 		DeleteOp& op = delete_ops[op_index];
 		PointerDataType dst_erase_index = to_dst_index(op.pos);
@@ -823,8 +850,8 @@ void Program::binary_func(std::function<Token(Token, Token)> func) {
 		std::vector<Token> args = { rel_token(prev_tokens, 1), rel_token(prev_tokens, 2) };
 		shift_pointers_rel(args, prev_tokens, program_counter + 1, program_counter, -2);
 		Token result = func(args[0], args[1]);
-		delete_tokens({ program_counter, 3 });
-		insert_tokens({ program_counter, program_counter, { result }});
+		modify_token(program_counter, result);
+		delete_tokens(program_counter + 1, 2);
 	}
 }
 
