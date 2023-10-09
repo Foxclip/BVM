@@ -507,18 +507,13 @@ std::vector<Token> Program::execute() {
 				//		}
 				//		break;
 				//	}
-				//} else if (current_token.str == "list") {
-				//	list_scope_stack.push(program_counter);
-				//} else if (current_token.str == "end") {
-				//	ProgramCounterType list_pos = list_scope_stack.top();
-				//	shift_pointers(tokens, list_pos, -1);
-				//	tokens.erase(tokens.begin() + list_pos);
-				//	program_counter--;
-				//	shift_pointers(tokens, program_counter, -1);
-				//	tokens.erase(tokens.begin() + program_counter);
-				//	program_counter = list_pos;
-				//	list_scope_stack.pop();
-				//	break;
+				} else if (current_token.str == "list") {
+					list_scope_stack.push(program_counter);
+				} else if (current_token.str == "end") {
+					ProgramCounterType list_pos = list_scope_stack.top();
+					delete_tokens(list_pos, list_pos + 1);
+					delete_tokens(program_counter, program_counter + 1);
+					list_scope_stack.pop();
 				//} else if (current_token.str == "cast") {
 				//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 				//		shift_pointers(tokens, program_counter, -2);
@@ -730,7 +725,7 @@ void Program::exec_pending_ops() {
 		PointerDataType dst_erase_begin = to_dst_index(op.pos_begin);
 		for (ProgramCounterType src_index = op.pos_begin; src_index < op.pos_end; src_index++) {
 			PointerDataType dst_index = to_dst_index(src_index);
-			if (dst_index > 0) {
+			if (dst_index >= 0) {
 				valid_token_count++;
 			}
 		}
@@ -749,7 +744,7 @@ void Program::exec_pending_ops() {
 		PointerDataType dst_insert_index = -1;
 		for (ProgramCounterType token_i = op.new_pos; ; token_i++) {
 			PointerDataType dst_index = to_dst_index(token_i);
-			if (dst_index > 0) {
+			if (dst_index >= 0) {
 				dst_insert_index = dst_index;
 				break;
 			}

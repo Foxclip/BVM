@@ -1,6 +1,6 @@
 # 0 33 2 55 66 77 3 4 1
 list
-    end
+end
 list
     list
         0
@@ -12,15 +12,15 @@ list
             55
             66
             77
-            end
+        end
         3
         4
-        end
+    end
     list
-        end
+    end
     list
         1
-        end
     end
+end
 list
-    end
+end
