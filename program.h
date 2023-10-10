@@ -61,15 +61,26 @@ private:
 		ProgramCounterType new_pos;
 		std::vector<Token> insert_tokens;
 		bool recalc_pointers = true;
-		bool replace = false;
 		InsertOp(ProgramCounterType new_pos, std::vector<Token> insert_tokens);
-		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens, bool replace);
+		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
+	};
+	class ReplaceOp {
+	public:
+		ProgramCounterType dst_begin;
+		ProgramCounterType dst_end;
+		ProgramCounterType src_begin;
+		std::vector<Token> src_tokens;
+		ReplaceOp(
+			ProgramCounterType dst_begin, ProgramCounterType dst_end,
+			ProgramCounterType src_begin, std::vector<Token> src_tokens
+		);
 	};
 	ProgramCounterType program_counter = 0;
 	std::vector<PointerDataType> index_shift;
 	std::vector<ModifyOp> modify_ops;
 	std::vector<DeleteOp> delete_ops;
 	std::vector<InsertOp> insert_ops;
+	std::vector<ReplaceOp> replace_ops;
 
 	std::vector<Token> tokenize(std::string str);
 	void parse();
@@ -87,8 +98,13 @@ private:
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(
-		ProgramCounterType pos_begin, ProgramCounterType pos_end,
-		ProgramCounterType old_pos, std::vector<Token> replace_tokens
+		ProgramCounterType dst_begin, ProgramCounterType dst_end,
+		ProgramCounterType src_begin, std::vector<Token> src_tokens
+	);
+	void delete_op_exec(ProgramCounterType pos_begin, ProgramCounterType pos_end);
+	void insert_op_exec(
+		ProgramCounterType old_pos, ProgramCounterType new_pos,
+		std::vector<Token> insert_tokens, bool recalc_pointers
 	);
 	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);
