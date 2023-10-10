@@ -61,8 +61,9 @@ private:
 		ProgramCounterType new_pos;
 		std::vector<Token> insert_tokens;
 		bool recalc_pointers = true;
+		bool replace = false;
 		InsertOp(ProgramCounterType new_pos, std::vector<Token> insert_tokens);
-		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
+		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens, bool replace);
 	};
 	ProgramCounterType program_counter = 0;
 	std::vector<PointerDataType> index_shift;

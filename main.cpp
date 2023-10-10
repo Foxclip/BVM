@@ -45,7 +45,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: pointers pointing inwards in the insert tokens
+	// TODO: replace pointer dst test
 	// TODO: duplicate label error
 	// TODO: seq instruction
 	// TODO: string printing test

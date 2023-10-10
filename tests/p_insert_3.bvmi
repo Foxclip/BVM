@@ -1,0 +1,9 @@
+# 55 2p -2p -2p 2p -5p -2p
+55 :ff
+list :lst_p
+    2p
+    ff
+    -2p
+end
+get
+    lst_p
