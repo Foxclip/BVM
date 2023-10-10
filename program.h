@@ -75,12 +75,28 @@ private:
 			ProgramCounterType src_begin, std::vector<Token> src_tokens
 		);
 	};
+	class MoveOp {
+	public:
+		ProgramCounterType old_begin;
+		ProgramCounterType old_end;
+		ProgramCounterType new_begin;
+		MoveOp(
+			ProgramCounterType old_begin, ProgramCounterType old_end,
+			ProgramCounterType new_begin
+		);
+	};
+	enum OpType {
+		OP_TYPE_NORMAL,
+		OP_TYPE_REPLACE,
+		OP_TYPE_MOVE,
+	};
 	ProgramCounterType program_counter = 0;
 	std::vector<PointerDataType> index_shift;
 	std::vector<ModifyOp> modify_ops;
 	std::vector<DeleteOp> delete_ops;
 	std::vector<InsertOp> insert_ops;
 	std::vector<ReplaceOp> replace_ops;
+	std::vector<MoveOp> move_ops;
 
 	std::vector<Token> tokenize(std::string str);
 	void parse();
@@ -101,12 +117,14 @@ private:
 		ProgramCounterType dst_begin, ProgramCounterType dst_end,
 		ProgramCounterType src_begin, std::vector<Token> src_tokens
 	);
+	ProgramCounterType calc_delete_offset(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void delete_op_exec(
-		ProgramCounterType pos_begin, ProgramCounterType pos_end, PointerDataType insert_token_count = 0
+		ProgramCounterType pos_begin, ProgramCounterType pos_end
 	);
 	void insert_op_exec(
 		ProgramCounterType old_pos, ProgramCounterType new_pos,
-		std::vector<Token> insert_tokens, bool recalc_pointers, bool p_shift_pointers = true
+		std::vector<Token> insert_tokens,
+		OpType op_type
 	);
 	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);
@@ -114,7 +132,14 @@ private:
 		std::vector<Token>& parent_token_list,
 		PointerDataType pointer_index, PointerDataType pointer,
 		PointerDataType pos, PointerDataType offset,
+		PointerDataType& index_new, PointerDataType& dst_new,
 		bool pin_index, bool pin_dst
+	);
+	PointerDataType recalc_pointer_move(
+		std::vector<Token>& token_list,
+		PointerDataType pointer_index, PointerDataType pointer,
+		PointerDataType old_begin, PointerDataType old_end,
+		PointerDataType new_pos
 	);
 	void _shift_pointers(
 		std::vector<Token>& token_list, std::vector<Token>& parent_token_list,
@@ -129,6 +154,11 @@ private:
 		std::vector<Token>& token_list, std::vector<Token>& parent_token_list,
 		ProgramCounterType list_pos, PointerDataType pos, PointerDataType offset,
 		bool pin_index, bool pin_dst
+	);
+	void shift_pointers_move(
+		std::vector<Token>& token_list,
+		ProgramCounterType old_begin, ProgramCounterType old_end,
+		ProgramCounterType new_pos
 	);
 	bool unary_func(std::function<Token(Token)> func);
 	void binary_func(std::function<Token(Token, Token)> func);
