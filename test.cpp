@@ -35,6 +35,7 @@ namespace test {
 		"p_insert_1.bvmi",
 		"p_insert_2.bvmi",
 		"p_insert_3.bvmi",
+		"p_insert_4.bvmi",
 		//"set_1.bvmi",
 		//"set_2.bvmi",
 		//"repl_1.bvmi",

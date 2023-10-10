@@ -1311,24 +1311,24 @@
 # get
 #     lst_p
 
-1
-get_p
-add
-    get_p
-    1
-add
-    get_p
-    2
-2
-get :get_p
-    lst_p
-3
-4
-list :lst_p
-    5
-    6
-end
-7
+# 1
+# get_p
+# add
+#     get_p
+#     1
+# add
+#     get_p
+#     2
+# 2
+# get :get_p
+#     lst_p
+# 3
+# 4
+# list :lst_p
+#     5
+#     6
+# end
+# 7
 
 # 1
 # 3p
@@ -1342,3 +1342,12 @@ end
 #     6
 # end
 # 7
+
+55 :ff
+list :lst_p
+    -1p
+    ff
+    1p
+end
+get
+    lst_p
