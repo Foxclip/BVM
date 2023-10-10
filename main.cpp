@@ -45,7 +45,7 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: ModifyOp modifies subtrees
+	// TODO: pointers pointing inwards in the insert tokens
 	// TODO: duplicate label error
 	// TODO: seq instruction
 	// TODO: string printing test

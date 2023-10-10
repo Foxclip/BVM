@@ -1294,13 +1294,11 @@
 #     two_p
 # 5
 
-list :lst
+55 :ff
+list :lst_p
     1
-    2
+    ff
     3
 end
-5
-6
-7
 get
-    lst
+    lst_p

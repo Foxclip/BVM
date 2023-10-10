@@ -241,6 +241,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 					PointerDataType relative_address = (*it).token_index - i;
 					new_token = Token(str, Token::get_token_type<PointerTokenType>());
 					new_token.set_data<PointerDataType>(relative_address);
+					new_token.str = new_token.to_string();
 				} else {
 					new_token = Token(str);
 				}
@@ -730,7 +731,7 @@ void Program::replace_tokens(
 	Token new_tokens_first = new_tokens.front();
 	new_tokens.erase(new_tokens.begin());
 	delete_ops.push_back(DeleteOp(pos_begin + 1, pos_end));
-	insert_ops.push_back(InsertOp(old_pos, pos_begin + 1, new_tokens));
+	insert_ops.push_back(InsertOp(old_pos + 1, pos_begin + 1, new_tokens));
 	modify_ops.push_back(ModifyOp(old_pos, pos_begin, new_tokens_first));
 }
 
@@ -794,7 +795,7 @@ void Program::exec_pending_ops() {
 					PointerDataType pointer_index_new = dst_insert_index + token_i;
 					PointerDataType pointer_dst_new = to_dst_index(pointer_dst_old);
 					PointerDataType pointer_new = pointer_dst_new - pointer_index_new;
-					op.insert_tokens[token_i].set_data<PointerDataType>(pointer_new);
+					tokens[pointer_index_new].set_data<PointerDataType>(pointer_new);
 				}
 			}
 		}
