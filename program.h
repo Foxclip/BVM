@@ -101,10 +101,12 @@ private:
 		ProgramCounterType dst_begin, ProgramCounterType dst_end,
 		ProgramCounterType src_begin, std::vector<Token> src_tokens
 	);
-	void delete_op_exec(ProgramCounterType pos_begin, ProgramCounterType pos_end);
+	void delete_op_exec(
+		ProgramCounterType pos_begin, ProgramCounterType pos_end, PointerDataType insert_token_count = 0
+	);
 	void insert_op_exec(
 		ProgramCounterType old_pos, ProgramCounterType new_pos,
-		std::vector<Token> insert_tokens, bool recalc_pointers
+		std::vector<Token> insert_tokens, bool recalc_pointers, bool p_shift_pointers = true
 	);
 	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);

@@ -31,6 +31,7 @@ namespace test {
 		"get_1.bvmi",
 		"get_2.bvmi",
 		"get_3.bvmi",
+		"p_shift_4.bvmi",
 		"p_insert_1.bvmi",
 		"p_insert_2.bvmi",
 		"p_insert_3.bvmi",

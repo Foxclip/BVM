@@ -45,7 +45,6 @@ int main() {
 		std::cout << "EXCEPTION: " << exc.what() << "\n";
 	}
 
-	// TODO: replace pointer dst test
 	// TODO: duplicate label error
 	// TODO: seq instruction
 	// TODO: string printing test

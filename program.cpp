@@ -742,7 +742,9 @@ void Program::replace_tokens(
 	replace_ops.push_back(ReplaceOp(dst_begin, dst_end, src_begin, src_tokens));
 }
 
-void Program::delete_op_exec(ProgramCounterType pos_begin, ProgramCounterType pos_end) {
+void Program::delete_op_exec(
+	ProgramCounterType pos_begin, ProgramCounterType pos_end, PointerDataType insert_token_count
+) {
 	ProgramCounterType valid_token_count = 0;
 	PointerDataType dst_erase_begin = to_dst_index(pos_begin);
 	for (ProgramCounterType src_index = pos_begin; src_index < pos_end; src_index++) {
@@ -752,7 +754,12 @@ void Program::delete_op_exec(ProgramCounterType pos_begin, ProgramCounterType po
 		}
 	}
 	PointerDataType offset = -(PointerDataType)valid_token_count;
-	shift_pointers(tokens, dst_erase_begin, offset);
+	if (insert_token_count > 0) {
+		shift_pointers(tokens, dst_erase_begin, offset + 1);
+		shift_pointers(tokens, dst_erase_begin + 1, insert_token_count - 1);
+	} else {
+		shift_pointers(tokens, dst_erase_begin, offset);
+	}
 	for (ProgramCounterType src_erase_index = pos_begin; src_erase_index < pos_end; src_erase_index++) {
 		PointerDataType dst_erase_index = to_dst_index(src_erase_index);
 		if (dst_erase_index >= 0) {
@@ -764,7 +771,7 @@ void Program::delete_op_exec(ProgramCounterType pos_begin, ProgramCounterType po
 
 void Program::insert_op_exec(
 	ProgramCounterType old_pos, ProgramCounterType new_pos,
-	std::vector<Token> insert_tokens, bool recalc_pointers
+	std::vector<Token> insert_tokens, bool recalc_pointers, bool p_shift_pointers
 ) {
 	PointerDataType dst_insert_index = -1;
 	for (ProgramCounterType token_i = new_pos; ; token_i++) {
@@ -775,7 +782,9 @@ void Program::insert_op_exec(
 		}
 	}
 	PointerDataType offset = insert_tokens.size();
-	shift_pointers(tokens, dst_insert_index, offset);
+	if (p_shift_pointers) {
+		shift_pointers(tokens, dst_insert_index, offset);
+	}
 	shift_indices(new_pos, offset);
 	tokens.insert(tokens.begin() + dst_insert_index, insert_tokens.begin(), insert_tokens.end());
 	if (recalc_pointers) {
@@ -825,8 +834,8 @@ void Program::exec_pending_ops() {
 	}
 	for (ProgramCounterType op_index = 0; op_index < replace_ops.size(); op_index++) {
 		ReplaceOp& op = replace_ops[op_index];
-		delete_op_exec(op.dst_begin, op.dst_end);
-		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, true);
+		delete_op_exec(op.dst_begin, op.dst_end, op.src_tokens.size());
+		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, true, false);
 	}
 }
 
