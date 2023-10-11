@@ -40,15 +40,6 @@ public:
 	std::vector<Token> execute();
 
 private:
-	class ModifyOp {
-	public:
-		ProgramCounterType new_pos;
-		ProgramCounterType old_pos;
-		Token new_token;
-		bool recalc_pointers = true;
-		ModifyOp(ProgramCounterType pos, Token new_token);
-		ModifyOp(ProgramCounterType old_pos, ProgramCounterType new_pos, Token new_token);
-	};
 	class DeleteOp {
 	public:
 		ProgramCounterType pos_begin;
@@ -57,7 +48,6 @@ private:
 	};
 	class InsertOp {
 	public:
-		ProgramCounterType old_pos;
 		ProgramCounterType new_pos;
 		std::vector<Token> insert_tokens;
 		bool recalc_pointers = true;
@@ -92,7 +82,6 @@ private:
 	};
 	std::vector<IndexShiftEntry> index_shift;
 	std::vector<PointerDataType> index_shift_rev;
-	std::vector<ModifyOp> modify_ops;
 	std::vector<DeleteOp> delete_ops;
 	std::vector<InsertOp> insert_ops;
 	std::vector<ReplaceOp> replace_ops;
@@ -112,7 +101,6 @@ private:
 	PointerDataType to_src_index(ProgramCounterType new_index);
 	void shift_indices(ProgramCounterType pos, PointerDataType offset, bool p_delete = true);
 	void reset_index_shift();
-	void modify_token(ProgramCounterType pos, Token new_token);
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(
@@ -124,13 +112,12 @@ private:
 		ProgramCounterType pos_begin, ProgramCounterType pos_end
 	);
 	void insert_op_exec(
-		ProgramCounterType old_pos, ProgramCounterType new_pos,
-		std::vector<Token> insert_tokens
+		ProgramCounterType new_pos, std::vector<Token> insert_tokens
 	);
 	void exec_pending_ops();
 	void print_node(Node* node, int indent_level);
 	void shift_pointers();
-	bool unary_func(std::function<Token(Token)> func);
+	void unary_func(std::function<Token(Token)> func);
 	void binary_func(std::function<Token(Token, Token)> func);
 	std::vector<Token> sys_call(int index, std::vector<Token> input);
 	std::vector<Token> sys_print(std::vector<Token> input);

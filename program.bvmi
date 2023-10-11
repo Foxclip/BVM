@@ -1311,38 +1311,8 @@
 # get
 #     lst_p
 
-# 1
-# get_p
-# add
-#     get_p
-#     1
-# add
-#     get_p
-#     2
-# 2
-# get :get_p
-#     lst_p
-# 3
-# 4
-# list :lst_p
-#     5
-#     6
-# end
-# 7
-
-3p
-3p
-3p
-get :get_p
-    lst_p
-3
-4
-list :lst_p
-    5
-    6
-end
-7
-
+# 3p
+# 3p
 # 3p
 # get :get_p
 #     lst_p
@@ -1354,4 +1324,44 @@ end
 # end
 # 7
 
+# add
+#     get_p
+#     1
+# get :get_p
+#     lst_p
+# 3
+# 4
+# list :lst_p
+#     5
+#     6
+# end
+# 7
+
 # 4p list 5 end 3 list end
+
+1
+get_p
+add
+    get_p
+    1
+add
+    get_p
+    2
+2
+get :get_p
+    lst_p
+3
+4
+list :lst_p
+    5
+    6
+end
+7
+
+
+# add
+#     three
+#     1
+# 2
+# 3 :three
+# 4
