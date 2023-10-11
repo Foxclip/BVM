@@ -853,8 +853,8 @@ void Program::exec_pending_ops() {
 		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens);
 		PointerDataType delete_offset = calc_delete_offset(op.dst_begin, op.dst_end);
 		PointerDataType delete_range = op.dst_end - op.dst_begin;
-		shift_indices(op.dst_begin, delete_offset + 1, false);
-		shift_indices(op.dst_begin + delete_range, op.src_tokens.size() - 1);
+		shift_indices(op.dst_begin, delete_offset, false);
+		shift_indices(op.dst_begin + delete_range, op.src_tokens.size());
 		shift_pointers();
 	}
 	for (ProgramCounterType op_index = 0; op_index < move_ops.size(); op_index++) {
