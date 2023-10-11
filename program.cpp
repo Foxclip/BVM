@@ -704,32 +704,64 @@ std::unique_ptr<Node> Program::parse_token(
 	return new_node;
 }
 
-PointerDataType Program::to_dst_index(ProgramCounterType old_index) {
-	return index_shift[old_index];
+bool Program::is_deleted(ProgramCounterType old_index) {
+	return index_shift[old_index].deleted;
 }
 
-void Program::shift_indices(ProgramCounterType pos, PointerDataType offset) {
-	for (ProgramCounterType index = pos; index < index_shift.size(); index++) {
+PointerDataType Program::to_dst_index(ProgramCounterType old_index) {
+	return index_shift[old_index].index;
+}
+
+PointerDataType Program::to_src_index(ProgramCounterType new_index) {
+	return index_shift_rev[new_index];
+}
+
+void Program::shift_indices(ProgramCounterType pos, PointerDataType offset, bool p_delete) {
+	PointerDataType dst_pos = to_dst_index(pos);
+	for (ProgramCounterType i = pos; i < index_shift.size(); i++) {
 		if (offset < 0) {
-			if (index < pos - offset) {
-				index_shift[index] = -1;
+			if (i < pos - offset) {
+				if (p_delete) {
+					index_shift[i].index = -1;
+				} else {
+					index_shift[i].index = pos;
+				}
+				index_shift[i].deleted = true;
 			} else {
-				if (index_shift[index] > 0) {
-					index_shift[index] += offset;
+				if (index_shift[i].index > 0) {
+					index_shift[i].index += offset;
 				}
 			}
 		} else {
-			if (index_shift[index] > 0) {
-				index_shift[index] += offset;
+			if (index_shift[i].index > 0) {
+				index_shift[i].index += offset;
 			}
 		}
+	}
+	if (offset < 0) {
+		index_shift_rev.erase(index_shift_rev.begin() + dst_pos, index_shift_rev.begin() + dst_pos - offset);
+	} else {
+		std::vector<PointerDataType> ins_vector(offset);
+		for (ProgramCounterType i = 0; i < offset; i++) {
+			ins_vector[i] = -1;
+		}
+		index_shift_rev.insert(index_shift_rev.begin() + dst_pos, ins_vector.begin(), ins_vector.end());
 	}
 }
 
 void Program::reset_index_shift() {
-	index_shift = std::vector<PointerDataType>(prev_tokens.size() + 1);
-	for (ProgramCounterType index = 0; index < index_shift.size(); index++) {
-		index_shift[index] = index;
+	try {
+		if (tokens.size() != prev_tokens.size()) {
+			throw std::runtime_error("tokens.size() != prev_tokens.size()");
+		}
+		index_shift = std::vector<IndexShiftEntry>(prev_tokens.size() + 1);
+		index_shift_rev = std::vector<PointerDataType>(prev_tokens.size() + 1);
+		for (ProgramCounterType i = 0; i < index_shift.size(); i++) {
+			index_shift[i].index = i;
+			index_shift_rev[i] = i;
+		}
+	} catch (std::exception exc) {
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -769,20 +801,17 @@ void Program::delete_op_exec(
 	ProgramCounterType pos_begin, ProgramCounterType pos_end
 ) {
 	PointerDataType dst_erase_begin = to_dst_index(pos_begin);
-	PointerDataType offset = calc_delete_offset(pos_begin, pos_end);
 	for (ProgramCounterType src_erase_index = pos_begin; src_erase_index < pos_end; src_erase_index++) {
-		PointerDataType dst_erase_index = to_dst_index(src_erase_index);
-		if (dst_erase_index >= 0) {
+		bool deleted = is_deleted(src_erase_index);
+		if (!deleted) {
 			tokens.erase(tokens.begin() + dst_erase_begin);
 		}
 	}
-	shift_indices(pos_begin, offset);
 }
 
 void Program::insert_op_exec(
 	ProgramCounterType old_pos, ProgramCounterType new_pos,
-	std::vector<Token> insert_tokens,
-	OpType op_type
+	std::vector<Token> insert_tokens
 ) {
 	PointerDataType dst_insert_index = -1;
 	for (ProgramCounterType token_i = new_pos; ; token_i++) {
@@ -793,28 +822,7 @@ void Program::insert_op_exec(
 		}
 	}
 	PointerDataType offset = insert_tokens.size();
-	if (op_type == OP_TYPE_NORMAL) {
-		shift_pointers(tokens, dst_insert_index, offset);
-	}
-	shift_indices(new_pos, offset);
 	tokens.insert(tokens.begin() + dst_insert_index, insert_tokens.begin(), insert_tokens.end());
-	for (ProgramCounterType token_i = 0; token_i < insert_tokens.size(); token_i++) {
-		Token current_token = insert_tokens[token_i];
-		if (current_token.is_ptr()) {
-			PointerDataType pointer_index_old = old_pos + token_i;
-			PointerDataType pointer_old = current_token.get_data_cast<PointerDataType>();
-			PointerDataType pointer_dst_old = token_index(prev_tokens, pointer_index_old + pointer_old);
-			PointerDataType pointer_index_new = dst_insert_index + token_i;
-			PointerDataType pointer_dst_new;
-			if (pointer_dst_old >= old_pos && pointer_dst_old < old_pos + insert_tokens.size()) {
-				pointer_dst_new = token_index(prev_tokens, pointer_index_new + pointer_old);
-			} else {
-				pointer_dst_new = to_dst_index(pointer_dst_old);
-			}
-			PointerDataType pointer_new = pointer_dst_new - pointer_index_new;
-			tokens[pointer_index_new].set_data<PointerDataType>(pointer_new);
-		}
-	}
 }
 
 void Program::exec_pending_ops() {
@@ -823,42 +831,40 @@ void Program::exec_pending_ops() {
 		PointerDataType modify_index = to_dst_index(op.new_pos);
 		Token current_token = op.new_token;
 		tokens[modify_index] = current_token;
-		if (op.recalc_pointers && op.new_token.is_ptr()) {
-			PointerDataType pointer_index_old = op.old_pos;
-			PointerDataType pointer_old = current_token.get_data_cast<PointerDataType>();
-			PointerDataType pointer_dst_old = token_index(prev_tokens, pointer_index_old + pointer_old);
-			PointerDataType pointer_index_new = op.new_pos;
-			PointerDataType pointer_dst_new = to_dst_index(pointer_dst_old);
-			PointerDataType pointer_new = pointer_dst_new - pointer_index_new;
-			tokens[modify_index].set_data<PointerDataType>(pointer_new);
-		}
 	}
 	for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
 		DeleteOp& op = delete_ops[op_index];
 		PointerDataType dst_erase_begin = to_dst_index(op.pos_begin);
-		PointerDataType offset = calc_delete_offset(op.pos_begin, op.pos_end);
-		shift_pointers(tokens, dst_erase_begin, offset);
 		delete_op_exec(op.pos_begin, op.pos_end);
+		PointerDataType delete_offset = calc_delete_offset(op.pos_begin, op.pos_end);
+		shift_indices(op.pos_begin, delete_offset);
+		shift_pointers();
 	}
 	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
 		InsertOp& op = insert_ops[op_index];
-		insert_op_exec(op.old_pos, op.new_pos, op.insert_tokens, OP_TYPE_NORMAL);
+		insert_op_exec(op.old_pos, op.new_pos, op.insert_tokens);
+		shift_indices(op.new_pos, op.insert_tokens.size());
+		shift_pointers();
 	}
 	for (ProgramCounterType op_index = 0; op_index < replace_ops.size(); op_index++) {
 		ReplaceOp& op = replace_ops[op_index];
 		PointerDataType dst_erase_begin = to_dst_index(op.dst_begin);
-		PointerDataType offset = calc_delete_offset(op.dst_begin, op.dst_end);
-		shift_pointers(tokens, dst_erase_begin, offset + 1);
-		shift_pointers(tokens, dst_erase_begin + 1, op.src_tokens.size() - 1);
 		delete_op_exec(op.dst_begin, op.dst_end);
-		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
+		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens);
+		PointerDataType delete_offset = calc_delete_offset(op.dst_begin, op.dst_end);
+		PointerDataType delete_range = op.dst_end - op.dst_begin;
+		shift_indices(op.dst_begin, delete_offset + 1, false);
+		shift_indices(op.dst_begin + delete_range, op.src_tokens.size() - 1);
+		shift_pointers();
 	}
 	for (ProgramCounterType op_index = 0; op_index < move_ops.size(); op_index++) {
-		MoveOp& op = move_ops[op_index];
-		std::vector<Token> src_tokens(prev_tokens.begin() + op.old_begin, prev_tokens.begin() + op.old_end);
-		shift_pointers_move(tokens, op.old_begin, op.old_end, op.new_begin);
-		delete_op_exec(op.old_begin, op.old_end);
-		insert_op_exec(op.old_begin, op.new_begin, src_tokens, OP_TYPE_MOVE);
+		//MoveOp& op = move_ops[op_index];
+		//std::vector<Token> src_tokens(prev_tokens.begin() + op.old_begin, prev_tokens.begin() + op.old_end);
+		//delete_op_exec(op.old_begin, op.old_end);
+		//insert_op_exec(op.old_begin, op.new_begin, src_tokens);
+		//PointerDataType offset = calc_delete_offset(pos_begin, pos_end);
+		//shift_indices(pos_begin, offset);
+		//shift_pointers();
 	}
 }
 
@@ -876,145 +882,36 @@ void Program::print_node(Node* node, int indent_level) {
 	}
 }
 
-PointerDataType Program::recalc_pointer(
-	std::vector<Token>& parent_token_list,
-	PointerDataType pointer_index, PointerDataType pointer,
-	PointerDataType pos, PointerDataType offset,
-	PointerDataType& index_new, PointerDataType& dst_new,
-	bool pin_index, bool pin_dst
-) {
-	PointerDataType pointer_index_old = pointer_index;
-	PointerDataType pointer_dst_old = token_index(parent_token_list, pointer_index + pointer);
-	PointerDataType pointer_index_new = pointer_index_old;
-	PointerDataType pointer_dst_new = pointer_dst_old;
-	if (!pin_index) {
-		if (offset < 0) {
-			PointerDataType recalc_offset = std::clamp(
-				(PointerDataType)pos - (PointerDataType)pointer_index_old, offset, (PointerDataType)0
-			);
-			if (pos <= pointer_index_old) {
-				pointer_index_new += recalc_offset;
-			}
-		} else {
-			if (pos <= pointer_index_old) {
-				pointer_index_new += offset;
-			}
-		}
-	}
-	if (!pin_dst) {
-		if (offset < 0) {
-			PointerDataType recalc_offset = std::clamp(
-				(PointerDataType)pos - (PointerDataType)pointer_dst_old, offset, (PointerDataType)0
-			);
-			if (pos <= pointer_dst_old) {
-				pointer_dst_new += recalc_offset;
-			}
-		} else {
-			if (pos <= pointer_dst_old) {
-				pointer_dst_new += offset;
-			}
-		}
-	}
-	index_new = pointer_index_new;
-	dst_new = pointer_dst_new;
-	PointerDataType new_pointer = pointer_dst_new - pointer_index_new;
-	return new_pointer;
-}
-
-PointerDataType Program::recalc_pointer_move(
-	std::vector<Token>& token_list,
-	PointerDataType pointer_index, PointerDataType pointer,
-	PointerDataType old_begin, PointerDataType old_end,
-	PointerDataType new_pos
-) {
-	PointerDataType pointer_index_old = pointer_index;
-	PointerDataType pointer_dst_old = token_index(token_list, pointer_index + pointer);
-	PointerDataType pointer_index_new = pointer_index_old;
-	PointerDataType pointer_dst_new = pointer_dst_old;
-	if (pointer_index_old >= old_begin && pointer_dst_old < old_end) {
-		return pointer;
-	}
-	if (pointer_dst_old >= old_begin && pointer_dst_old < old_end) {
-		PointerDataType offset = pointer_dst_old - old_begin;
-		PointerDataType new_pointer = new_pos + offset;
-		return new_pointer;
-	}
-	PointerDataType move_block_size = old_end - old_begin;
-	PointerDataType new_index, new_dst;
-	PointerDataType new_pointer_del = recalc_pointer(
-		token_list, pointer_index, pointer, old_begin, -move_block_size,
-		new_index, new_dst, false, false
-	);
-	PointerDataType new_pointer_ins = recalc_pointer(
-		token_list, new_index, new_pointer_del, new_pos, move_block_size,
-		new_index, new_dst, false, false
-	);
-	return new_pointer_ins;
-}
-
-void Program::_shift_pointers(
-	std::vector<Token>& token_list, std::vector<Token>& parent_token_list,
-	PointerDataType list_pos, PointerDataType pos, PointerDataType offset,
-	bool pin_index, bool pin_dst
-) {
-	if (offset == 0) {
-		return;
-	}
-	for (ProgramCounterType token_i = 0; token_i < token_list.size(); token_i++) {
-		Token current_token = get_token(token_list, token_i);
+void Program::shift_pointers() {
+	for (ProgramCounterType token_i = 0; token_i < tokens.size(); token_i++) {
+		Token& current_token = tokens[token_i];
 		if (current_token.is_ptr()) {
-			PointerDataType old_pointer = current_token.get_data_cast<PointerDataType>();
-			PointerDataType new_index, new_dst;
-			PointerDataType new_pointer = recalc_pointer(
-				parent_token_list, list_pos + token_i, old_pointer, pos, offset, 
-				new_index, new_dst, pin_index, pin_dst
-			);
-			get_token(token_list, token_i).set_data<PointerDataType>(new_pointer);
-			get_token(token_list, token_i).str = get_token(token_list, token_i).to_string();
+			PointerDataType old_index = to_src_index(token_i);
+			PointerDataType old_pointer = prev_tokens[old_index].get_data_cast<PointerDataType>();
+			PointerDataType old_dst = old_index + old_pointer;
+			PointerDataType new_index = token_i;
+			PointerDataType new_dst;
+			for (ProgramCounterType dst_i = old_dst; ; dst_i++) {
+				PointerDataType dst_p = to_dst_index(dst_i);
+				if (dst_p >= 0) {
+					new_dst = dst_p;
+					break;
+				}
+			}
+			PointerDataType new_pointer = new_dst - new_index;
+			current_token.set_data<PointerDataType>(new_pointer);
+			current_token.str = current_token.to_string();
 		}
 	}
 }
-
-void Program::shift_pointers(std::vector<Token>& token_list,
-	PointerDataType pos, PointerDataType offset
-) {
-	_shift_pointers(token_list, token_list, 0, pos, offset, false, false);
-}
-
-void Program::shift_pointers_rel(
-	std::vector<Token>& token_list, std::vector<Token>& parent_token_list,
-	ProgramCounterType list_pos, PointerDataType pos, PointerDataType offset,
-	bool pin_index, bool pin_dst
-) {
-	_shift_pointers(token_list, parent_token_list, list_pos, pos, offset, pin_index, pin_dst);
-}
-
-void Program::shift_pointers_move(
-	std::vector<Token>& token_list,
-	ProgramCounterType old_begin, ProgramCounterType old_end,
-	ProgramCounterType new_pos
-) {
-	for (ProgramCounterType token_i = 0; token_i < token_list.size(); token_i++) {
-		Token current_token = get_token(token_list, token_i);
-		if (current_token.is_ptr()) {
-			PointerDataType old_pointer = current_token.get_data_cast<PointerDataType>();
-			PointerDataType new_pointer = recalc_pointer_move(
-				token_list, token_i, old_pointer, old_begin, old_end, new_pos
-			);
-			get_token(token_list, token_i).set_data<PointerDataType>(new_pointer);
-			get_token(token_list, token_i).str = get_token(token_list, token_i).to_string();
-		}
-	}
-}
-
 
 bool Program::unary_func(std::function<Token(Token)> func) {
 	if (rel_token(tokens, 1).is_num_or_ptr()) {
-		shift_pointers(tokens, program_counter, -1);
 		Token arg = rel_token(tokens, 1);
 		Token result = func(arg);
 		tokens.erase(tokens.begin() + program_counter);
 		rel_token(tokens, 0) = result;
+		shift_pointers();
 		return true;
 	}
 	return false;
@@ -1023,7 +920,6 @@ bool Program::unary_func(std::function<Token(Token)> func) {
 void Program::binary_func(std::function<Token(Token, Token)> func) {
 	if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 		std::vector<Token> args = { rel_token(prev_tokens, 1), rel_token(prev_tokens, 2) };
-		shift_pointers_rel(args, prev_tokens, program_counter + 1, program_counter, -3, false, true);
 		Token result = func(args[0], args[1]);
 		modify_token(program_counter, result);
 		delete_tokens(program_counter + 1, program_counter + 3);
