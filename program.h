@@ -97,24 +97,18 @@ private:
 		Node* parent_node, PointerDataType& new_token_index, int depth = 0
 	);
 	bool is_deleted(ProgramCounterType old_index);
-	PointerDataType to_dst_index(ProgramCounterType old_index);
-	PointerDataType to_src_index(ProgramCounterType new_index);
-	void shift_indices(ProgramCounterType pos, PointerDataType offset, bool p_delete = true);
-	void reset_index_shift();
+	PointerDataType to_dst_index(PointerDataType old_index);
+	PointerDataType to_src_index(PointerDataType new_index);
+	void insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens);
+	void delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, bool p_delete = true);
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(
 		ProgramCounterType dst_begin, ProgramCounterType dst_end,
 		ProgramCounterType src_begin, std::vector<Token> src_tokens
 	);
-	ProgramCounterType calc_delete_offset(ProgramCounterType pos_begin, ProgramCounterType pos_end);
-	void delete_op_exec(
-		ProgramCounterType pos_begin, ProgramCounterType pos_end
-	);
-	void insert_op_exec(
-		ProgramCounterType new_pos, std::vector<Token> insert_tokens
-	);
 	void exec_pending_ops();
+	void reset_index_shift();
 	void print_node(Node* node, int indent_level);
 	void shift_pointers();
 	void unary_func(std::function<Token(Token)> func);
