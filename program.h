@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "token.h"
 #include "utils.h"
+#include <set>
 
 const long long MAX_ITERATIONS = 1000;
 const long long MAX_NESTED_NODES = 100;
@@ -26,6 +27,11 @@ public:
 
 class Program {
 public:
+	struct NewPointersEntry {
+		PointerDataType index;
+		PointerDataType pointer;
+		NewPointersEntry(PointerDataType index, PointerDataType pointer);
+	};
 	std::vector<Token> tokens;
 	std::vector<Token> prev_tokens;
 	std::vector<std::unique_ptr<Node>> nodes;
@@ -91,6 +97,7 @@ private:
 	std::vector<InsertOp> insert_ops;
 	std::vector<ReplaceOp> replace_ops;
 	std::vector<MoveOp> move_ops;
+	std::set<NewPointersEntry> new_pointers;
 
 	std::vector<Token> tokenize(std::string str);
 	void parse();
@@ -122,3 +129,5 @@ private:
 	std::vector<Token> sys_print(std::vector<Token> input);
 
 };
+
+bool operator<(const Program::NewPointersEntry& left, const Program::NewPointersEntry& right);

@@ -1,5 +1,10 @@
 #include "program.h"
 
+Program::NewPointersEntry::NewPointersEntry(PointerDataType index, PointerDataType pointer) {
+	this->index = index;
+	this->pointer = pointer;
+}
+
 Program::DeleteOp::DeleteOp(ProgramCounterType pos_begin, ProgramCounterType pos_end) {
 	this->pos_begin = pos_begin;
 	this->pos_end = pos_end;
@@ -715,7 +720,7 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 	std::vector<PointerDataType> ins_vector(offset);
 	for (ProgramCounterType i = 0; i < offset; i++) {
 		PointerDataType current_pos = old_src_pos + i;
-		Token& current_token = prev_tokens[current_pos];
+		Token& current_token = insert_tokens[i];
 		if (current_token.is_ptr()) {
 			PointerDataType pointer = current_token.get_data_cast<PointerDataType>();
 			PointerDataType old_dst = token_index(prev_tokens, current_pos + pointer);
@@ -816,6 +821,7 @@ void Program::reset_index_shift() {
 		insert_ops.clear();
 		replace_ops.clear();
 		move_ops.clear();
+		new_pointers.clear();
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
@@ -844,7 +850,13 @@ void Program::shift_pointers() {
 			if (old_index < 0) {
 				continue;
 			}
-			PointerDataType old_pointer = prev_tokens[old_index].get_data_cast<PointerDataType>();
+			PointerDataType old_pointer;
+			auto it = new_pointers.find(NewPointersEntry(old_index, 0));
+			if (it != new_pointers.end()) {
+				old_pointer = (*it).pointer;
+			} else {
+				old_pointer = prev_tokens[old_index].get_data_cast<PointerDataType>();
+			}
 			PointerDataType old_dst = old_index + old_pointer;
 			PointerDataType new_dst;
 			for (PointerDataType dst_i = old_dst; ; dst_i++) {
@@ -867,6 +879,7 @@ void Program::unary_func(std::function<Token(Token)> func) {
 		arg.set_data<PointerDataType>(arg.get_data<PointerDataType>() + 1);
 	}
 	Token result = func(arg);
+	new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
 	replace_tokens(program_counter, program_counter + 2, program_counter, { result });
 }
 
@@ -881,6 +894,7 @@ void Program::binary_func(std::function<Token(Token, Token)> func) {
 			arg2.set_data<PointerDataType>(arg2.get_data<PointerDataType>() + 2);
 		}
 		Token result = func(arg1, arg2);
+		new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
 		replace_tokens(program_counter, program_counter + 3, program_counter, { result });
 	}
 }
@@ -900,4 +914,8 @@ std::vector<Token> Program::sys_print(std::vector<Token> input) {
 	}
 	local_print_buffer += str;
 	return std::vector<Token>();
+}
+
+bool operator<(const Program::NewPointersEntry& left, const Program::NewPointersEntry& right) {
+	return left.index < right.index;
 }
