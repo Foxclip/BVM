@@ -1,17 +1,11 @@
-# 1 2 3 55 6 7 55 9
-1 :one
-2
-3
-4 :four
-set
+# 1 11 3
+1
+add :add_p
+    2
     3
-    cpy
-        set_p
-        0
-6
-7
-set :set_p
-    four
-    55
-8
-9
+3
+set
+    add_p
+    add
+        5
+        6

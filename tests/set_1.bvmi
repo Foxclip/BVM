@@ -1,10 +1,7 @@
-# 1 2 5
-set
-    ff
-    5
+# 1 55 3
 1
-2
-3 :three
+2 :two
+3
 set
-    three
-    55 :ff
+    two
+    55
