@@ -48,11 +48,12 @@ private:
 	};
 	class InsertOp {
 	public:
-		ProgramCounterType new_pos;
+		PointerDataType src_pos;
+		ProgramCounterType dst_pos;
 		std::vector<Token> insert_tokens;
 		bool recalc_pointers = true;
 		InsertOp(ProgramCounterType new_pos, std::vector<Token> insert_tokens);
-		InsertOp(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
+		InsertOp(ProgramCounterType src_pos, ProgramCounterType dst_pos, std::vector<Token> insert_tokens);
 	};
 	class ReplaceOp {
 	public:
@@ -103,7 +104,7 @@ private:
 	bool is_deleted(ProgramCounterType old_index);
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);
-	void insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens, OpType op_type);
+	void insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old_dst_pos, std::vector<Token> insert_tokens, OpType op_type);
 	void delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type);
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
