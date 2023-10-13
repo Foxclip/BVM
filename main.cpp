@@ -40,9 +40,9 @@ int main() {
 		test::run_tests();
 
 	} catch (std::string msg) {
-		std::cout << "EXCEPTION: " << msg << "\n";
+		std::cout << "ERROR: " << msg << "\n";
 	} catch (std::exception exc) {
-		std::cout << "EXCEPTION: " << exc.what() << "\n";
+		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
 	// TODO: move instruction

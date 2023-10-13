@@ -31,6 +31,7 @@ namespace test {
 		"get_1.bvmi",
 		"get_2.bvmi",
 		"get_3.bvmi",
+		"get_4.bvmi",
 		"p_shift_4.bvmi",
 		"p_insert_1.bvmi",
 		"p_insert_2.bvmi",
@@ -186,7 +187,7 @@ namespace test {
 					failed_list.push_back(filename);
 					std::cout << "    FAILED: " << filename << "\n";
 					if (exception) {
-						std::cout << "        EXCEPTION: " << exc_message << "\n";
+						std::cout << "        ERROR: " << exc_message << "\n";
 					} else {
 						std::cout << "        Correct results: " + Token::tokens_to_str(correct_results) << "\n";
 						std::cout << "         Actual results: " + Token::tokens_to_str(actual_results) << "\n";
