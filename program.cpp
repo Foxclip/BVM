@@ -867,12 +867,6 @@ void Program::unary_func(std::function<Token(Token)> func) {
 		arg.set_data<PointerDataType>(arg.get_data<PointerDataType>() + 1);
 	}
 	Token result = func(arg);
-	if (result.is_ptr()) {
-		PointerDataType pointer = result.get_data_cast<PointerDataType>();
-		PointerDataType old_dst = token_index(prev_tokens, program_counter + pointer);
-		result.set_data<PointerDataType>(old_dst);
-		result.str = result.to_string();
-	}
 	replace_tokens(program_counter, program_counter + 2, program_counter, { result });
 }
 
@@ -887,12 +881,6 @@ void Program::binary_func(std::function<Token(Token, Token)> func) {
 			arg2.set_data<PointerDataType>(arg2.get_data<PointerDataType>() + 2);
 		}
 		Token result = func(arg1, arg2);
-		if (result.is_ptr()) {
-			PointerDataType pointer = result.get_data_cast<PointerDataType>();
-			PointerDataType old_dst = token_index(prev_tokens, program_counter + pointer);
-			result.set_data<PointerDataType>(old_dst);
-			result.str = result.to_string();
-		}
 		replace_tokens(program_counter, program_counter + 3, program_counter, { result });
 	}
 }
