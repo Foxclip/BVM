@@ -696,10 +696,13 @@ PointerDataType Program::to_src_index(PointerDataType new_index) {
 	return index_shift_rev[new_index];
 }
 
-void Program::insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens) {
+void Program::insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens, OpType op_type) {
 	PointerDataType offset = insert_tokens.size();
 	PointerDataType new_pos = -1;
 	for (ProgramCounterType i = old_pos; i < index_shift.size(); i++) {
+		if (op_type == OP_TYPE_REPLACE && index_shift[i].deleted) { 
+			return;
+		}
 		if (index_shift[i].index >= 0) {
 			if (new_pos == -1) {
 				new_pos = index_shift[i].index;
@@ -716,14 +719,14 @@ void Program::insert_op_exec(ProgramCounterType old_pos, std::vector<Token> inse
 	tokens.insert(tokens.begin() + new_pos, insert_tokens.begin(), insert_tokens.end());
 }
 
-void Program::delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, bool p_delete) {
+void Program::delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type) {
 	PointerDataType new_pos_begin = to_dst_index(old_pos_begin);
 	if (new_pos_begin < 0) {
 		return;
 	}
 	PointerDataType offset = 0;
 	for (ProgramCounterType i = old_pos_begin; i < old_pos_end; i++) {
-		if (p_delete) {
+		if (op_type == OP_TYPE_NORMAL) {
 			index_shift[i].index = -1;
 		} else {
 			index_shift[i].index = index_shift[old_pos_begin].index;
@@ -761,17 +764,17 @@ void Program::replace_tokens(
 void Program::exec_pending_ops() {
 	for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
 		DeleteOp& op = delete_ops[op_index];
-		delete_op_exec(op.pos_begin, op.pos_end);
+		delete_op_exec(op.pos_begin, op.pos_end, OP_TYPE_NORMAL);
 	}
 	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
 		InsertOp& op = insert_ops[op_index];
-		insert_op_exec(op.new_pos, op.insert_tokens);
+		insert_op_exec(op.new_pos, op.insert_tokens, OP_TYPE_NORMAL);
 	}
 	for (ProgramCounterType op_index = 0; op_index < replace_ops.size(); op_index++) {
 		ReplaceOp& op = replace_ops[op_index];
 		PointerDataType delete_range = op.dst_end - op.dst_begin;
-		delete_op_exec(op.dst_begin, op.dst_end, false);
-		insert_op_exec(op.dst_begin + delete_range, op.src_tokens);
+		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE);
+		insert_op_exec(op.dst_begin + delete_range, op.src_tokens, OP_TYPE_REPLACE);
 	}
 	for (ProgramCounterType op_index = 0; op_index < move_ops.size(); op_index++) {
 		//MoveOp& op = move_ops[op_index];

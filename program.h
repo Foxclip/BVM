@@ -75,6 +75,10 @@ private:
 			ProgramCounterType new_begin
 		);
 	};
+	enum OpType {
+		OP_TYPE_NORMAL,
+		OP_TYPE_REPLACE,
+	};
 	ProgramCounterType program_counter = 0;
 	struct IndexShiftEntry {
 		PointerDataType index = -1;
@@ -99,8 +103,8 @@ private:
 	bool is_deleted(ProgramCounterType old_index);
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);
-	void insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens);
-	void delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, bool p_delete = true);
+	void insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens, OpType op_type);
+	void delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type);
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(
