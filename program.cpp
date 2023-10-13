@@ -857,7 +857,7 @@ void Program::shift_pointers() {
 			} else {
 				old_pointer = prev_tokens[old_index].get_data_cast<PointerDataType>();
 			}
-			PointerDataType old_dst = old_index + old_pointer;
+			PointerDataType old_dst = token_index(prev_tokens, old_index + old_pointer);
 			PointerDataType new_dst;
 			for (PointerDataType dst_i = old_dst; ; dst_i++) {
 				PointerDataType dst_p = to_dst_index(dst_i);
