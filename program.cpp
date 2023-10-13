@@ -385,32 +385,40 @@ std::vector<Token> Program::execute() {
 					if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 						PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
-						PointerDataType new_token_index;
 						ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
-						ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
-						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
-						std::vector<Token> node_tokens = node.get()->tokenize();
 						delete_tokens(program_counter, program_counter + 3);
-						insert_tokens(src_index_begin, dst_index, node_tokens);
+						if (src_index_begin != prev_tokens.size()) {
+							PointerDataType new_token_index;
+							ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
+							std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
+							std::vector<Token> node_tokens = node.get()->tokenize();
+							insert_tokens(src_index_begin, dst_index, node_tokens);
+						}
 					}
 				} else if (current_token.str == "del") {
 					if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 						PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
-						PointerDataType new_token_index;
 						ProgramCounterType target_index = token_index(prev_tokens, program_counter + 1 + arg);
-						std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, target_index), nullptr, new_token_index);
-						std::vector<Token> node_tokens = node.get()->tokenize();
 						delete_tokens(program_counter, program_counter + 2);
-						delete_tokens(target_index, target_index + node_tokens.size());
+						if (target_index != prev_tokens.size()) {
+							PointerDataType new_token_index;
+							std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, target_index), nullptr, new_token_index);
+							std::vector<Token> node_tokens = node.get()->tokenize();
+							delete_tokens(target_index, target_index + node_tokens.size());
+						}
 					}
 				} else if (current_token.str == "get") {
 					if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 						PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 						PointerDataType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
-						PointerDataType src_last_index;
-						std::unique_ptr<Node> src_node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, src_last_index);
-						std::vector<Token> src_node_tokens = src_node.get()->tokenize();
-						replace_tokens(program_counter, program_counter + 2, src_index_begin, src_node_tokens);
+						if (src_index_begin != prev_tokens.size()) {
+							PointerDataType src_last_index;
+							std::unique_ptr<Node> src_node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, src_last_index);
+							std::vector<Token> src_node_tokens = src_node.get()->tokenize();
+							replace_tokens(program_counter, program_counter + 2, src_index_begin, src_node_tokens);
+						} else {
+							delete_tokens(program_counter, program_counter + 2);
+						}
 					}
 				} else if (current_token.str == "set") {
 					if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
@@ -419,11 +427,13 @@ std::vector<Token> Program::execute() {
 						ProgramCounterType src_index_begin = program_counter + 2;
 						ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
 						std::unique_ptr<Node> src_node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
-						std::unique_ptr<Node> dst_node = parse_token(prev_tokens, token_index(prev_tokens, dst_index_begin), nullptr, new_token_index);
 						std::vector<Token> src_node_tokens = src_node.get()->tokenize();
-						std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
 						delete_tokens(program_counter, program_counter + 2 + src_node_tokens.size());
-						replace_tokens(dst_index_begin, dst_index_begin + dst_node_tokens.size(), src_index_begin, src_node_tokens);
+						if (dst_index_begin != prev_tokens.size()) {
+							std::unique_ptr<Node> dst_node = parse_token(prev_tokens, token_index(prev_tokens, dst_index_begin), nullptr, new_token_index);
+							std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
+							replace_tokens(dst_index_begin, dst_index_begin + dst_node_tokens.size(), src_index_begin, src_node_tokens);
+						}
 					}
 				//} else if (current_token.str == "repl") {
 				//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {

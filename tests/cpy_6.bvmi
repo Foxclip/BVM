@@ -1,0 +1,7 @@
+#
+cpy :cpy1
+    cpy2
+    cpy1
+cpy :cpy2
+    cpy1
+    cpy2

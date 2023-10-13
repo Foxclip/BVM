@@ -1480,7 +1480,14 @@
 # end
 # 7
 
-get :get1
-    get2
-get :get2
-    get1
+# get :get1
+#     get1
+# get :get2
+#     get1
+
+# cpy :cpy1
+#     cpy2
+#     cpy1
+# cpy :cpy2
+#     cpy1
+#     cpy2

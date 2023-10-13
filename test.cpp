@@ -15,6 +15,7 @@ namespace test {
 		"cpy_3.bvmi",
 		"cpy_4.bvmi",
 		"cpy_5.bvmi",
+		"cpy_6.bvmi",
 		"del_1.bvmi",
 		"del_2.bvmi",
 		"del_3.bvmi",
