@@ -7,7 +7,7 @@
             "name": "comment.line.number-sign.bvmi"
         },
         {
-            "match": "\"(?:[^\"\\]|\\.)*\"",
+            "match": "\"(\\.|[^\"])*\"",
             "name": "string.quoted.double.bvmi"
         }
     ]
