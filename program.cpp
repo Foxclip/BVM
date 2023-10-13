@@ -697,18 +697,17 @@ PointerDataType Program::to_src_index(PointerDataType new_index) {
 }
 
 void Program::insert_op_exec(ProgramCounterType old_pos, std::vector<Token> insert_tokens, OpType op_type) {
+	if (op_type == OP_TYPE_REPLACE && index_shift[old_pos].index < 0) {
+		return;
+	}
 	PointerDataType offset = insert_tokens.size();
 	PointerDataType new_pos = -1;
 	for (ProgramCounterType i = old_pos; i < index_shift.size(); i++) {
-		if (op_type == OP_TYPE_REPLACE && index_shift[i].deleted) { 
-			return;
-		}
-		if (index_shift[i].index >= 0) {
+		if (!index_shift[i].deleted) {
 			if (new_pos == -1) {
 				new_pos = index_shift[i].index;
 			}
 			index_shift[i].index += offset;
-			
 		}
 	}
 	std::vector<PointerDataType> ins_vector(offset);
@@ -774,7 +773,7 @@ void Program::exec_pending_ops() {
 		ReplaceOp& op = replace_ops[op_index];
 		PointerDataType delete_range = op.dst_end - op.dst_begin;
 		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE);
-		insert_op_exec(op.dst_begin + delete_range, op.src_tokens, OP_TYPE_REPLACE);
+		insert_op_exec(op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
 	}
 	for (ProgramCounterType op_index = 0; op_index < move_ops.size(); op_index++) {
 		//MoveOp& op = move_ops[op_index];
