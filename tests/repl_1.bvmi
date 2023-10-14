@@ -1,15 +1,8 @@
-# 1 9 4 6 -5p 9
-1 :one
-2
-3 :three
-4
+# 1 55 3 55
+1
+2 :two
+3
 repl
-    0
-    repl_p
-6
-7
-repl :repl_p
-    three
-    one
-8
-9
+    two
+    ff
+55 :ff

@@ -1,0 +1,17 @@
+# 1 9 4 6 -5p 9
+seq
+    1 :one
+    2
+    3 :three
+    4
+    repl
+        0
+        repl_p
+    6
+    7
+    repl :repl_p
+        three
+        one
+    8
+    9
+end
