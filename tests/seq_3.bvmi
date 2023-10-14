@@ -1,12 +1,21 @@
-# 1 22 3
-1
-2 :two
-3
-seq
-    set
-        eleven
-        22
-    set
-        two
-        11 :eleven
+# 0 1 0 2 0 3 4 0 0 5 0
+:end_p
+list
+    seq
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+    end
+    seq
+        ins end_p 1
+        ins end_p 2
+        list
+            ins end_p 3
+            ins end_p 4
+        end
+        ins end_p 5
+    end
 end

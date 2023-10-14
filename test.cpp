@@ -48,7 +48,6 @@ namespace test {
 		"seq_3.bvmi",
 		"seq_4.bvmi",
 		"seq_5.bvmi",
-		"seq_6.bvmi",
 		//"repl_1.bvmi",
 		//"repl_2.bvmi",
 		//"if_p_shift.bvmi",

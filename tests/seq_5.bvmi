@@ -1,17 +1,26 @@
-# 5 11 7 33
+# 3 7 11 15 3 11 7 15
+:end_p
 seq
-    add
-        2
-        3
-    seq
-        add
-            5
-            6
-        add
-            3
-            4
+    list
+        seq
+            add :add1
+                1
+                2
+            cpy add1 end_p
+            add :add2
+                3
+                4
+            cpy add2 end_p
+        end
+        seq
+            add :add3
+                5
+                6
+            cpy add3 end_p
+            add :add4
+                7
+                8
+            cpy add4 end_p
+        end
     end
-    add
-        11
-        22
 end

@@ -326,55 +326,61 @@ std::vector<Token> Program::execute() {
 			reset_index_shift();
 			local_print_buffer = "";
 			parse();
-			auto exec_end_part = [&](bool pop) {
+			auto jump_to_end = [&]() {
 				Node* seq_node = node_pointers[list_scope_stack.top().pos];
 				program_counter = seq_node->last_index;
-				if (pop) {
-					list_scope_stack.pop();
-				}
+			};
+			auto notify_parent = [&]() {
 				if (list_scope_stack.size() > 0) {
 					list_scope_stack.top().instruction_executed = true;
 				}
 			};
+			auto exit_parent = [&]() {
+				jump_to_end();
+				list_scope_stack.pop();
+				notify_parent();
+			};
 			auto exec_end = [&]() {
+				jump_to_end();
 				execute_instruction();
-				if (parent_is_seq()) {
-					exec_end_part(false);
-				}
+				notify_parent();
+			};
+			auto exec_normal = [&]() {
+				execute_instruction();
+				list_scope_stack.top().instruction_executed = true;
+			};
+			auto exec_silent = [&]() {
+				execute_instruction();
 			};
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
 				Token current_token = rel_token(prev_tokens, 0);
-				if (current_token.is_num_or_ptr()) {
+				if (parent_is_seq() && list_scope_stack.top().instruction_executed) {
+					exit_parent();
+				} else if (current_token.is_num_or_ptr()) {
 					// skipping
 				} else {
 					if (parent_is_seq()) {
 						if (current_token.str == "seq" || current_token.str == "list") {
-							execute_instruction();
-						} else {
-							if (!list_scope_stack.top().instruction_executed) {
-			   					if (current_token.str == "end") {
-			   						exec_end();
-			   					} else {
-			   						execute_instruction();
-									list_scope_stack.top().instruction_executed = true;
-			   					}
-							} else {
-								exec_end_part(true);
-							}
+							exec_silent();
+						} else if (current_token.str == "end") {
+			   				exec_end();
+			   			} else {
+			   				exec_normal();
 			   			}
 					} else if (parent_is_list()) {
 						if (current_token.str == "seq" || current_token.str == "list") {
-							execute_instruction();
+							exec_silent();
 						} else if (current_token.str == "end") {
 							if (!list_scope_stack.top().instruction_executed) {
 								exec_end();
+							} else {
+								exit_parent();
 							}
 						} else {
-							execute_instruction();
-							list_scope_stack.top().instruction_executed = true;
+							exec_normal();
 						}
 					} else {
-						execute_instruction();
+						exec_silent();
 					}
 				}
 				steps++;

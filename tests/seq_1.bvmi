@@ -1,9 +1,6 @@
-# 5 11
+# 1 2
+:end_p
 seq
-    add
-        2
-        3
-    add
-        5
-        6
+    ins end_p 1
+    ins end_p 2
 end

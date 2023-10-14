@@ -1,20 +1,10 @@
-# 5 11 5 11 33
+# 1 22 3
+1
+2 :two
+3
 seq
-    add
-        2
-        3
-    add
-        5
-        6
-    list
-        add
-            2
-            3
-        add
-            5
-            6
-    end
-    add
-        11
-        22
+    set eleven 22
+    set
+        two
+        11 :eleven
 end

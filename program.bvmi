@@ -1657,13 +1657,134 @@
 #     two
 #     55 :ff
 
-:end_p
-1
-2
-3
-ins
-    end_p
-    55
-ins
-    end_p
-    66
+# :end_p
+# 1
+# 2
+# 3
+# ins
+#     end_p
+#     55
+# ins
+#     end_p
+#     66
+
+# :end_p
+# seq
+#     ins
+#         end_p
+#         1
+#     ins
+#         end_p
+#         2
+# end
+
+# :end_p
+# list
+#     seq
+#         ins
+#             end_p
+#             0
+#         ins
+#             end_p
+#             0
+#         ins
+#             end_p
+#             0
+#         ins
+#             end_p
+#             0
+#         ins
+#             end_p
+#             0
+#         ins
+#             end_p
+#             0
+#     end
+#     seq
+#         ins
+#             end_p
+#             1
+#         ins
+#             end_p
+#             2
+#         list
+#             ins
+#                 end_p
+#                 3
+#             ins
+#                 end_p
+#                 4
+#         end
+#         ins
+#             end_p
+#             5
+#     end
+# end
+
+# seq
+#     list
+#         add
+#             2
+#             3
+#     end
+#     add
+#         5
+#         6
+# end
+
+# list
+#     seq
+#     end
+# end
+
+# :end_p
+# list
+#     seq
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#     end
+#     seq
+#         seq
+#             seq
+#                 seq
+#                     ins end_p 1
+#                 end
+#                 ins end_p 2
+#             end
+#             ins end_p 3
+#         end
+#         ins end_p 4
+#     end
+# end
+
+# :end_p
+# seq
+#     list
+#         seq
+#             add :add1
+#                 1
+#                 2
+#             cpy add1 end_p
+#             add :add2
+#                 3
+#                 4
+#             cpy add2 end_p
+#         end
+#         seq
+#             add :add3
+#                 5
+#                 6
+#             cpy add3 end_p
+#             add :add4
+#                 7
+#                 8
+#             cpy add4 end_p
+#         end
+#     end
+# end
