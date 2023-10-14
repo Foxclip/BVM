@@ -225,10 +225,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			try {
 				std::string current_word = current_word_token.str;
 				if (current_word.front() == ':') {
-					Label new_label(current_word.substr(1, current_word.size() - 1), i - 1);
-					if (i < 1) {
-						throw std::runtime_error("Label points at -1: " + current_word);
-					}
+					Label new_label(current_word.substr(1, current_word.size() - 1), (PointerDataType)i - 1);
 					labels.push_back(new_label);
 					words.erase(words.begin() + i);
 					i--;

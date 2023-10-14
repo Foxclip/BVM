@@ -1645,14 +1645,25 @@
 #         6
 # end
 
+# 1
+# 2 :two
+# 3
+# ins
+#     ff
+#     add
+#         2
+#         3
+# ins
+#     two
+#     55 :ff
+
+:end_p
 1
-2 :two
+2
 3
 ins
-    ff
-    add
-        2
-        3
+    end_p
+    55
 ins
-    two
-    55 :ff
+    end_p
+    66
