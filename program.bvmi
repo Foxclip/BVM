@@ -1631,16 +1631,28 @@
 # end
 # get four
 
-seq 
-    seq
-        seq 
-            1
-        end 
-        add
-            2
-            3
-    end 
+# seq 
+#     seq
+#         seq 
+#             1
+#         end 
+#         add
+#             2
+#             3
+#     end 
+#     add
+#         5
+#         6
+# end
+
+1
+2 :two
+3
+ins
+    ff
     add
-        5
-        6
-end
+        2
+        3
+ins
+    two
+    55 :ff
