@@ -326,255 +326,59 @@ std::vector<Token> Program::execute() {
 				std::cout << "Iteration " << iteration << ": ";
 			}
 			ProgramCounterType steps = 0;
-			std::stack<ProgramCounterType> list_scope_stack;
 			reset_index_shift();
 			local_print_buffer = "";
+			parse();
+			auto exec_end_part = [&](bool pop) {
+				Node* seq_node = node_pointers[list_scope_stack.top().pos];
+				program_counter = seq_node->last_index;
+				if (pop) {
+					list_scope_stack.pop();
+				}
+				if (list_scope_stack.size() > 0) {
+					list_scope_stack.top().instruction_executed = true;
+				}
+			};
+			auto exec_end = [&]() {
+				execute_instruction();
+				if (parent_is_seq()) {
+					exec_end_part(false);
+				}
+			};
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
 				Token current_token = rel_token(prev_tokens, 0);
 				if (current_token.is_num_or_ptr()) {
 					// skipping
-				} else if (current_token.str == "add") {
-					binary_func([](Token a, Token b) { return Token::add(a, b); });
-				} else if (current_token.str == "sub") {
-					binary_func([](Token a, Token b) { return Token::sub(a, b); });
-				} else if (current_token.str == "mul") {
-					binary_func([](Token a, Token b) { return Token::mul(a, b); });
-				} else if (current_token.str == "div") {
-					binary_func([](Token a, Token b) { return Token::div(a, b); });
-				} else if (current_token.str == "mod") {
-					binary_func([](Token a, Token b) { return Token::mod(a, b); });
-				} else if (current_token.str == "pow") {
-					binary_func([](Token a, Token b) { return Token::pow(a, b); });
-				} else if (current_token.str == "log") {
-					unary_func([](Token a) { return Token::log(a); });
-				} else if (current_token.str == "log2") {
-					unary_func([](Token a) { return Token::log2(a); });
-				} else if (current_token.str == "sin") {
-					unary_func([](Token a) { return Token::sin(a); });
-				} else if (current_token.str == "cos") {
-					unary_func([](Token a) { return Token::cos(a); });
-				} else if (current_token.str == "tan") {
-					unary_func([](Token a) { return Token::tan(a); });
-				} else if (current_token.str == "asin") {
-					unary_func([](Token a) { return Token::asin(a); });
-				} else if (current_token.str == "acos") {
-					unary_func([](Token a) { return Token::acos(a); });
-				} else if (current_token.str == "atan") {
-					unary_func([](Token a) { return Token::atan(a); });
-				} else if (current_token.str == "atan2") {
-					binary_func([](Token a, Token b) { return Token::atan2(a, b); });
-				} else if (current_token.str == "floor") {
-					unary_func([](Token a) { return Token::floor(a); });
-				} else if (current_token.str == "ceil") {
-					unary_func([](Token a) { return Token::ceil(a); });
-				} else if (current_token.str == "cmp") {
-					binary_func([](Token a, Token b) { return Token::cmp(a, b); });
-				} else if (current_token.str == "lt") {
-					binary_func([](Token a, Token b) { return Token::lt(a, b); });
-				} else if (current_token.str == "gt") {
-					binary_func([](Token a, Token b) { return Token::gt(a, b); });
-				} else if (current_token.str == "and") {
-					binary_func([](Token a, Token b) { return Token::and_op(a, b); });
-				} else if (current_token.str == "or") {
-					binary_func([](Token a, Token b) { return Token::or_op(a, b); });
-				} else if (current_token.str == "xor") {
-					binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
-				} else if (current_token.str == "not") {
-					unary_func([](Token a) { return Token::not_op(a); });
-				} else if (current_token.str == "cpy") {
-					if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
-						PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
-						PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
-						ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
-						delete_tokens(program_counter, program_counter + 3);
-						if (src_index_begin != prev_tokens.size()) {
-							PointerDataType new_token_index;
-							ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
-							std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
-							std::vector<Token> node_tokens = node.get()->tokenize();
-							insert_tokens(src_index_begin, dst_index, node_tokens);
-						}
-					}
-				} else if (current_token.str == "del") {
-					if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
-						PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
-						ProgramCounterType target_index = token_index(prev_tokens, program_counter + 1 + arg);
-						delete_tokens(program_counter, program_counter + 2);
-						if (target_index != prev_tokens.size()) {
-							PointerDataType new_token_index;
-							std::unique_ptr<Node> node = parse_token(prev_tokens, token_index(prev_tokens, target_index), nullptr, new_token_index);
-							std::vector<Token> node_tokens = node.get()->tokenize();
-							delete_tokens(target_index, target_index + node_tokens.size());
-						}
-					}
-				} else if (current_token.str == "get") {
-					if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
-						PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
-						PointerDataType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
-						if (src_index_begin != prev_tokens.size()) {
-							PointerDataType src_last_index;
-							std::unique_ptr<Node> src_node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, src_last_index);
-							std::vector<Token> src_node_tokens = src_node.get()->tokenize();
-							replace_tokens(program_counter, program_counter + 2, src_index_begin, src_node_tokens);
-						} else {
-							delete_tokens(program_counter, program_counter + 2);
-						}
-					}
-				} else if (current_token.str == "set") {
-					if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
-						PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
-						PointerDataType new_token_index;
-						ProgramCounterType src_index_begin = program_counter + 2;
-						ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
-						std::unique_ptr<Node> src_node = parse_token(prev_tokens, token_index(prev_tokens, src_index_begin), nullptr, new_token_index);
-						std::vector<Token> src_node_tokens = src_node.get()->tokenize();
-						delete_tokens(program_counter, program_counter + 2 + src_node_tokens.size());
-						if (dst_index_begin != prev_tokens.size()) {
-							std::unique_ptr<Node> dst_node = parse_token(prev_tokens, token_index(prev_tokens, dst_index_begin), nullptr, new_token_index);
-							std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
-							replace_tokens(dst_index_begin, dst_index_begin + dst_node_tokens.size(), src_index_begin, src_node_tokens);
-						}
-					}
-				//} else if (current_token.str == "repl") {
-				//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
-				//		PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
-				//		PointerDataType src = rel_token(tokens, 2).get_data_cast<PointerDataType>();
-				//		PointerDataType dst_index_begin = token_index(tokens, program_counter + 1 + dst);
-				//		PointerDataType src_index_begin = token_index(tokens, program_counter + 2 + src);
-				//		PointerDataType src_last_index;
-				//		PointerDataType dst_last_index;
-				//		PointerDataType repl_index = program_counter;
-				//		if (dst_index_begin >= repl_index && dst_index_begin < repl_index + 3) {
-				//			dst_index_begin = repl_index;
-				//		}
-				//		std::unique_ptr<Node> src_node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, src_last_index);
-				//		std::vector<Token> src_node_tokens = src_node.get()->tokenize();
-				//		std::unique_ptr<Node> dst_node = parse_token(tokens, token_index(tokens, dst_index_begin), nullptr, dst_last_index);
-				//		std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
-				//		PointerDataType insertion_index = dst_index_begin;
-				//		if (dst_index_begin != repl_index) {
-				//			shift_pointers(tokens, repl_index, -3);
-				//			tokens.erase(tokens.begin() + repl_index);
-				//			tokens.erase(tokens.begin() + repl_index);
-				//			tokens.erase(tokens.begin() + repl_index);
-				//			if (insertion_index > repl_index) {
-				//				insertion_index -= 3;
-				//			}
-				//		}
-				//		PointerDataType pointer_offset = src_node_tokens.size() - dst_node_tokens.size();
-				//		shift_pointers(tokens, insertion_index, pointer_offset);
-				//		tokens.erase(tokens.begin() + insertion_index, tokens.begin() + insertion_index + dst_node_tokens.size());
-				//		tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
-				//		break;
-				//	}
-				//} else if (current_token.str == "ins") {
-				//	if (rel_token(tokens, 1).is_num_or_ptr()) {
-				//		PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
-				//		PointerDataType dst_index = token_index(tokens, program_counter + 1 + dst);
-				//		PointerDataType src_index_begin = token_index(tokens, program_counter + 2);
-				//		PointerDataType ins_index = program_counter;
-				//		PointerDataType ins_last_index;
-				//		std::unique_ptr<Node> ins_node = parse_token(tokens, ins_index, nullptr, ins_last_index);
-				//		std::vector<Token> ins_node_tokens = ins_node->tokenize();
-				//		if (dst_index >= ins_index && dst_index <= ins_last_index) {
-				//			dst_index = ins_index;
-				//		}
-				//		Node* src_node = ins_node.get()->arguments[1].get();
-				//		std::vector<Token> src_node_tokens = src_node->tokenize();
-				//		PointerDataType insertion_index = dst_index;
-				//		shift_pointers(tokens, ins_index, -(PointerDataType)ins_node_tokens.size());
-				//		tokens.erase(tokens.begin() + ins_index, tokens.begin() + ins_last_index + 1);
-				//		if (insertion_index > ins_index) {
-				//			insertion_index -= std::min(insertion_index - ins_index, (PointerDataType)ins_node_tokens.size());
-				//		}
-				//		PointerDataType pointer_offset = src_node_tokens.size();
-				//		shift_pointers(tokens, insertion_index, pointer_offset);
-				//		tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
-				//		break;
-				//	}
-				//} else if (current_token.str == "if") {
-				//	if (rel_token(tokens, 1).is_num_or_ptr()) {
-				//		BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
-				//		PointerDataType new_token_index;
-				//		std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
-				//		std::vector<Token> if_node_tokens = if_node.get()->tokenize();
-				//		Node* true_node = if_node.get()->arguments[1].get();
-				//		Node* false_node = if_node.get()->arguments[2].get();
-				//		std::vector<Token> true_node_tokens = true_node->tokenize();
-				//		std::vector<Token> false_node_tokens = false_node->tokenize();
-				//		PointerDataType true_node_offset = 2;
-				//		PointerDataType false_node_offset = 2 + true_node_tokens.size();
-				//		PointerDataType true_node_index = program_counter + true_node_offset;
-				//		PointerDataType false_node_index = program_counter + false_node_offset;
-				//		if (cond != 0) {
-				//			shift_pointers(tokens, false_node_index, -(PointerDataType)false_node_tokens.size());
-				//			tokens.erase(tokens.begin() + false_node_index, tokens.begin() + false_node_index + false_node_tokens.size());
-				//			shift_pointers(tokens, program_counter, -true_node_offset);
-				//			tokens.erase(tokens.begin() + program_counter);
-				//			tokens.erase(tokens.begin() + program_counter);
-				//		} else {
-				//			shift_pointers(tokens, program_counter, -false_node_offset);
-				//			tokens.erase(tokens.begin() + program_counter, tokens.begin() + false_node_index);
-				//		}
-				//		break;
-				//	}
-				} else if (current_token.str == "list") {
-					list_scope_stack.push(program_counter);
-				} else if (current_token.str == "end") {
-					ProgramCounterType list_pos = list_scope_stack.top();
-					delete_tokens(list_pos, list_pos + 1);
-					delete_tokens(program_counter, program_counter + 1);
-					list_scope_stack.pop();
-				//} else if (current_token.str == "cast") {
-				//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
-				//		shift_pointers(tokens, program_counter, -2);
-				//		Token arg1 = rel_token(tokens, 1);
-				//		Token arg2 = rel_token(tokens, 2);
-				//		token_type type = static_cast<token_type>(arg1.get_data_cast<int>());
-				//		if (type >= 0 && type < type_unknown) {
-				//			if (type == type_instr) {
-				//				int instruction_index = arg2.get_data_cast<int>();
-				//				if (get_instruction_info(instruction_index).index != -1) {
-				//					arg2.cast(type);
-				//				}
-				//			} else {
-				//				arg2.cast(type);
-				//			}
-				//		}
-				//		Token result = arg2;
-				//		result.str = result.to_string();
-				//		tokens.erase(tokens.begin() + program_counter);
-				//		tokens.erase(tokens.begin() + program_counter);
-				//		rel_token(tokens, 0) = result;
-				//		break;
-				//	}
-				//} else if (current_token.str == "sys") {
-				//	bool arg1_valid = rel_token(tokens, 1).is_num_or_ptr();
-				//	bool arg2_valid = rel_token(tokens, 2).is_list_header() || rel_token(tokens, 2).is_singular_data();
-				//	if (arg1_valid && arg2_valid) {
-				//		ProgramCounterType sys_position = program_counter;
-				//		int sys_call_index = rel_token(tokens, 1).get_data_cast<int>();
-				//		std::vector<Token> arg_list;
-				//		if (rel_token(tokens, 2).is_singular_data()) {
-				//			arg_list.push_back(rel_token(tokens, 2));
-				//			shift_pointers(tokens, sys_position, -3);
-				//			tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + 3);
-				//		} else {
-				//			ProgramCounterType current_token_offset = 3;
-				//			while (!rel_token(tokens, current_token_offset).is_list_end()) {
-				//				Token arg_token = rel_token(tokens, current_token_offset);
-				//				arg_list.push_back(arg_token);
-				//				current_token_offset++;
-				//			}
-				//			ProgramCounterType sys_tokens_size = current_token_offset - sys_position + 1;
-				//			shift_pointers(tokens, sys_position, -(PointerDataType)sys_tokens_size);
-				//			tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + current_token_offset + 1);
-				//		}
-				//		sys_call(sys_call_index, arg_list);
-				//		break;
-				//	}
 				} else {
-					throw std::runtime_error("Unexpected token: " + current_token.str);
+					if (parent_is_seq()) {
+						if (current_token.str == "seq" || current_token.str == "list") {
+							execute_instruction();
+						} else {
+							if (!list_scope_stack.top().instruction_executed) {
+			   					if (current_token.str == "end") {
+			   						exec_end();
+			   					} else {
+			   						execute_instruction();
+									list_scope_stack.top().instruction_executed = true;
+			   					}
+							} else {
+								exec_end_part(true);
+							}
+			   			}
+					} else if (parent_is_list()) {
+						if (current_token.str == "seq" || current_token.str == "list") {
+							execute_instruction();
+						} else if (current_token.str == "end") {
+							if (!list_scope_stack.top().instruction_executed) {
+								exec_end();
+							}
+						} else {
+							execute_instruction();
+							list_scope_stack.top().instruction_executed = true;
+						}
+					} else {
+						execute_instruction();
+					}
 				}
 				steps++;
 			}
@@ -603,7 +407,257 @@ std::vector<Token> Program::execute() {
 	}
 }
 
+void Program::execute_instruction() {
+	Token current_token = rel_token(prev_tokens, 0);
+	if (current_token.str == "add") {
+		binary_func([](Token a, Token b) { return Token::add(a, b); });
+	} else if (current_token.str == "sub") {
+		binary_func([](Token a, Token b) { return Token::sub(a, b); });
+	} else if (current_token.str == "mul") {
+		binary_func([](Token a, Token b) { return Token::mul(a, b); });
+	} else if (current_token.str == "div") {
+		binary_func([](Token a, Token b) { return Token::div(a, b); });
+	} else if (current_token.str == "mod") {
+		binary_func([](Token a, Token b) { return Token::mod(a, b); });
+	} else if (current_token.str == "pow") {
+		binary_func([](Token a, Token b) { return Token::pow(a, b); });
+	} else if (current_token.str == "log") {
+		unary_func([](Token a) { return Token::log(a); });
+	} else if (current_token.str == "log2") {
+		unary_func([](Token a) { return Token::log2(a); });
+	} else if (current_token.str == "sin") {
+		unary_func([](Token a) { return Token::sin(a); });
+	} else if (current_token.str == "cos") {
+		unary_func([](Token a) { return Token::cos(a); });
+	} else if (current_token.str == "tan") {
+		unary_func([](Token a) { return Token::tan(a); });
+	} else if (current_token.str == "asin") {
+		unary_func([](Token a) { return Token::asin(a); });
+	} else if (current_token.str == "acos") {
+		unary_func([](Token a) { return Token::acos(a); });
+	} else if (current_token.str == "atan") {
+		unary_func([](Token a) { return Token::atan(a); });
+	} else if (current_token.str == "atan2") {
+		binary_func([](Token a, Token b) { return Token::atan2(a, b); });
+	} else if (current_token.str == "floor") {
+		unary_func([](Token a) { return Token::floor(a); });
+	} else if (current_token.str == "ceil") {
+		unary_func([](Token a) { return Token::ceil(a); });
+	} else if (current_token.str == "cmp") {
+		binary_func([](Token a, Token b) { return Token::cmp(a, b); });
+	} else if (current_token.str == "lt") {
+		binary_func([](Token a, Token b) { return Token::lt(a, b); });
+	} else if (current_token.str == "gt") {
+		binary_func([](Token a, Token b) { return Token::gt(a, b); });
+	} else if (current_token.str == "and") {
+		binary_func([](Token a, Token b) { return Token::and_op(a, b); });
+	} else if (current_token.str == "or") {
+		binary_func([](Token a, Token b) { return Token::or_op(a, b); });
+	} else if (current_token.str == "xor") {
+		binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
+	} else if (current_token.str == "not") {
+		unary_func([](Token a) { return Token::not_op(a); });
+	} else if (current_token.str == "cpy") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
+			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+			PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
+			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
+			delete_tokens(program_counter, program_counter + 3);
+			if (src_index_begin != prev_tokens.size()) {
+				PointerDataType new_token_index;
+				ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
+				Node* node = node_pointers[token_index(prev_tokens, src_index_begin)];
+				std::vector<Token> node_tokens = node->tokenize();
+				insert_tokens(src_index_begin, dst_index, node_tokens);
+			}
+		}
+	} else if (current_token.str == "del") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+			PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+			ProgramCounterType target_index = token_index(prev_tokens, program_counter + 1 + arg);
+			delete_tokens(program_counter, program_counter + 2);
+			if (target_index != prev_tokens.size()) {
+				PointerDataType new_token_index;
+				Node* node = node_pointers[token_index(prev_tokens, target_index)];
+				std::vector<Token> node_tokens = node->tokenize();
+				delete_tokens(target_index, target_index + node_tokens.size());
+			}
+		}
+	} else if (current_token.str == "get") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+			PointerDataType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
+			if (src_index_begin != prev_tokens.size()) {
+				PointerDataType src_last_index;
+				Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
+				std::vector<Token> src_node_tokens = src_node->tokenize();
+				replace_tokens(program_counter, program_counter + 2, src_index_begin, src_node_tokens);
+			} else {
+				delete_tokens(program_counter, program_counter + 2);
+			}
+		}
+	} else if (current_token.str == "set") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+			PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+			PointerDataType new_token_index;
+			ProgramCounterType src_index_begin = program_counter + 2;
+			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
+			Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
+			std::vector<Token> src_node_tokens = src_node->tokenize();
+			delete_tokens(program_counter, program_counter + 2 + src_node_tokens.size());
+			if (dst_index_begin != prev_tokens.size()) {
+				Node* dst_node = node_pointers[token_index(prev_tokens, dst_index_begin)];
+				std::vector<Token> dst_node_tokens = dst_node->tokenize();
+				replace_tokens(dst_index_begin, dst_index_begin + dst_node_tokens.size(), src_index_begin, src_node_tokens);
+			}
+		}
+	//} else if (current_token.str == "repl") {
+	//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
+	//		PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
+	//		PointerDataType src = rel_token(tokens, 2).get_data_cast<PointerDataType>();
+	//		PointerDataType dst_index_begin = token_index(tokens, program_counter + 1 + dst);
+	//		PointerDataType src_index_begin = token_index(tokens, program_counter + 2 + src);
+	//		PointerDataType src_last_index;
+	//		PointerDataType dst_last_index;
+	//		PointerDataType repl_index = program_counter;
+	//		if (dst_index_begin >= repl_index && dst_index_begin < repl_index + 3) {
+	//			dst_index_begin = repl_index;
+	//		}
+	//		std::unique_ptr<Node> src_node = parse_token(tokens, token_index(tokens, src_index_begin), nullptr, src_last_index);
+	//		std::vector<Token> src_node_tokens = src_node.get()->tokenize();
+	//		std::unique_ptr<Node> dst_node = parse_token(tokens, token_index(tokens, dst_index_begin), nullptr, dst_last_index);
+	//		std::vector<Token> dst_node_tokens = dst_node.get()->tokenize();
+	//		PointerDataType insertion_index = dst_index_begin;
+	//		if (dst_index_begin != repl_index) {
+	//			shift_pointers(tokens, repl_index, -3);
+	//			tokens.erase(tokens.begin() + repl_index);
+	//			tokens.erase(tokens.begin() + repl_index);
+	//			tokens.erase(tokens.begin() + repl_index);
+	//			if (insertion_index > repl_index) {
+	//				insertion_index -= 3;
+	//			}
+	//		}
+	//		PointerDataType pointer_offset = src_node_tokens.size() - dst_node_tokens.size();
+	//		shift_pointers(tokens, insertion_index, pointer_offset);
+	//		tokens.erase(tokens.begin() + insertion_index, tokens.begin() + insertion_index + dst_node_tokens.size());
+	//		tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
+	//		break;
+	//	}
+	//} else if (current_token.str == "ins") {
+	//	if (rel_token(tokens, 1).is_num_or_ptr()) {
+	//		PointerDataType dst = rel_token(tokens, 1).get_data_cast<PointerDataType>();
+	//		PointerDataType dst_index = token_index(tokens, program_counter + 1 + dst);
+	//		PointerDataType src_index_begin = token_index(tokens, program_counter + 2);
+	//		PointerDataType ins_index = program_counter;
+	//		PointerDataType ins_last_index;
+	//		std::unique_ptr<Node> ins_node = parse_token(tokens, ins_index, nullptr, ins_last_index);
+	//		std::vector<Token> ins_node_tokens = ins_node->tokenize();
+	//		if (dst_index >= ins_index && dst_index <= ins_last_index) {
+	//			dst_index = ins_index;
+	//		}
+	//		Node* src_node = ins_node.get()->arguments[1].get();
+	//		std::vector<Token> src_node_tokens = src_node->tokenize();
+	//		PointerDataType insertion_index = dst_index;
+	//		shift_pointers(tokens, ins_index, -(PointerDataType)ins_node_tokens.size());
+	//		tokens.erase(tokens.begin() + ins_index, tokens.begin() + ins_last_index + 1);
+	//		if (insertion_index > ins_index) {
+	//			insertion_index -= std::min(insertion_index - ins_index, (PointerDataType)ins_node_tokens.size());
+	//		}
+	//		PointerDataType pointer_offset = src_node_tokens.size();
+	//		shift_pointers(tokens, insertion_index, pointer_offset);
+	//		tokens.insert(tokens.begin() + insertion_index, src_node_tokens.begin(), src_node_tokens.end());
+	//		break;
+	//	}
+	//} else if (current_token.str == "if") {
+	//	if (rel_token(tokens, 1).is_num_or_ptr()) {
+	//		BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
+	//		PointerDataType new_token_index;
+	//		std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
+	//		std::vector<Token> if_node_tokens = if_node.get()->tokenize();
+	//		Node* true_node = if_node.get()->arguments[1].get();
+	//		Node* false_node = if_node.get()->arguments[2].get();
+	//		std::vector<Token> true_node_tokens = true_node->tokenize();
+	//		std::vector<Token> false_node_tokens = false_node->tokenize();
+	//		PointerDataType true_node_offset = 2;
+	//		PointerDataType false_node_offset = 2 + true_node_tokens.size();
+	//		PointerDataType true_node_index = program_counter + true_node_offset;
+	//		PointerDataType false_node_index = program_counter + false_node_offset;
+	//		if (cond != 0) {
+	//			shift_pointers(tokens, false_node_index, -(PointerDataType)false_node_tokens.size());
+	//			tokens.erase(tokens.begin() + false_node_index, tokens.begin() + false_node_index + false_node_tokens.size());
+	//			shift_pointers(tokens, program_counter, -true_node_offset);
+	//			tokens.erase(tokens.begin() + program_counter);
+	//			tokens.erase(tokens.begin() + program_counter);
+	//		} else {
+	//			shift_pointers(tokens, program_counter, -false_node_offset);
+	//			tokens.erase(tokens.begin() + program_counter, tokens.begin() + false_node_index);
+	//		}
+	//		break;
+	//	}
+	//} else if (current_token.str == "cast") {
+	//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
+	//		shift_pointers(tokens, program_counter, -2);
+	//		Token arg1 = rel_token(tokens, 1);
+	//		Token arg2 = rel_token(tokens, 2);
+	//		token_type type = static_cast<token_type>(arg1.get_data_cast<int>());
+	//		if (type >= 0 && type < type_unknown) {
+	//			if (type == type_instr) {
+	//				int instruction_index = arg2.get_data_cast<int>();
+	//				if (get_instruction_info(instruction_index).index != -1) {
+	//					arg2.cast(type);
+	//				}
+	//			} else {
+	//				arg2.cast(type);
+	//			}
+	//		}
+	//		Token result = arg2;
+	//		result.str = result.to_string();
+	//		tokens.erase(tokens.begin() + program_counter);
+	//		tokens.erase(tokens.begin() + program_counter);
+	//		rel_token(tokens, 0) = result;
+	//		break;
+	//	}
+	//} else if (current_token.str == "sys") {
+	//	bool arg1_valid = rel_token(tokens, 1).is_num_or_ptr();
+	//	bool arg2_valid = rel_token(tokens, 2).is_list_header() || rel_token(tokens, 2).is_singular_data();
+	//	if (arg1_valid && arg2_valid) {
+	//		ProgramCounterType sys_position = program_counter;
+	//		int sys_call_index = rel_token(tokens, 1).get_data_cast<int>();
+	//		std::vector<Token> arg_list;
+	//		if (rel_token(tokens, 2).is_singular_data()) {
+	//			arg_list.push_back(rel_token(tokens, 2));
+	//			shift_pointers(tokens, sys_position, -3);
+	//			tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + 3);
+	//		} else {
+	//			ProgramCounterType current_token_offset = 3;
+	//			while (!rel_token(tokens, current_token_offset).is_list_end()) {
+	//				Token arg_token = rel_token(tokens, current_token_offset);
+	//				arg_list.push_back(arg_token);
+	//				current_token_offset++;
+	//			}
+	//			ProgramCounterType sys_tokens_size = current_token_offset - sys_position + 1;
+	//			shift_pointers(tokens, sys_position, -(PointerDataType)sys_tokens_size);
+	//			tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + current_token_offset + 1);
+	//		}
+	//		sys_call(sys_call_index, arg_list);
+	//		break;
+	//	}
+	} else if (current_token.str == "list") {
+		list_scope_stack.push({ program_counter, false });
+	} else if (current_token.str == "seq") {
+		list_scope_stack.push({ program_counter, false });
+	} else if (current_token.str == "end") {
+		ProgramCounterType list_pos = list_scope_stack.top().pos;
+		delete_tokens(list_pos, list_pos + 1);
+		delete_tokens(program_counter, program_counter + 1);
+		list_scope_stack.pop();
+	} else {
+		throw std::runtime_error("Unexpected token: " + current_token.str);
+	}
+}
+
 void Program::parse() {
+	node_pointers = std::vector<Node*>();
 	try {
 		nodes.clear();
 		Node* parent_node;
@@ -640,6 +694,7 @@ std::unique_ptr<Node> Program::parse_token(
 	Token current_token = get_token(token_list, parse_token_index);
 	std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
 	Node* new_node_p = new_node.get();
+	node_pointers.push_back(new_node_p);
 	if (!current_token.is_num_or_ptr()) {
 		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
 			[&](InstructionDef def) {
@@ -651,7 +706,7 @@ std::unique_ptr<Node> Program::parse_token(
 		}
 		int instruction_index = it - INSTRUCTION_LIST.begin();
 		int arg_count = (*it).arg_count;
-		if (current_token.str == "list") {
+		if (current_token.str == "list" || current_token.str == "seq") {
 			PointerDataType cur_index = parse_token_index + 1;
 			while (true) {
 				Token cur_token = get_token(tokens, cur_index);
@@ -679,8 +734,23 @@ std::unique_ptr<Node> Program::parse_token(
 			}
 		}
 	}
+	new_node_p->last_index = parse_token_index;
 	new_token_index = parse_token_index;
 	return new_node;
+}
+
+bool Program::parent_is_seq() {
+	return 
+		list_scope_stack.size() > 0 
+		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "seq"
+	;
+}
+
+bool Program::parent_is_list() {
+	return
+		list_scope_stack.size() > 0
+		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "list"
+	;
 }
 
 bool Program::is_deleted(ProgramCounterType old_index) {
@@ -825,6 +895,7 @@ void Program::reset_index_shift() {
 		func_replace_ops.clear();
 		move_ops.clear();
 		new_pointers.clear();
+		list_scope_stack = std::stack<ListScopeStackEntry>();
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}

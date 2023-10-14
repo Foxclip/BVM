@@ -19,6 +19,7 @@ class Node {
 public:
 	Token token;
 	std::vector<std::unique_ptr<Node>> arguments;
+	ProgramCounterType last_index;
 
 	Node(Token token);
 	std::string to_string();
@@ -87,10 +88,16 @@ private:
 		OP_TYPE_REPLACE,
 	};
 	ProgramCounterType program_counter = 0;
+	struct ListScopeStackEntry {
+		ProgramCounterType pos;
+		bool instruction_executed = false;
+	};
+	std::stack<ListScopeStackEntry> list_scope_stack;
 	struct IndexShiftEntry {
 		PointerDataType index = -1;
 		bool deleted = false;
 	};
+	std::vector<Node*> node_pointers;
 	std::vector<IndexShiftEntry> index_shift;
 	std::vector<PointerDataType> index_shift_rev;
 	std::vector<DeleteOp> delete_ops;
@@ -99,9 +106,9 @@ private:
 	std::vector<ReplaceOp> func_replace_ops;
 	std::vector<MoveOp> move_ops;
 	std::set<NewPointersEntry> new_pointers;
-
 	std::vector<Token> tokenize(std::string str);
 	void parse();
+	void execute_instruction();
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
@@ -109,6 +116,8 @@ private:
 		std::vector<Token>& token_list, PointerDataType token_index,
 		Node* parent_node, PointerDataType& new_token_index, int depth = 0
 	);
+	bool parent_is_seq();
+	bool parent_is_list();
 	bool is_deleted(ProgramCounterType old_index);
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);

@@ -1491,3 +1491,156 @@
 # cpy :cpy2
 #     cpy1
 #     cpy2
+
+# seq
+#     add
+#         2
+#         3
+#     add
+#         5
+#         6
+# end
+# add
+#     11
+#     22
+
+# seq
+#     add
+#         2
+#         3
+#     seq
+#         add
+#             5
+#             6
+#         add
+#             3
+#             4
+#     end
+#     add
+#         11
+#         22
+# end
+
+# seq
+#     seq
+#         add
+#             2
+#             3
+#     end
+#     add
+#         5
+#         6
+# end
+
+# seq
+#     add
+#         2
+#         3
+#     add
+#         5
+#         6
+#     list
+#         add
+#             2
+#             3
+#         add
+#             5
+#             6
+#     end
+#     add
+#         11
+#         22
+# end
+
+# seq
+#     list
+#     end
+# end
+
+# 1
+# 2 :two
+# 3
+# seq
+#     set
+#         eleven
+#         22
+#     set
+#         two
+#         11 :eleven
+# end
+
+# seq
+#     list
+#         seq
+#             add
+#                 1
+#                 2
+#             add
+#                 3
+#                 4
+#         end
+#         seq
+#             add
+#                 5
+#                 6
+#             add
+#                 7
+#                 8
+#         end
+#     end
+# end
+
+# list seq 3 7 end seq 11 15 end end
+
+# seq
+#     add
+#         1
+#         2
+# end
+# seq
+# end
+
+# list
+#     list
+#     end
+# end
+
+# seq
+#     seq
+#         add
+#             2
+#             3
+#     end
+#     add
+#         5
+#         6
+# end
+
+# 1 :one
+# 2 :two
+# 3 :three
+# 4 :four
+# seq
+#     seq
+#         seq
+#             get one
+#         end
+#         get two
+#     end
+#     get three
+# end
+# get four
+
+seq 
+    seq
+        seq 
+            1
+        end 
+        add
+            2
+            3
+    end 
+    add
+        5
+        6
+end

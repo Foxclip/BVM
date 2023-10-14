@@ -45,9 +45,9 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
+	// TODO: seq instruction tests with ins
 	// TODO: move instruction
 	// TODO: duplicate label error
-	// TODO: seq instruction
 	// TODO: string printing test
 	// TODO: function call macro
 	// TODO: nodes disappear if they are not connected to anything
