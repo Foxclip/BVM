@@ -47,11 +47,19 @@ public:
 	std::vector<Token> execute();
 
 private:
+	enum OpPriority {
+		OP_PRIORITY_NONE,
+		OP_PRIORITY_FUNC_REPLACE,
+		OP_PRIORITY_WEAK_DELETE,
+		OP_PRIORITY_REPLACE,
+		OP_PRIORITY_STRONG_DELETE,
+	};
 	class DeleteOp {
 	public:
 		ProgramCounterType pos_begin;
 		ProgramCounterType pos_end;
-		DeleteOp(ProgramCounterType pos_begin, ProgramCounterType pos_end);
+		OpPriority priority;
+		DeleteOp(ProgramCounterType pos_begin, ProgramCounterType pos_end, OpPriority priority);
 	};
 	class InsertOp {
 	public:
@@ -95,7 +103,14 @@ private:
 	std::stack<ListScopeStackEntry> list_scope_stack;
 	struct IndexShiftEntry {
 		PointerDataType index = -1;
-		bool deleted = false;
+		OpPriority op_priority = OP_PRIORITY_NONE;
+		bool is_deleted();
+		bool is_weakly_deleted();
+		bool is_strongly_deleted();
+		bool is_replaced();
+		bool is_weakly_replaced();
+		bool is_strongly_replaced();
+		bool is_untouched();
 	};
 	std::vector<Node*> node_pointers;
 	std::vector<IndexShiftEntry> index_shift;
@@ -118,13 +133,12 @@ private:
 	);
 	bool parent_is_seq();
 	bool parent_is_list();
-	bool is_deleted(ProgramCounterType old_index);
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);
 	void insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old_dst_pos, std::vector<Token> insert_tokens, OpType op_type);
-	PointerDataType delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type);
+	PointerDataType delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type, OpPriority priority);
 	void exec_replace_ops(std::vector<ReplaceOp>& vec);
-	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end);
+	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end, OpPriority priority);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(
 		ProgramCounterType dst_begin, ProgramCounterType dst_end,

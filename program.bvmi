@@ -1809,19 +1809,47 @@
 #     two
 #     lst_p
 
-seq
-    1 :one
-    2
-    3 :three
-    4
-    repl
-        -1
-        repl_p
-    6
-    7
-    repl :repl_p
-        three
-        one
-    8
-    9
-end
+# seq
+#     1 :one
+#     2
+#     3 :three
+#     4
+#     repl
+#         -1
+#         repl_p
+#     6
+#     7
+#     repl :repl_p
+#         three
+#         one
+#     8
+#     9
+# end
+
+# 1 2 3 4 repl -3p -6p
+
+# 4
+# add
+#     5
+#     6
+# del
+#     -4
+
+# add
+#     0
+#     0
+# add
+#     1
+#     1
+
+1
+2 :two
+3
+ins
+    ff
+    add
+        2
+        3
+ins
+    two
+    55 :ff
