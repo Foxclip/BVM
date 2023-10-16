@@ -6,6 +6,7 @@
 #include <stack>
 #include <iostream>
 #include <algorithm>
+#include <ranges>
 #include "token.h"
 #include "utils.h"
 #include <set>
@@ -49,6 +50,7 @@ public:
 private:
 	enum OpPriority {
 		OP_PRIORITY_NONE,
+		OP_PRIORITY_TEMP,
 		OP_PRIORITY_FUNC_REPLACE,
 		OP_PRIORITY_WEAK_DELETE,
 		OP_PRIORITY_REPLACE,
@@ -111,6 +113,8 @@ private:
 		bool is_weakly_replaced();
 		bool is_strongly_replaced();
 		bool is_untouched();
+		bool is_temp();
+		bool is_not_temp();
 	};
 	std::vector<Node*> node_pointers;
 	std::vector<IndexShiftEntry> index_shift;
@@ -136,7 +140,7 @@ private:
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);
 	void insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old_dst_pos, std::vector<Token> insert_tokens, OpType op_type);
-	PointerDataType delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type, OpPriority priority);
+	PointerDataType delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type);
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end, OpPriority priority);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(
@@ -147,6 +151,7 @@ private:
 		ProgramCounterType dst_begin, ProgramCounterType dst_end,
 		ProgramCounterType src_begin, std::vector<Token> src_tokens
 	);
+	void exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority);
 	void exec_pending_ops();
 	void reset_index_shift();
 	void print_node(Node* node, int indent_level);

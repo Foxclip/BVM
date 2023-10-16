@@ -759,6 +759,14 @@ bool Program::IndexShiftEntry::is_untouched() {
 	return op_priority == OP_PRIORITY_NONE;
 }
 
+bool Program::IndexShiftEntry::is_temp() {
+	return op_priority == OP_PRIORITY_TEMP;
+}
+
+bool Program::IndexShiftEntry::is_not_temp() {
+	return op_priority != OP_PRIORITY_TEMP;
+}
+
 PointerDataType Program::to_dst_index(PointerDataType old_index) {
 	return index_shift[old_index].index;
 }
@@ -772,12 +780,14 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 	PointerDataType new_dst_pos = -1;
 	for (ProgramCounterType i = old_dst_pos; i < index_shift.size(); i++) {
 		if (new_dst_pos == -1) {
-			if (index_shift[i].is_untouched()) {
+			if (index_shift[i].is_temp()) {
+				new_dst_pos = index_shift[i].index;
+			} else if (index_shift[i].is_untouched()) {
 				new_dst_pos = index_shift[i].index;
 				index_shift[i].index += offset;
 			}
 		} else {
-			if (index_shift[i].index > 0) {
+			if (index_shift[i].index >= 0 && index_shift[i].is_not_temp()) {
 				index_shift[i].index += offset;
 			}
 		}
@@ -802,7 +812,7 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 	tokens.insert(tokens.begin() + new_dst_pos, insert_tokens.begin(), insert_tokens.end());
 }
 
-PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type, OpPriority priority) {
+PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type) {
 	PointerDataType new_pos_begin = to_dst_index(old_pos_begin);
 	if (new_pos_begin < 0) {
 		return 0;
@@ -817,8 +827,8 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 		if (!index_shift[i].is_deleted()) {
 			offset++;
 		}
-		if (priority > index_shift[i].op_priority) {
-			index_shift[i].op_priority = priority;
+		if (index_shift[i].is_untouched()) {
+			index_shift[i].op_priority = OP_PRIORITY_TEMP;
 		}
 	}
 	for (ProgramCounterType i = old_pos_end; i < index_shift.size(); i++) {
@@ -854,34 +864,36 @@ void Program::replace_tokens_func(
 	func_replace_ops.push_back(ReplaceOp(dst_begin, dst_end, src_begin, src_tokens));
 }
 
+void Program::exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority) {
+	for (ReplaceOp& op : vec | std::views::reverse) {
+		if (index_shift[op.dst_begin].op_priority >= priority) {
+			continue;
+		}
+		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE);
+		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
+		for (ProgramCounterType token_i = op.dst_begin; token_i < op.dst_end; token_i++) {
+			index_shift[token_i].op_priority = priority;
+		}
+	}
+}
+
 void Program::exec_pending_ops() {
 	for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
 		DeleteOp& op = delete_ops[op_index];
 		if (index_shift[op.pos_begin].is_strongly_deleted()) {
 			continue;
 		}
-		delete_op_exec(op.pos_begin, op.pos_end, OP_TYPE_NORMAL, op.priority);
+		delete_op_exec(op.pos_begin, op.pos_end, OP_TYPE_NORMAL);
+		for (ProgramCounterType token_i = op.pos_begin; token_i < op.pos_end; token_i++) {
+			index_shift[token_i].op_priority = op.priority;
+		}
 	}
 	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
 		InsertOp& op = insert_ops[op_index];
 		insert_op_exec(op.src_pos, op.dst_pos, op.insert_tokens, OP_TYPE_NORMAL);
 	}
-	for (ProgramCounterType op_index = 0; op_index < replace_ops.size(); op_index++) {
-		ReplaceOp& op = replace_ops[op_index];
-		if (index_shift[op.dst_begin].op_priority >= OP_PRIORITY_REPLACE) {
-			continue;
-		}
-		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE, OP_PRIORITY_REPLACE);
-		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
-	}
-	for (ProgramCounterType op_index = 0; op_index < func_replace_ops.size(); op_index++) {
-		ReplaceOp& op = func_replace_ops[op_index];
-		if (index_shift[op.dst_begin].op_priority >= OP_PRIORITY_FUNC_REPLACE) {
-			continue;
-		}
-		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE, OP_PRIORITY_FUNC_REPLACE);
-		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
-	}
+	exec_replace_ops(replace_ops, OP_PRIORITY_REPLACE);
+	exec_replace_ops(func_replace_ops, OP_PRIORITY_FUNC_REPLACE);
 	shift_pointers();
 }
 

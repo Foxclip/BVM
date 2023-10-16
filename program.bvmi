@@ -1933,12 +1933,38 @@
 #         5
 #         6
 
-1
-2 :two
-3
-set
-    two
-    11
-set
-    two
-    22
+# 1
+# 2 :two
+# 3
+# set
+#     two
+#     list
+#         11
+#         22
+#         33
+#     end
+# set
+#     two
+#     55
+
+# add
+#     2
+#     3
+# add
+#     5
+#     6
+
+# 1
+# 2 :two
+# 3
+# set
+#     two
+#     11
+# set
+#     two
+#     22
+
+get :get1
+    get2
+get :get2
+    get1
