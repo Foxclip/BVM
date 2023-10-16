@@ -883,8 +883,15 @@ void Program::exec_pending_ops() {
 			continue;
 		}
 		delete_op_exec(op.pos_begin, op.pos_end, OP_TYPE_NORMAL);
-		for (ProgramCounterType token_i = op.pos_begin; token_i < op.pos_end; token_i++) {
-			index_shift[token_i].op_priority = op.priority;
+		OpPriority header_priority = op.priority;
+		OpPriority remaining_priority = op.priority;
+		if (op.priority == OP_PRIORITY_WEAK_DELETE) {
+			header_priority = OP_PRIORITY_WEAK_DELETE;
+			remaining_priority = OP_PRIORITY_STRONG_DELETE;
+		}
+		index_shift[op.pos_begin].op_priority = header_priority;
+		for (ProgramCounterType token_i = op.pos_begin + 1; token_i < op.pos_end; token_i++) {
+			index_shift[token_i].op_priority = remaining_priority;
 		}
 	}
 	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {

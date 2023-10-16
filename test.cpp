@@ -47,6 +47,7 @@ namespace test {
 		"set_4.bvmi",
 		"set_5.bvmi",
 		"set_6.bvmi",
+		"set_7.bvmi",
 		"seq_1.bvmi",
 		"seq_2.bvmi",
 		"seq_3.bvmi",

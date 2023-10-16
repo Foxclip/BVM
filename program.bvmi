@@ -1984,15 +1984,36 @@
 #     cpy1
 #     cpy2
 
-:end_p
-ins :ins_p
-    end_p
-    55
-set
-    ins_p
-    33
+# :end_p
+# ins :ins_p
+#     end_p
+#     55
+# set
+#     ins_p
+#     33
 
 # add :add_p
 #     2
 #     3
 # set add_p 55
+
+1
+2 :two
+3
+set
+    five
+    11
+set
+    five
+    12
+set
+    two
+    5 :five
+
+# :end_p
+# ins :ins_p
+#     end_p
+#     55
+# set
+#     ins_p
+#     33
