@@ -47,6 +47,7 @@ int main() {
 
 	// TODO: move instruction
 	// TODO: duplicate label error, keyword label error, instruction name label error
+	// TODO: duplicate test error
 	// TODO: string printing test
 	// TODO: function call macro
 	// TODO: nodes disappear if they are not connected to anything

@@ -359,21 +359,19 @@ std::vector<Token> Program::execute() {
 					exit_parent();
 				} else if (current_token.is_num_or_ptr()) {
 					// skipping
+				} else if (current_token.str == "seq" || current_token.str == "list") {
+					exec_silent();
 				} else if (current_token.str == "q") {
 					exec_silent();
 				} else {
 					if (parent_is_seq()) {
-						if (current_token.str == "seq" || current_token.str == "list") {
-							exec_silent();
-						} else if (current_token.str == "end") {
+						if (current_token.str == "end") {
 			   				exec_end();
 			   			} else {
 			   				exec_normal();
 			   			}
 					} else if (parent_is_list()) {
-						if (current_token.str == "seq" || current_token.str == "list") {
-							exec_silent();
-						} else if (current_token.str == "end") {
+						if (current_token.str == "end") {
 							if (!list_scope_stack.top().instruction_executed) {
 								exec_end();
 							} else {
@@ -512,6 +510,7 @@ void Program::execute_instruction() {
 				std::vector<Token> dst_node_tokens = dst_node->tokenize();
 				replace_tokens(dst_index_begin, dst_index_begin + dst_node_tokens.size(), src_index_begin, src_node_tokens);
 			}
+			program_counter = node_pointers[program_counter]->last_index;
 		}
 	} else if (current_token.str == "ins") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
@@ -522,6 +521,7 @@ void Program::execute_instruction() {
 			std::vector<Token> src_node_tokens = src_node->tokenize();
 			delete_tokens(program_counter, program_counter + 2 + src_node_tokens.size(), OP_PRIORITY_WEAK_DELETE);
 			insert_tokens(src_index_begin, dst_index_begin, src_node_tokens);
+			program_counter = node_pointers[program_counter]->last_index;
 		}
 	} else if (current_token.str == "repl") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
@@ -768,9 +768,6 @@ PointerDataType Program::to_src_index(PointerDataType new_index) {
 }
 
 void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old_dst_pos, std::vector<Token> insert_tokens, OpType op_type) {
-	if (index_shift[old_dst_pos].is_strongly_deleted()) {
-		return;
-	}
 	PointerDataType offset = insert_tokens.size();
 	PointerDataType new_dst_pos = -1;
 	for (ProgramCounterType i = old_dst_pos; i < index_shift.size(); i++) {
@@ -818,8 +815,10 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 			index_shift[i].index = index_shift[old_pos_begin].index;
 		}
 		if (!index_shift[i].is_deleted()) {
-			index_shift[i].op_priority = priority;
 			offset++;
+		}
+		if (priority > index_shift[i].op_priority) {
+			index_shift[i].op_priority = priority;
 		}
 	}
 	for (ProgramCounterType i = old_pos_end; i < index_shift.size(); i++) {
@@ -855,17 +854,12 @@ void Program::replace_tokens_func(
 	func_replace_ops.push_back(ReplaceOp(dst_begin, dst_end, src_begin, src_tokens));
 }
 
-void Program::exec_replace_ops(std::vector<ReplaceOp>& vec) {
-	for (ProgramCounterType op_index = 0; op_index < vec.size(); op_index++) {
-		ReplaceOp& op = vec[op_index];
-		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE, OP_PRIORITY_REPLACE);
-		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
-	}
-}
-
 void Program::exec_pending_ops() {
 	for (ProgramCounterType op_index = 0; op_index < delete_ops.size(); op_index++) {
 		DeleteOp& op = delete_ops[op_index];
+		if (index_shift[op.pos_begin].is_strongly_deleted()) {
+			continue;
+		}
 		delete_op_exec(op.pos_begin, op.pos_end, OP_TYPE_NORMAL, op.priority);
 	}
 	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
@@ -874,11 +868,17 @@ void Program::exec_pending_ops() {
 	}
 	for (ProgramCounterType op_index = 0; op_index < replace_ops.size(); op_index++) {
 		ReplaceOp& op = replace_ops[op_index];
+		if (index_shift[op.dst_begin].op_priority >= OP_PRIORITY_REPLACE) {
+			continue;
+		}
 		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE, OP_PRIORITY_REPLACE);
 		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
 	}
 	for (ProgramCounterType op_index = 0; op_index < func_replace_ops.size(); op_index++) {
 		ReplaceOp& op = func_replace_ops[op_index];
+		if (index_shift[op.dst_begin].op_priority >= OP_PRIORITY_FUNC_REPLACE) {
+			continue;
+		}
 		delete_op_exec(op.dst_begin, op.dst_end, OP_TYPE_REPLACE, OP_PRIORITY_FUNC_REPLACE);
 		insert_op_exec(op.src_begin, op.dst_begin, op.src_tokens, OP_TYPE_REPLACE);
 	}

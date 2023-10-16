@@ -4,9 +4,7 @@
 3
 ins
     ff
-    add
-        2
-        3
+    add 2 3
 ins
     two
     55 :ff

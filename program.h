@@ -137,7 +137,6 @@ private:
 	PointerDataType to_src_index(PointerDataType new_index);
 	void insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old_dst_pos, std::vector<Token> insert_tokens, OpType op_type);
 	PointerDataType delete_op_exec(ProgramCounterType old_pos_begin, ProgramCounterType old_pos_end, OpType op_type, OpPriority priority);
-	void exec_replace_ops(std::vector<ReplaceOp>& vec);
 	void delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end, OpPriority priority);
 	void insert_tokens(ProgramCounterType old_pos, ProgramCounterType new_pos, std::vector<Token> insert_tokens);
 	void replace_tokens(

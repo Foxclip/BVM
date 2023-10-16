@@ -6,7 +6,6 @@ namespace test {
 	const std::vector<std::filesystem::path> test_list = {
 		"math.bvmi",
 		"mod.bvmi",
-		"basic.bvmi",
 		"pow.bvmi",
 		"basic.bvmi",
 		"label.bvmi",
@@ -40,6 +39,8 @@ namespace test {
 		"p_insert_4.bvmi",
 		"ins_1.bvmi",
 		"ins_2.bvmi",
+		"ins_3.bvmi",
+		"ins_4.bvmi",
 		"set_1.bvmi",
 		"set_2.bvmi",
 		"set_3.bvmi",

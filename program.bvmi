@@ -1873,3 +1873,72 @@
 #     q add 2 3
 #     3
 # end
+
+# 1
+# 2 :two
+# 3
+# ins
+#     ff
+#     q add 2 3
+# ins
+#     two
+#     55 :ff
+
+# 1
+# 2 :two
+# 3
+# ins
+#     two
+#     list
+#         11
+#         22
+#         33
+#     end
+
+# 1
+# 2 :two
+# 3
+# ins
+#     ff
+#     add 2 3
+# ins
+#     two
+#     55 :ff
+
+# :end_p
+# 1
+# 2 :two
+# 3
+# ins
+#     two
+#     list
+#         11
+#         ins
+#             end_p
+#             200
+#         33
+#     end
+# ins
+#     end_p
+#     100
+
+# 1
+# add :add_p
+#     2
+#     3
+# 3
+# set
+#     add_p
+#     add
+#         5
+#         6
+
+1
+2 :two
+3
+set
+    two
+    11
+set
+    two
+    22
