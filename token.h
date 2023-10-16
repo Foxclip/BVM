@@ -17,6 +17,7 @@ public:
 	bool is_num();
 	bool is_ptr();
 	bool is_num_or_ptr();
+	bool is_static();
 	bool is_list_header();
 	bool is_list_end();
 	bool is_list();

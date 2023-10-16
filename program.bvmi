@@ -1842,14 +1842,34 @@
 #     1
 #     1
 
-1
-2 :two
-3
-ins
-    ff
-    add
-        2
-        3
-ins
-    two
-    55 :ff
+# 1
+# 2 :two
+# 3
+# ins
+#     ff
+#     add
+#         2
+#         3
+# ins
+#     two
+#     55 :ff
+
+# add 1 1
+# q
+#     list
+#         add 2 3
+#         add 3 4
+#     end
+# add 5 6
+
+# list
+#     1
+#     q add 2 3
+#     3
+# end
+
+# seq
+#     1
+#     q add 2 3
+#     3
+# end

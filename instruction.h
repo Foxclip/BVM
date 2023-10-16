@@ -65,6 +65,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("list", -1),
 	InstructionDef("seq", -1),
 	InstructionDef("end", 0),
+	InstructionDef("q", 1),
 	InstructionDef("cast", 2),
 	InstructionDef("sys", 2),
 };

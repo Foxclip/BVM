@@ -74,6 +74,10 @@ bool Token::is_num_or_ptr() {
 	return is_num() || is_ptr();
 }
 
+bool Token::is_static() {
+	return is_num_or_ptr() || str == "q";
+}
+
 bool Token::is_list_header() {
 	return str == "list";
 }

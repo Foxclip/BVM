@@ -359,6 +359,8 @@ std::vector<Token> Program::execute() {
 					exit_parent();
 				} else if (current_token.is_num_or_ptr()) {
 					// skipping
+				} else if (current_token.str == "q") {
+					exec_silent();
 				} else {
 					if (parent_is_seq()) {
 						if (current_token.str == "seq" || current_token.str == "list") {
@@ -619,6 +621,9 @@ void Program::execute_instruction() {
 		delete_tokens(list_pos, list_pos + 1, OP_PRIORITY_STRONG_DELETE);
 		delete_tokens(program_counter, program_counter + 1, OP_PRIORITY_STRONG_DELETE);
 		list_scope_stack.pop();
+	} else if (current_token.str == "q") {
+		Node* node = node_pointers[program_counter];
+		program_counter = node->last_index;
 	} else {
 		throw std::runtime_error("Unexpected token: " + current_token.str);
 	}

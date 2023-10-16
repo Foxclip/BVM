@@ -1,0 +1,8 @@
+# 2 q list add 2 3 add 3 4 end 11
+add 1 1
+q
+    list
+        add 2 3
+        add 3 4
+    end
+add 5 6
