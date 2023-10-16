@@ -1964,7 +1964,35 @@
 #     two
 #     22
 
-get :get1
-    get2
-get :get2
-    get1
+# get :get1
+#     get2
+# get :get2
+#     get1
+
+# :end_p
+# ins :ins_p
+#     end_p
+#     55
+# set
+#     ins_p
+#     33
+
+# cpy :cpy1
+#     cpy2
+#     cpy1
+# cpy :cpy2
+#     cpy1
+#     cpy2
+
+:end_p
+ins :ins_p
+    end_p
+    55
+set
+    ins_p
+    33
+
+# add :add_p
+#     2
+#     3
+# set add_p 55

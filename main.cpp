@@ -46,15 +46,17 @@ int main() {
 	}
 
 	// TODO: move instruction
+	// TODO: undeletable end instruction
+	// movable list, seq, end instructions
 	// TODO: duplicate label error, keyword label error, instruction name label error
 	// TODO: duplicate test error
 	// TODO: string printing test
 	// TODO: function call macro
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number
-	// TODO: adding number to pointer test
 	// TODO: repl executes its second argument, also add code instruction (quote, written in source as ') to stop code from executing
 	// TODO: move and swap instructions, for moving and swapping subtrees
+	// TODO: def instruction, for defining macros
 	// TODO: builtin macros (which are part of the intermediate language itself)
 	// TODO: math functions take lists as arguments (and possibly other functions?)
 	// TODO: adding numbers to lists and lists to numbers
@@ -62,15 +64,13 @@ int main() {
 	// TODO: block instruction, separates program into blocks, blocks have
 	// TODO: replace command string tokens in the code with enum values
 	// TODO: next and prev instructions, return address of the next and previous subtree
+	// up, down to go between the tree levels
+	// hshift and vshift to multiple steps
 	// TODO: make parse_token function not recursive
 	// TODO: do not parse code every time, keep parsed nodes around if they are not touched by modifying instructiions
-	// TODO: modifying instructions shift pointers in the tokens that are being moved around
-	// if pointers lead inside then leave them as is, otherwise shift them so they point where they were pointing
 	// TODO: shift pointers from pointer list, instead of scanning the whole token list
 	// TODO: place program counter at the leftmost change position at new iteration
-	// TODO: undeletable end instruction
 	// TODO: conv instruction, converts list of numbers to code
-	// TODO: sys instruction, executes external code
 	// TODO: getsize instruction, returns size of the subtree
 	// TODO: get instruction, returns two numbers: first number signifies whether token is an instruction or a number,
 	// second number is num_value if it is a number, or instruction index if it is an instruction

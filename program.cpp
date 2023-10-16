@@ -780,7 +780,10 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 	PointerDataType new_dst_pos = -1;
 	for (ProgramCounterType i = old_dst_pos; i < index_shift.size(); i++) {
 		if (new_dst_pos == -1) {
-			if (index_shift[i].is_temp()) {
+			if (
+				index_shift[i].is_temp()
+				|| (op_type == OP_TYPE_REPLACE && index_shift[i].is_weakly_deleted())
+			) {
 				new_dst_pos = index_shift[i].index;
 			} else if (index_shift[i].is_untouched()) {
 				new_dst_pos = index_shift[i].index;
@@ -819,11 +822,7 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 	}
 	PointerDataType offset = 0;
 	for (ProgramCounterType i = old_pos_begin; i < old_pos_end; i++) {
-		if (op_type == OP_TYPE_NORMAL) {
-			index_shift[i].index = -1;
-		} else {
-			index_shift[i].index = index_shift[old_pos_begin].index;
-		}
+		index_shift[i].index = index_shift[old_pos_begin].index;
 		if (!index_shift[i].is_deleted()) {
 			offset++;
 		}
@@ -954,7 +953,7 @@ void Program::shift_pointers() {
 			PointerDataType new_dst;
 			for (PointerDataType dst_i = old_dst; ; dst_i++) {
 				PointerDataType dst_p = to_dst_index(dst_i);
-				if (dst_p >= 0) {
+				if (!index_shift[dst_i].is_deleted()) {
 					new_dst = dst_p;
 					break;
 				}
