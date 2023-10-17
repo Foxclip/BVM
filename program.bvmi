@@ -2055,16 +2055,29 @@
 # 6 :six
 # 7
 
-1
-2
-3
-tt
-move lst tt
+# :end_p
+# 1 :one
+# 2 :two
+# 3 :three
+# 4 :four
+# move one three
+# move one four
+# move one end_p
+
+1 :one
 list :lst
-    11
-    22 :tt
-    33
+    5
+    6
+    7
 end
-5
-6
-7
+3 :three
+4 :four
+move lst four
+set
+    lst
+    list
+        11
+        22
+        33
+        44
+    end

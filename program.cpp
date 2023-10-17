@@ -853,7 +853,7 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 		index_shift[i].op_priority = OP_PRIORITY_TEMP;
 	}
 	for (ProgramCounterType i = old_pos_end; i < index_shift.size(); i++) {
-		if (index_shift[i].index >= 0) {
+		if (index_shift[i].index > index_shift[old_pos_begin].index) {
 			index_shift[i].index -= offset;
 		}
 	}
@@ -924,8 +924,7 @@ void Program::exec_pending_ops() {
 		InsertOp& op = insert_ops[op_index];
 		insert_op_exec(op.src_pos, op.dst_pos, op.insert_tokens, OP_TYPE_NORMAL);
 	}
-	for (ProgramCounterType op_index = 0; op_index < move_ops.size(); op_index++) {
-		MoveOp& op = move_ops[op_index];
+	for (MoveOp& op : move_ops | std::views::reverse) {
 		if (index_shift[op.old_begin].op_priority > OP_PRIORITY_LIST_DELETE) {
 			continue;
 		}

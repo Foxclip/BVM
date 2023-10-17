@@ -1,0 +1,9 @@
+# 2 3 4 1
+:end_p
+1 :one
+2 :two
+3 :three
+4 :four
+move one three
+move one four
+move one end_p

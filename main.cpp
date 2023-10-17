@@ -35,9 +35,9 @@ void execute_program_normal(std::string path) {
 int main() {
 	try {
 
-		//execute_program_debug("program.bvmi");
+		execute_program_debug("program.bvmi");
 		//execute_program_normal("program.bvmi");
-		test::run_tests();
+		//test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "ERROR: " << msg << "\n";
@@ -46,10 +46,12 @@ int main() {
 	}
 
 	// TODO: move instruction
+	// TODO: mrep instruction
 	// TODO: undeletable end instruction
 	// movable list, seq, end instructions
 	// TODO: duplicate label error, keyword label error, instruction name label error
 	// TODO: duplicate test error
+	// TODO: hanging files in test folder warning
 	// TODO: string printing test
 	// TODO: function call macro
 	// TODO: nodes disappear if they are not connected to anything

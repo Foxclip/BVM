@@ -64,6 +64,8 @@ namespace test {
 		"move_3.bvmi",
 		"move_4.bvmi",
 		"move_5.bvmi",
+		"move_6.bvmi",
+		"move_7.bvmi",
 		//"if_p_shift.bvmi",
 		//"forloop.bvmi",
 		//"forloop_2.bvmi",
