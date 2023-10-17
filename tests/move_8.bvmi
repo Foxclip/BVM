@@ -1,0 +1,13 @@
+# 1 3 5 4p 7 4 11 22 33
+1 :one
+list :lst
+    5
+    tt
+    7
+end
+3 :three
+4 :four
+move lst four
+11
+22 :tt
+33
