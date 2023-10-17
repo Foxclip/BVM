@@ -538,6 +538,18 @@ void Program::execute_instruction() {
 				replace_tokens(dst_index_begin, dst_index_end, src_index_begin, src_node_tokens);
 			}
 		}
+	} else if (current_token.str == "move") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
+			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+			PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
+			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
+			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 2 + dst);
+			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
+			if (src_index_begin != prev_tokens.size()) {
+				Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
+				move_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin);
+			}
+		}
 	//} else if (current_token.str == "if") {
 	//	if (rel_token(tokens, 1).is_num_or_ptr()) {
 	//		BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
@@ -618,8 +630,8 @@ void Program::execute_instruction() {
 		list_scope_stack.push({ program_counter, false });
 	} else if (current_token.str == "end") {
 		ProgramCounterType list_pos = list_scope_stack.top().pos;
-		delete_tokens(list_pos, list_pos + 1, OP_PRIORITY_STRONG_DELETE);
-		delete_tokens(program_counter, program_counter + 1, OP_PRIORITY_STRONG_DELETE);
+		delete_tokens(list_pos, list_pos + 1, OP_PRIORITY_LIST_DELETE);
+		delete_tokens(program_counter, program_counter + 1, OP_PRIORITY_LIST_DELETE);
 		list_scope_stack.pop();
 	} else if (current_token.str == "q") {
 		Node* node = node_pointers[program_counter];
@@ -727,9 +739,14 @@ bool Program::parent_is_list() {
 }
 
 bool Program::IndexShiftEntry::is_deleted() {
-	return op_priority == OP_PRIORITY_WEAK_DELETE
+	return op_priority == OP_PRIORITY_LIST_DELETE
+		|| op_priority == OP_PRIORITY_WEAK_DELETE
 		|| op_priority == OP_PRIORITY_STRONG_DELETE
 	;
+}
+
+bool Program::IndexShiftEntry::is_list_deleted() {
+	return op_priority == OP_PRIORITY_LIST_DELETE;
 }
 
 bool Program::IndexShiftEntry::is_weakly_deleted() {
@@ -795,6 +812,13 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 			}
 		}
 	}
+	if (op_type == OP_TYPE_MOVE) {
+		for (ProgramCounterType i = 0; i < insert_tokens.size(); i++) {
+			ProgramCounterType moved_out = old_src_pos + i;
+			ProgramCounterType moved_in = new_dst_pos + i;
+			index_shift[moved_out].index = moved_in;
+		}
+	}
 	std::vector<PointerDataType> ins_vector(offset);
 	for (ProgramCounterType i = 0; i < offset; i++) {
 		PointerDataType current_pos = old_src_pos + i;
@@ -826,9 +850,7 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 		if (!index_shift[i].is_deleted()) {
 			offset++;
 		}
-		if (index_shift[i].is_untouched()) {
-			index_shift[i].op_priority = OP_PRIORITY_TEMP;
-		}
+		index_shift[i].op_priority = OP_PRIORITY_TEMP;
 	}
 	for (ProgramCounterType i = old_pos_end; i < index_shift.size(); i++) {
 		if (index_shift[i].index >= 0) {
@@ -861,6 +883,10 @@ void Program::replace_tokens_func(
 	ProgramCounterType src_begin, std::vector<Token> src_tokens
 ) {
 	func_replace_ops.push_back(ReplaceOp(dst_begin, dst_end, src_begin, src_tokens));
+}
+
+void Program::move_tokens(ProgramCounterType old_begin, ProgramCounterType old_end, ProgramCounterType new_begin) {
+	move_ops.push_back(MoveOp(old_begin, old_end, new_begin));
 }
 
 void Program::exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority) {
@@ -897,6 +923,18 @@ void Program::exec_pending_ops() {
 	for (ProgramCounterType op_index = 0; op_index < insert_ops.size(); op_index++) {
 		InsertOp& op = insert_ops[op_index];
 		insert_op_exec(op.src_pos, op.dst_pos, op.insert_tokens, OP_TYPE_NORMAL);
+	}
+	for (ProgramCounterType op_index = 0; op_index < move_ops.size(); op_index++) {
+		MoveOp& op = move_ops[op_index];
+		if (index_shift[op.old_begin].op_priority > OP_PRIORITY_LIST_DELETE) {
+			continue;
+		}
+		std::vector<Token> tokens_to_move(prev_tokens.begin() + op.old_begin, prev_tokens.begin() + op.old_end);
+		delete_op_exec(op.old_begin, op.old_end, OP_TYPE_MOVE);
+		insert_op_exec(op.old_begin, op.new_begin, tokens_to_move, OP_TYPE_MOVE);
+		for (ProgramCounterType token_i = op.old_begin; token_i < op.old_end; token_i++) {
+			index_shift[token_i].op_priority = OP_PRIORITY_MOVE;
+		}
 	}
 	exec_replace_ops(replace_ops, OP_PRIORITY_REPLACE);
 	exec_replace_ops(func_replace_ops, OP_PRIORITY_FUNC_REPLACE);

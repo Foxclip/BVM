@@ -50,8 +50,10 @@ public:
 private:
 	enum OpPriority {
 		OP_PRIORITY_NONE,
+		OP_PRIORITY_MOVE,
 		OP_PRIORITY_TEMP,
 		OP_PRIORITY_FUNC_REPLACE,
+		OP_PRIORITY_LIST_DELETE,
 		OP_PRIORITY_WEAK_DELETE,
 		OP_PRIORITY_REPLACE,
 		OP_PRIORITY_STRONG_DELETE,
@@ -96,6 +98,7 @@ private:
 	enum OpType {
 		OP_TYPE_NORMAL,
 		OP_TYPE_REPLACE,
+		OP_TYPE_MOVE,
 	};
 	ProgramCounterType program_counter = 0;
 	struct ListScopeStackEntry {
@@ -107,6 +110,7 @@ private:
 		PointerDataType index = -1;
 		OpPriority op_priority = OP_PRIORITY_NONE;
 		bool is_deleted();
+		bool is_list_deleted();
 		bool is_weakly_deleted();
 		bool is_strongly_deleted();
 		bool is_replaced();
@@ -151,6 +155,7 @@ private:
 		ProgramCounterType dst_begin, ProgramCounterType dst_end,
 		ProgramCounterType src_begin, std::vector<Token> src_tokens
 	);
+	void move_tokens(ProgramCounterType old_begin, ProgramCounterType old_end, ProgramCounterType new_begin);
 	void exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority);
 	void exec_pending_ops();
 	void reset_index_shift();

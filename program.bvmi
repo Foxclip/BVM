@@ -1997,18 +1997,18 @@
 #     3
 # set add_p 55
 
-1
-2 :two
-3
-set
-    five
-    11
-set
-    five
-    12
-set
-    two
-    5 :five
+# 1
+# 2 :two
+# 3
+# set
+#     five
+#     11
+# set
+#     five
+#     12
+# set
+#     two
+#     5 :five
 
 # :end_p
 # ins :ins_p
@@ -2017,3 +2017,54 @@ set
 # set
 #     ins_p
 #     33
+
+# 1 :one
+# 2
+# 3 :three
+# move
+#     three
+#     one
+
+# 1
+# 2
+# 3
+# tt
+# move lst lst
+# list :lst
+#     11
+#     22 :tt
+#     33
+# end
+# 5
+# 6
+# 7
+
+# 1 :one
+# 2 :two
+# 3 :three
+# tt
+# move
+#     lst
+#     tt
+# list :lst
+#     11
+#     22 :tt
+#     33
+# end :end_p
+# 5
+# 6 :six
+# 7
+
+1
+2
+3
+tt
+move lst tt
+list :lst
+    11
+    22 :tt
+    33
+end
+5
+6
+7
