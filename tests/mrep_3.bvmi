@@ -1,0 +1,14 @@
+# 1 5 3 4 6
+1
+list :lst
+    11
+    22
+    33
+end
+3
+mrep
+    five
+    lst
+4
+5 :five
+6

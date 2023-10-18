@@ -2064,15 +2064,67 @@
 # move one four
 # move one end_p
 
-1 :one
-list :lst
+# 1 :one
+# list :lst
+#     5
+#     tt
+#     7
+# end
+# 3 :three
+# 4 :four
+# move lst four
+# 11
+# 22 :tt
+# 33
+
+# 1
+# list :lst
+#     11
+#     22
+#     33
+# end
+# 3
+# mrep
+#     five
+#     lst
+# 4
+# 5 :five
+# 6
+
+0
+list :lst1
     5
-    tt
+    6
     7
 end
-3 :three
-4 :four
-move lst four
-11
-22 :tt
-33
+1
+list :lst2
+    8
+    9
+    10
+    11
+    12
+end
+2
+set
+    lst2
+    list
+       101
+       202
+       303
+       404
+       505
+       606
+    end
+3
+mrep
+    lst2
+    lst1
+4
+set
+    lst2
+    list
+        55
+        66
+    end
+5

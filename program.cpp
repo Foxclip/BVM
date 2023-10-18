@@ -44,6 +44,16 @@ Program::MoveOp::MoveOp(
 	this->new_begin = new_begin;
 }
 
+Program::MoveReplaceOp::MoveReplaceOp(
+	ProgramCounterType old_begin, ProgramCounterType old_end,
+	ProgramCounterType new_begin, ProgramCounterType new_end
+) {
+	this->old_begin = old_begin;
+	this->old_end = old_end;
+	this->new_begin = new_begin;
+	this->new_end = new_end;
+}
+
 void throwUnexpectedCharException(char c, std::string current_word) {
 	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + utils::char_to_str(c));
 }
@@ -550,6 +560,19 @@ void Program::execute_instruction() {
 				move_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin);
 			}
 		}
+	} else if (current_token.str == "mrep") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
+			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
+			PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
+			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
+			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 2 + dst);
+			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
+			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size()) {
+				Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
+				Node* dst_node = node_pointers[token_index(prev_tokens, dst_index_begin)];
+				movereplace_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin, dst_node->last_index + 1);
+			}
+		}
 	//} else if (current_token.str == "if") {
 	//	if (rel_token(tokens, 1).is_num_or_ptr()) {
 	//		BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
@@ -773,7 +796,7 @@ bool Program::IndexShiftEntry::is_strongly_replaced() {
 }
 
 bool Program::IndexShiftEntry::is_untouched() {
-	return op_priority == OP_PRIORITY_NONE;
+	return op_priority == OP_PRIORITY_NULL;
 }
 
 bool Program::IndexShiftEntry::is_temp() {
@@ -799,7 +822,10 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 		if (new_dst_pos == -1) {
 			if (
 				index_shift[i].is_temp()
-				|| (op_type == OP_TYPE_REPLACE && index_shift[i].is_weakly_deleted())
+				|| (
+					(op_type == OP_TYPE_REPLACE || op_type == OP_TYPE_MOVEREPLACE)
+					&& index_shift[i].is_weakly_deleted()
+				)
 			) {
 				new_dst_pos = index_shift[i].index;
 			} else if (index_shift[i].is_untouched()) {
@@ -812,7 +838,7 @@ void Program::insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old
 			}
 		}
 	}
-	if (op_type == OP_TYPE_MOVE) {
+	if (op_type == OP_TYPE_MOVE || op_type == OP_TYPE_MOVEREPLACE) {
 		for (ProgramCounterType i = 0; i < insert_tokens.size(); i++) {
 			ProgramCounterType moved_out = old_src_pos + i;
 			ProgramCounterType moved_in = new_dst_pos + i;
@@ -847,7 +873,7 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 	PointerDataType offset = 0;
 	for (ProgramCounterType i = old_pos_begin; i < old_pos_end; i++) {
 		index_shift[i].index = index_shift[old_pos_begin].index;
-		if (!index_shift[i].is_deleted()) {
+		if (!index_shift[i].is_deleted() && index_shift[i].is_not_temp()) {
 			offset++;
 		}
 		index_shift[i].op_priority = OP_PRIORITY_TEMP;
@@ -887,6 +913,13 @@ void Program::replace_tokens_func(
 
 void Program::move_tokens(ProgramCounterType old_begin, ProgramCounterType old_end, ProgramCounterType new_begin) {
 	move_ops.push_back(MoveOp(old_begin, old_end, new_begin));
+}
+
+void Program::movereplace_tokens(
+	ProgramCounterType old_begin, ProgramCounterType old_end,
+	ProgramCounterType new_begin, ProgramCounterType new_end
+) {
+	movereplace_ops.push_back(MoveReplaceOp(old_begin, old_end, new_begin, new_end));
 }
 
 void Program::exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority) {
@@ -935,6 +968,21 @@ void Program::exec_pending_ops() {
 			index_shift[token_i].op_priority = OP_PRIORITY_MOVE;
 		}
 	}
+	for (MoveReplaceOp& op : movereplace_ops | std::views::reverse) {
+		if (index_shift[op.old_begin].is_strongly_deleted()) {
+			continue;
+		}
+		std::vector<Token> tokens_to_move(prev_tokens.begin() + op.old_begin, prev_tokens.begin() + op.old_end);
+		delete_op_exec(op.old_begin, op.old_end, OP_TYPE_MOVE);
+		delete_op_exec(op.new_begin, op.new_end, OP_TYPE_REPLACE);
+		insert_op_exec(op.old_begin, op.new_begin, tokens_to_move, OP_TYPE_MOVEREPLACE);
+		for (ProgramCounterType token_i = op.old_begin; token_i < op.old_end; token_i++) {
+			index_shift[token_i].op_priority = OP_PRIORITY_MOVE;
+		}
+		for (ProgramCounterType token_i = op.new_begin; token_i < op.new_end; token_i++) {
+			index_shift[token_i].op_priority = OP_PRIORITY_REPLACE;
+		}
+	}
 	exec_replace_ops(replace_ops, OP_PRIORITY_REPLACE);
 	exec_replace_ops(func_replace_ops, OP_PRIORITY_FUNC_REPLACE);
 	shift_pointers();
@@ -956,6 +1004,7 @@ void Program::reset_index_shift() {
 		replace_ops.clear();
 		func_replace_ops.clear();
 		move_ops.clear();
+		movereplace_ops.clear();
 		new_pointers.clear();
 		list_scope_stack = std::stack<ListScopeStackEntry>();
 	} catch (std::exception exc) {

@@ -49,7 +49,7 @@ public:
 
 private:
 	enum OpPriority {
-		OP_PRIORITY_NONE,
+		OP_PRIORITY_NULL,
 		OP_PRIORITY_TEMP,
 		OP_PRIORITY_FUNC_REPLACE,
 		OP_PRIORITY_LIST_DELETE,
@@ -95,10 +95,22 @@ private:
 			ProgramCounterType new_begin
 		);
 	};
+	class MoveReplaceOp {
+	public:
+		ProgramCounterType old_begin;
+		ProgramCounterType old_end;
+		ProgramCounterType new_begin;
+		ProgramCounterType new_end;
+		MoveReplaceOp(
+			ProgramCounterType old_begin, ProgramCounterType old_end,
+			ProgramCounterType new_begin, ProgramCounterType new_end
+		);
+	};
 	enum OpType {
 		OP_TYPE_NORMAL,
 		OP_TYPE_REPLACE,
 		OP_TYPE_MOVE,
+		OP_TYPE_MOVEREPLACE,
 	};
 	ProgramCounterType program_counter = 0;
 	struct ListScopeStackEntry {
@@ -108,7 +120,7 @@ private:
 	std::stack<ListScopeStackEntry> list_scope_stack;
 	struct IndexShiftEntry {
 		PointerDataType index = -1;
-		OpPriority op_priority = OP_PRIORITY_NONE;
+		OpPriority op_priority = OP_PRIORITY_NULL;
 		bool is_deleted();
 		bool is_list_deleted();
 		bool is_weakly_deleted();
@@ -128,6 +140,7 @@ private:
 	std::vector<ReplaceOp> replace_ops;
 	std::vector<ReplaceOp> func_replace_ops;
 	std::vector<MoveOp> move_ops;
+	std::vector<MoveReplaceOp> movereplace_ops;
 	std::set<NewPointersEntry> new_pointers;
 	std::vector<Token> tokenize(std::string str);
 	void parse();
@@ -156,6 +169,10 @@ private:
 		ProgramCounterType src_begin, std::vector<Token> src_tokens
 	);
 	void move_tokens(ProgramCounterType old_begin, ProgramCounterType old_end, ProgramCounterType new_begin);
+	void movereplace_tokens(
+		ProgramCounterType old_begin, ProgramCounterType old_end,
+		ProgramCounterType new_begin, ProgramCounterType new_end
+	);
 	void exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority);
 	void exec_pending_ops();
 	void reset_index_shift();
