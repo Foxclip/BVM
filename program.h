@@ -54,6 +54,7 @@ private:
 		OP_PRIORITY_FUNC_REPLACE,
 		OP_PRIORITY_LIST_DELETE,
 		OP_PRIORITY_MOVE,
+		OP_PRIORITY_MREP_SRC,
 		OP_PRIORITY_WEAK_DELETE,
 		OP_PRIORITY_REPLACE,
 		OP_PRIORITY_STRONG_DELETE,
@@ -125,7 +126,10 @@ private:
 		bool is_list_deleted();
 		bool is_weakly_deleted();
 		bool is_strongly_deleted();
+		bool is_normal_moved();
+		bool is_moved();
 		bool is_replaced();
+		bool is_mrep_src();
 		bool is_weakly_replaced();
 		bool is_strongly_replaced();
 		bool is_untouched();

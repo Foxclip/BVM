@@ -780,11 +780,23 @@ bool Program::IndexShiftEntry::is_strongly_deleted() {
 	return op_priority == OP_PRIORITY_STRONG_DELETE;
 }
 
+bool Program::IndexShiftEntry::is_moved() {
+	return is_normal_moved() || is_mrep_src();
+}
+
+bool Program::IndexShiftEntry::is_normal_moved() {
+	return op_priority == OP_PRIORITY_MOVE;
+}
+
 bool Program::IndexShiftEntry::is_replaced() {
 	return 
 		op_priority == OP_PRIORITY_REPLACE 
 		|| op_priority == OP_PRIORITY_FUNC_REPLACE
 	;
+}
+
+bool Program::IndexShiftEntry::is_mrep_src() {
+	return op_priority == OP_PRIORITY_MREP_SRC;
 }
 
 bool Program::IndexShiftEntry::is_weakly_replaced() {
@@ -969,15 +981,16 @@ void Program::exec_pending_ops() {
 		}
 	}
 	for (MoveReplaceOp& op : movereplace_ops | std::views::reverse) {
-		if (index_shift[op.old_begin].is_strongly_deleted()) {
+		IndexShiftEntry ise = index_shift[op.new_begin];
+		delete_op_exec(op.old_begin, op.old_end, OP_TYPE_MOVE);
+		if (ise.is_strongly_deleted() || ise.is_replaced()) {
 			continue;
 		}
 		std::vector<Token> tokens_to_move(prev_tokens.begin() + op.old_begin, prev_tokens.begin() + op.old_end);
-		delete_op_exec(op.old_begin, op.old_end, OP_TYPE_MOVE);
 		delete_op_exec(op.new_begin, op.new_end, OP_TYPE_REPLACE);
 		insert_op_exec(op.old_begin, op.new_begin, tokens_to_move, OP_TYPE_MOVEREPLACE);
 		for (ProgramCounterType token_i = op.old_begin; token_i < op.old_end; token_i++) {
-			index_shift[token_i].op_priority = OP_PRIORITY_MOVE;
+			index_shift[token_i].op_priority = OP_PRIORITY_MREP_SRC;
 		}
 		for (ProgramCounterType token_i = op.new_begin; token_i < op.new_end; token_i++) {
 			index_shift[token_i].op_priority = OP_PRIORITY_REPLACE;

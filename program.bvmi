@@ -2091,40 +2091,57 @@
 # 5 :five
 # 6
 
-0
-list :lst1
-    5
-    6
-    7
-end
-1
-list :lst2
-    8
-    9
-    10
-    11
-    12
-end
-2
-set
-    lst2
-    list
-       101
-       202
-       303
-       404
-       505
-       606
-    end
-3
-mrep
-    lst2
-    lst1
-4
-set
-    lst2
-    list
-        55
-        66
-    end
-5
+# 0
+# list :lst1
+#     5
+#     6
+#     7
+# end
+# 1
+# list :lst2
+#     8
+#     9
+#     10
+#     11
+#     12
+# end
+# 2
+# set
+#     lst2
+#     list
+#        101
+#        202
+#        303
+#        404
+#        505
+#        606
+#     end
+# 3
+# mrep
+#     lst2
+#     lst1
+# 4
+# set
+#     lst2
+#     list
+#         55
+#         66
+#     end
+# 5
+
+# 0
+# 1 :one
+# list :lst1
+#     5
+#     6
+# end
+# 3
+# move lst1 one
+# mrep lst2 lst1
+# 11
+# list :lst2
+#     101
+#     202
+#     303
+# end
+# 12
