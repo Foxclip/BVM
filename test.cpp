@@ -75,6 +75,7 @@ namespace test {
 		"mrep_6.bvmi",
 		"mrep_7.bvmi",
 		"mrep_8.bvmi",
+		"mrep_9.bvmi",
 		//"if_p_shift.bvmi",
 		//"forloop.bvmi",
 		//"forloop_2.bvmi",
