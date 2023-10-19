@@ -150,7 +150,7 @@ private:
 	std::set<NewPointersEntry> new_pointers;
 	std::vector<Token> tokenize(std::string str);
 	void parse();
-	void execute_instruction();
+	bool try_execute_instruction();
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
@@ -158,6 +158,8 @@ private:
 		std::vector<Token>& token_list, PointerDataType token_index,
 		PointerDataType& new_token_index, int depth = 0
 	);
+	bool inside_seq();
+	bool inside_list();
 	bool parent_is_seq();
 	bool parent_is_list();
 	bool parent_is_if();

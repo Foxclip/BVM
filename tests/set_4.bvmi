@@ -4,11 +4,10 @@
 3
 set
     two
-    list
-        11
-        22
-        33
-    end
-set
-    two
-    55
+    q
+        list
+            11
+            22
+            33
+        end
+set two 55

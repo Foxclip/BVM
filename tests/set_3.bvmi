@@ -2,9 +2,5 @@
 1
 2 :two
 3
-set
-    two
-    11
-set
-    two
-    22
+set two 11
+set two 22

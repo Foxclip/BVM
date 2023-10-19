@@ -3,6 +3,4 @@
 ins :ins_p
     end_p
     55
-set
-    ins_p
-    33
+set ins_p 33

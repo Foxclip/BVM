@@ -2210,24 +2210,72 @@
 # 8 :eight
 # 9 :nine
 
+# 1
+# list :lst1
+#     5
+#     6
+#     7
+# end
+# 2
+# list :lst2
+#     8
+#     9
+# end
+# 3
+# mrep lst3 lst1
+# mrep lst3 lst2
+# list :lst3
+#     11
+#     22
+#     33
+#     44
+# end
+# 4
+
+# 1
+# 2 :two
+# 3
+# set
+#     two
+#     q
+#         list
+#             11
+#             22
+#             33
+#         end
+# set two 55
+
+# q :q0 0
+# 1 :one
+# seq
+#     del 0
+#     set
+#         add one 1
+#         add :add_p 2 3
+# end
+# seq
+#     get q0 :getq0
+#     repl add -2p -1 add_p
+# end
+
+# seq q 0 repl add -2p -1 -3p end
+
+# 1 :one
+# 2 :two
+# seq
+#     set 
+#         add one 1
+#         add 2 3
+# end
+
 1
-list :lst1
-    5
-    6
-    7
-end
-2
-list :lst2
-    8
-    9
-end
+2 :two
 3
-mrep lst3 lst1
-mrep lst3 lst2
-list :lst3
-    11
-    22
-    33
-    44
-end
-4
+ins
+    two
+    q
+        list
+            11
+            22
+            33
+        end

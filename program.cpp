@@ -341,7 +341,7 @@ std::vector<Token> Program::execute() {
 				Node* seq_node = node_pointers[list_scope_stack.top().pos];
 				program_counter = seq_node->last_index;
 			};
-			auto notify_parent = [&]() {
+			auto notify_container = [&]() {
 				if (list_scope_stack.size() > 0) {
 					list_scope_stack.top().instruction_executed = true;
 				}
@@ -349,19 +349,19 @@ std::vector<Token> Program::execute() {
 			auto exit_parent = [&]() {
 				jump_to_end();
 				list_scope_stack.pop();
-				notify_parent();
+				notify_container();
 			};
-			auto exec_end = [&]() {
-				jump_to_end();
-				execute_instruction();
-				notify_parent();
+			auto try_exec_normal = [&]() {
+				if (try_execute_instruction()) {
+					notify_container();
+				}
 			};
-			auto exec_normal = [&]() {
-				execute_instruction();
-				list_scope_stack.top().instruction_executed = true;
+			auto try_exec_end = [&]() {
+				jump_to_end(); // ???
+				try_exec_normal();
 			};
-			auto exec_silent = [&]() {
-				execute_instruction();
+			auto try_exec_silent = [&]() {
+				try_execute_instruction();
 			};
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
 				Token current_token = rel_token(prev_tokens, 0);
@@ -370,28 +370,28 @@ std::vector<Token> Program::execute() {
 				} else if (current_token.is_num_or_ptr()) {
 					// skipping
 				} else if (current_token.str == "seq" || current_token.str == "list") {
-					exec_silent();
+					try_exec_silent();
 				} else if (current_token.str == "q") {
-					exec_silent();
+					try_exec_silent();
 				} else {
-					if (parent_is_seq()) {
+					if (inside_seq()) {
 						if (current_token.str == "end") {
-			   				exec_end();
+			   				try_exec_end();
 			   			} else {
-			   				exec_normal();
+			   				try_exec_normal();
 			   			}
-					} else if (parent_is_list()) {
+					} else if (inside_list()) {
 						if (current_token.str == "end") {
 							if (!list_scope_stack.top().instruction_executed) {
-								exec_end();
+								try_exec_end();
 							} else {
 								exit_parent();
 							}
 						} else {
-							exec_normal();
+							try_exec_normal();
 						}
 					} else {
-						exec_silent();
+						try_exec_silent();
 					}
 				}
 				steps++;
@@ -421,56 +421,80 @@ std::vector<Token> Program::execute() {
 	}
 }
 
-void Program::execute_instruction() {
+bool Program::try_execute_instruction() {
 	Token current_token = rel_token(prev_tokens, 0);
 	if (current_token.str == "add") {
 		binary_func([](Token a, Token b) { return Token::add(a, b); });
+		return true;
 	} else if (current_token.str == "sub") {
 		binary_func([](Token a, Token b) { return Token::sub(a, b); });
+		return true;
 	} else if (current_token.str == "mul") {
 		binary_func([](Token a, Token b) { return Token::mul(a, b); });
+		return true;
 	} else if (current_token.str == "div") {
 		binary_func([](Token a, Token b) { return Token::div(a, b); });
+		return true;
 	} else if (current_token.str == "mod") {
 		binary_func([](Token a, Token b) { return Token::mod(a, b); });
+		return true;
 	} else if (current_token.str == "pow") {
 		binary_func([](Token a, Token b) { return Token::pow(a, b); });
+		return true;
 	} else if (current_token.str == "log") {
 		unary_func([](Token a) { return Token::log(a); });
+		return true;
 	} else if (current_token.str == "log2") {
 		unary_func([](Token a) { return Token::log2(a); });
+		return true;
 	} else if (current_token.str == "sin") {
 		unary_func([](Token a) { return Token::sin(a); });
+		return true;
 	} else if (current_token.str == "cos") {
 		unary_func([](Token a) { return Token::cos(a); });
+		return true;
 	} else if (current_token.str == "tan") {
 		unary_func([](Token a) { return Token::tan(a); });
+		return true;
 	} else if (current_token.str == "asin") {
 		unary_func([](Token a) { return Token::asin(a); });
+		return true;
 	} else if (current_token.str == "acos") {
 		unary_func([](Token a) { return Token::acos(a); });
+		return true;
 	} else if (current_token.str == "atan") {
 		unary_func([](Token a) { return Token::atan(a); });
+		return true;
 	} else if (current_token.str == "atan2") {
 		binary_func([](Token a, Token b) { return Token::atan2(a, b); });
+		return true;
 	} else if (current_token.str == "floor") {
 		unary_func([](Token a) { return Token::floor(a); });
+		return true;
 	} else if (current_token.str == "ceil") {
 		unary_func([](Token a) { return Token::ceil(a); });
+		return true;
 	} else if (current_token.str == "cmp") {
 		binary_func([](Token a, Token b) { return Token::cmp(a, b); });
+		return true;
 	} else if (current_token.str == "lt") {
 		binary_func([](Token a, Token b) { return Token::lt(a, b); });
+		return true;
 	} else if (current_token.str == "gt") {
 		binary_func([](Token a, Token b) { return Token::gt(a, b); });
+		return true;
 	} else if (current_token.str == "and") {
 		binary_func([](Token a, Token b) { return Token::and_op(a, b); });
+		return true;
 	} else if (current_token.str == "or") {
 		binary_func([](Token a, Token b) { return Token::or_op(a, b); });
+		return true;
 	} else if (current_token.str == "xor") {
 		binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
+		return true;
 	} else if (current_token.str == "not") {
 		unary_func([](Token a) { return Token::not_op(a); });
+		return true;
 	} else if (current_token.str == "cpy") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -483,7 +507,9 @@ void Program::execute_instruction() {
 				std::vector<Token> node_tokens = node->tokenize();
 				insert_tokens(src_index_begin, dst_index, node_tokens);
 			}
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "del") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 			PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -494,7 +520,9 @@ void Program::execute_instruction() {
 				std::vector<Token> node_tokens = node->tokenize();
 				delete_tokens(target_index, target_index + node_tokens.size(), OP_PRIORITY_STRONG_DELETE);
 			}
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "get") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -506,33 +534,43 @@ void Program::execute_instruction() {
 			} else {
 				delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
 			}
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "set") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 			PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
-			Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
-			std::vector<Token> src_node_tokens = src_node->tokenize();
-			delete_tokens(program_counter, program_counter + 2 + src_node_tokens.size(), OP_PRIORITY_WEAK_DELETE);
+			delete_tokens(program_counter, node_pointers[program_counter]->last_index + 1, OP_PRIORITY_WEAK_DELETE);
 			if (dst_index_begin != prev_tokens.size()) {
+				Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
+				if (src_node->token.str == "q") {
+					src_node = src_node->arguments[0].get();
+				}
 				Node* dst_node = node_pointers[token_index(prev_tokens, dst_index_begin)];
+				std::vector<Token> src_node_tokens = src_node->tokenize();
 				std::vector<Token> dst_node_tokens = dst_node->tokenize();
-				replace_tokens(dst_index_begin, dst_index_begin + dst_node_tokens.size(), src_index_begin, src_node_tokens);
+				replace_tokens(dst_index_begin, dst_node->last_index + 1, src_index_begin, src_node_tokens);
 			}
-			program_counter = node_pointers[program_counter]->last_index;
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "ins") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 			PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
 			Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
+			if (src_node->token.str == "q") {
+				src_node = src_node->arguments[0].get();
+			}
 			std::vector<Token> src_node_tokens = src_node->tokenize();
-			delete_tokens(program_counter, program_counter + 2 + src_node_tokens.size(), OP_PRIORITY_WEAK_DELETE);
+			delete_tokens(program_counter, node_pointers[program_counter]->last_index + 1, OP_PRIORITY_WEAK_DELETE);
 			insert_tokens(src_index_begin, dst_index_begin, src_node_tokens);
-			program_counter = node_pointers[program_counter]->last_index;
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "repl") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -547,7 +585,9 @@ void Program::execute_instruction() {
 				std::vector<Token> src_node_tokens = src_node->tokenize();
 				replace_tokens(dst_index_begin, dst_index_end, src_index_begin, src_node_tokens);
 			}
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "move") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -559,7 +599,9 @@ void Program::execute_instruction() {
 				Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
 				move_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin);
 			}
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "mrep") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -570,9 +612,14 @@ void Program::execute_instruction() {
 			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size()) {
 				Node* src_node = node_pointers[token_index(prev_tokens, src_index_begin)];
 				Node* dst_node = node_pointers[token_index(prev_tokens, dst_index_begin)];
-				movereplace_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin, dst_node->last_index + 1);
+				movereplace_tokens(
+					src_index_begin, src_node->last_index + 1,
+					dst_index_begin, dst_node->last_index + 1
+				);
 			}
+			return true;
 		}
+		return false;
 	} else if (current_token.str == "if") {
 		if (rel_token(tokens, 1).is_num_or_ptr()) {
 			BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
@@ -583,8 +630,13 @@ void Program::execute_instruction() {
 			if (selected_node->token.str == "q") {
 				selected_node = selected_node->arguments[0].get();
 			}
-			movereplace_tokens(selected_node->first_index, selected_node->last_index + 1, if_node->first_index, if_node->last_index + 1);
+			movereplace_tokens(
+				selected_node->first_index, selected_node->last_index + 1,
+				if_node->first_index, if_node->last_index + 1
+			);
+			return true;
 		}
+		return false;
 	//} else if (current_token.str == "cast") {
 	//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 	//		shift_pointers(tokens, program_counter, -2);
@@ -635,16 +687,20 @@ void Program::execute_instruction() {
 	//	}
 	} else if (current_token.str == "list") {
 		list_scope_stack.push({ program_counter, false });
+		return true;
 	} else if (current_token.str == "seq") {
 		list_scope_stack.push({ program_counter, false });
+		return true;
 	} else if (current_token.str == "end") {
 		ProgramCounterType list_pos = list_scope_stack.top().pos;
 		delete_tokens(list_pos, list_pos + 1, OP_PRIORITY_LIST_DELETE);
 		delete_tokens(program_counter, program_counter + 1, OP_PRIORITY_LIST_DELETE);
 		list_scope_stack.pop();
+		return true;
 	} else if (current_token.str == "q") {
 		Node* node = node_pointers[program_counter];
 		program_counter = node->last_index;
+		return true;
 	} else {
 		throw std::runtime_error("Unexpected token: " + current_token.str);
 	}
@@ -737,18 +793,28 @@ std::unique_ptr<Node> Program::parse_token(
 	return new_node;
 }
 
-bool Program::parent_is_seq() {
-	return 
-		list_scope_stack.size() > 0 
+bool Program::inside_seq() {
+	return
+		list_scope_stack.size() > 0
 		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "seq"
 	;
 }
 
-bool Program::parent_is_list() {
+bool Program::inside_list() {
 	return
 		list_scope_stack.size() > 0
 		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "list"
 	;
+}
+
+bool Program::parent_is_seq() {
+	Node* parent = node_pointers[program_counter]->parent;
+	return parent && parent->token.str == "seq";
+}
+
+bool Program::parent_is_list() {
+	Node* parent = node_pointers[program_counter]->parent;
+	return parent && parent->token.str == "list";
 }
 
 bool Program::parent_is_if() {
@@ -1087,7 +1153,9 @@ void Program::binary_func(std::function<Token(Token, Token)> func) {
 			arg2.set_data<PointerDataType>(arg2.get_data<PointerDataType>() + 2);
 		}
 		Token result = func(arg1, arg2);
-		new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
+		if (result.is_ptr()) {
+			new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
+		}
 		replace_tokens_func(program_counter, program_counter + 3, program_counter, { result });
 	}
 }
