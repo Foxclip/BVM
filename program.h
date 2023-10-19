@@ -11,7 +11,7 @@
 #include "utils.h"
 #include <set>
 
-const long long MAX_ITERATIONS = 1000;
+const long long MAX_ITERATIONS = 1000000;
 const long long MAX_NESTED_NODES = 100;
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);

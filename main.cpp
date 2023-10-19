@@ -1,3 +1,4 @@
+#include <chrono>
 #include "program.h"
 #include "utils.h"
 #include "test.h"
@@ -26,7 +27,13 @@ void execute_program_normal(std::string path) {
 		std::string program_text = utils::file_to_str(path);
 		Program program(program_text);
 		program.print_buffer_enabled = true;
+		auto t1 = std::chrono::high_resolution_clock::now();
 		std::vector<Token> results = program.execute();
+		auto t2 = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> s_double = t2 - t1;
+		std::cout << "Time: " << s_double.count() << "s\n";
+		std::cout << "Results: ";
+		program.print_tokens(program.tokens, false);
 	} catch (std::exception exc) {
 		throw std::runtime_error(path + ": " + exc.what());
 	}
@@ -36,8 +43,8 @@ int main() {
 	try {
 
 		//execute_program_debug("program.bvmi");
-		//execute_program_normal("program.bvmi");
-		test::run_tests();
+		execute_program_normal("program.bvmi");
+		//test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "ERROR: " << msg << "\n";
