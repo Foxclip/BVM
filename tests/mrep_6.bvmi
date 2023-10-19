@@ -16,14 +16,15 @@ end
 2
 set
     lst2
-    list
-       101
-       202
-       303
-       404
-       505
-       606
-    end
+    q
+        list
+            101
+            202
+            303
+            404
+            505
+            606
+        end
 3
 mrep
     lst2
@@ -31,8 +32,9 @@ mrep
 4
 set
     lst2
-    list
-        55
-        66
-    end
+    q
+        list
+            55
+            66
+        end
 5

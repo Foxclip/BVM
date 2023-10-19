@@ -538,7 +538,7 @@ bool Program::try_execute_instruction() {
 		}
 		return false;
 	} else if (current_token.str == "set") {
-		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_static()) {
 			PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
@@ -557,7 +557,7 @@ bool Program::try_execute_instruction() {
 		}
 		return false;
 	} else if (current_token.str == "ins") {
-		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_static()) {
 			PointerDataType dst = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);

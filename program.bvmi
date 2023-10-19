@@ -2268,14 +2268,25 @@
 #         add 2 3
 # end
 
-1
-2 :two
-3
-ins
-    two
-    q
-        list
-            11
-            22
-            33
-        end
+# 1
+# 2 :two
+# 3
+# ins
+#     two
+#     q
+#         list
+#             11
+#             22
+#             33
+#         end
+
+# seq :outer_sp
+#     seq :sp
+#         0 :i
+#         cpy sp outer_sp_end
+#         if
+#             cmp get i 9
+#             q del add sp_end 1
+#             q set add sp_end 2 add get i 1 
+#     end :sp_end
+# end :outer_sp_end

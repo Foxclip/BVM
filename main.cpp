@@ -45,6 +45,7 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
+	// TODO: test list in the ins and set second arg
 	// TODO: undeletable and uncopyable end instruction
 	// movable list, seq, end instructions
 	// TODO: duplicate label error, keyword label error, instruction name label error

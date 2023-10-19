@@ -10,9 +10,10 @@ end
 move lst four
 set
     lst
-    list
-        11
-        22
-        33
-        44
-    end
+    q
+        list
+            11
+            22
+            33
+            44
+        end
