@@ -1,0 +1,15 @@
+# 11 5 -2p -3p -4p -4p -5p -6p
+if :if1
+    add 1 -1
+    q add 2 :two 3
+    q add 5 6 :six
+if :if2
+    add 1 :one 1
+    q add 2 3
+    q :qp add 5 6
+if1
+two
+six
+if2
+one
+qp

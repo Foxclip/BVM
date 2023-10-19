@@ -19,7 +19,9 @@ void throwUnexpectedCharException(char c, std::string current_word, ProgramCount
 class Node {
 public:
 	Token token;
+	Node* parent = nullptr;
 	std::vector<std::unique_ptr<Node>> arguments;
+	ProgramCounterType first_index;
 	ProgramCounterType last_index;
 
 	Node(Token token);
@@ -154,10 +156,11 @@ private:
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
 	std::unique_ptr<Node> parse_token(
 		std::vector<Token>& token_list, PointerDataType token_index,
-		Node* parent_node, PointerDataType& new_token_index, int depth = 0
+		PointerDataType& new_token_index, int depth = 0
 	);
 	bool parent_is_seq();
 	bool parent_is_list();
+	bool parent_is_if();
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);
 	void insert_op_exec(PointerDataType old_src_pos, ProgramCounterType old_dst_pos, std::vector<Token> insert_tokens, OpType op_type);

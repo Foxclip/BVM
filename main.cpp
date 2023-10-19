@@ -45,6 +45,8 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
+	// TODO: test move and mrep same source
+	// TODO: test ins and set executing second arg if first arg is executing
 	// TODO: undeletable end instruction
 	// movable list, seq, end instructions
 	// TODO: duplicate label error, keyword label error, instruction name label error

@@ -2165,3 +2165,47 @@
 # 9
 # lst
 # add_p
+
+# if
+#     add 1 -1
+#     q add 2 3
+#     q add 5 6
+# if
+#     add 1 1
+#     q add 2 3
+#     q add 5 6
+
+# if :if1
+#     add 1 -1
+#     q add 2 :two 3
+#     q add 5 6 :six
+# if :if2
+#     add 1 :one 1
+#     q add 2 3
+#     q :qp add 5 6
+# if1
+# two
+# six
+# if2
+# one
+# qp
+
+# if
+#     add
+#         0
+#         1
+#     q 
+#         list
+#             six
+#             eight
+#         end
+#     q   list
+#             six
+#             eight
+#             nine
+#         end
+# 5
+# 6 :six
+# 7
+# 8 :eight
+# 9 :nine

@@ -573,32 +573,18 @@ void Program::execute_instruction() {
 				movereplace_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin, dst_node->last_index + 1);
 			}
 		}
-	//} else if (current_token.str == "if") {
-	//	if (rel_token(tokens, 1).is_num_or_ptr()) {
-	//		BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
-	//		PointerDataType new_token_index;
-	//		std::unique_ptr<Node> if_node = parse_token(tokens, token_index(tokens, program_counter), nullptr, new_token_index);
-	//		std::vector<Token> if_node_tokens = if_node.get()->tokenize();
-	//		Node* true_node = if_node.get()->arguments[1].get();
-	//		Node* false_node = if_node.get()->arguments[2].get();
-	//		std::vector<Token> true_node_tokens = true_node->tokenize();
-	//		std::vector<Token> false_node_tokens = false_node->tokenize();
-	//		PointerDataType true_node_offset = 2;
-	//		PointerDataType false_node_offset = 2 + true_node_tokens.size();
-	//		PointerDataType true_node_index = program_counter + true_node_offset;
-	//		PointerDataType false_node_index = program_counter + false_node_offset;
-	//		if (cond != 0) {
-	//			shift_pointers(tokens, false_node_index, -(PointerDataType)false_node_tokens.size());
-	//			tokens.erase(tokens.begin() + false_node_index, tokens.begin() + false_node_index + false_node_tokens.size());
-	//			shift_pointers(tokens, program_counter, -true_node_offset);
-	//			tokens.erase(tokens.begin() + program_counter);
-	//			tokens.erase(tokens.begin() + program_counter);
-	//		} else {
-	//			shift_pointers(tokens, program_counter, -false_node_offset);
-	//			tokens.erase(tokens.begin() + program_counter, tokens.begin() + false_node_index);
-	//		}
-	//		break;
-	//	}
+	} else if (current_token.str == "if") {
+		if (rel_token(tokens, 1).is_num_or_ptr()) {
+			BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
+			Node* if_node = node_pointers[token_index(tokens, program_counter)];
+			Node* true_node = if_node->arguments[1].get();
+			Node* false_node = if_node->arguments[2].get();
+			Node* selected_node = cond != 0 ? true_node : false_node;
+			if (selected_node->token.str == "q") {
+				selected_node = selected_node->arguments[0].get();
+			}
+			movereplace_tokens(selected_node->first_index, selected_node->last_index + 1, if_node->first_index, if_node->last_index + 1);
+		}
 	//} else if (current_token.str == "cast") {
 	//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
 	//		shift_pointers(tokens, program_counter, -2);
@@ -671,7 +657,7 @@ void Program::parse() {
 		Node* parent_node;
 		for (PointerDataType token_i = 0; token_i < tokens.size(); token_i++) {
 			PointerDataType new_token_i;
-			std::unique_ptr<Node> node = parse_token(tokens, token_i, nullptr, new_token_i);
+			std::unique_ptr<Node> node = parse_token(tokens, token_i, new_token_i);
 			nodes.push_back(std::move(node));
 			token_i = new_token_i;
 		}
@@ -694,7 +680,7 @@ Token& Program::rel_token(std::vector<Token>& token_list, PointerDataType offset
 
 std::unique_ptr<Node> Program::parse_token(
 	std::vector<Token>& token_list, PointerDataType parse_token_index,
-	Node* parent_node, PointerDataType& new_token_index, int depth
+	PointerDataType& new_token_index, int depth
 ) {
 	if (depth >= MAX_NESTED_NODES) {
 		throw std::runtime_error("Too many nested nodes: " + std::to_string(depth));
@@ -702,6 +688,7 @@ std::unique_ptr<Node> Program::parse_token(
 	Token current_token = get_token(token_list, parse_token_index);
 	std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
 	Node* new_node_p = new_node.get();
+	new_node_p->first_index = parse_token_index;
 	node_pointers.push_back(new_node_p);
 	if (!current_token.is_num_or_ptr()) {
 		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
@@ -720,8 +707,10 @@ std::unique_ptr<Node> Program::parse_token(
 				Token cur_token = get_token(tokens, cur_index);
 				std::unique_ptr<Node> node = parse_token(
 					token_list,
-					token_index(token_list, cur_index), new_node_p, parse_token_index, depth + 1
+					token_index(token_list, cur_index),
+					parse_token_index, depth + 1
 				);
+				node->parent = new_node_p;
 				new_node_p->arguments.push_back(std::move(node));
 				if (cur_token.str == "end") {
 					break;
@@ -736,8 +725,9 @@ std::unique_ptr<Node> Program::parse_token(
 					break;
 				}
 				std::unique_ptr<Node> node = parse_token(
-					token_list, parse_token_index + 1, new_node_p, parse_token_index
+					token_list, parse_token_index + 1, parse_token_index
 				);
+				node->parent = new_node_p;
 				new_node_p->arguments.push_back(std::move(node));
 			}
 		}
@@ -759,6 +749,11 @@ bool Program::parent_is_list() {
 		list_scope_stack.size() > 0
 		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "list"
 	;
+}
+
+bool Program::parent_is_if() {
+	Node* parent = node_pointers[program_counter]->parent;
+	return parent && parent->token.str == "if";
 }
 
 bool Program::IndexShiftEntry::is_deleted() {
