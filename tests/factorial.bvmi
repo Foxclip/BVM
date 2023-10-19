@@ -1,26 +1,15 @@
 # 120
-list :lst
-    repl
-        replthis
-        lst
-    sub :sub_p
-        get
-            arg
-        1
-    repl
-        add
-            before_replthis
-            17
-        sub_p
-    del
-        sub_p
-    mul :mul_p
-        5 :arg
+seq :sp
+    5 :arg
+    repl replthis sp
+    set
+        add replthis 1
+        sub get arg 1
+    mul
+        get arg
         if
-            cmp
-                get
-                    arg
-                1
-            1 :before_replthis
+            cmp get arg 1
+            1
             0 :replthis
-    end
+    del arg
+end

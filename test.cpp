@@ -84,7 +84,7 @@ namespace test {
 		"if_3.bvmi",
 		"if_4.bvmi",
 		"forloop.bvmi",
-		//"factorial.bvmi",
+		"factorial.bvmi",
 		//"type_parse.bvmi",
 		//"float_math.bvmi",
 		//"inf_nan_parse.bvmi",
