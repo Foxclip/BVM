@@ -76,6 +76,8 @@ namespace test {
 		"mrep_7.bvmi",
 		"mrep_8.bvmi",
 		"mrep_9.bvmi",
+		"mrep_10.bvmi",
+		"mrep_11.bvmi",
 		"if_1.bvmi",
 		"if_2.bvmi",
 		"if_3.bvmi",

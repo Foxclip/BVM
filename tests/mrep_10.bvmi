@@ -1,0 +1,8 @@
+# 1 55 4
+1 :one
+2 :two
+3 :three
+4 :four
+mrep ff two
+mrep ff three
+55 :ff
