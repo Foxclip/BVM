@@ -375,7 +375,7 @@ std::vector<Token> Program::execute() {
 				try_execute_instruction();
 			};
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
-				Token current_token = rel_token(prev_tokens, 0);
+				Token& current_token = prev_tokens[program_counter];
 				if (parent_is_seq() && list_scope_stack.top().instruction_executed) {
 					exit_parent();
 				} else if (current_token.is_num_or_ptr()) {
@@ -729,7 +729,7 @@ void Program::parse() {
 			Node* new_node_p = &nodes[token_i];
 			new_node_p->parent_index = -1;
 			new_node_p->arg_count = 0;
-			new_node_p->arguments.clear(); // might reinialize instead for saving memory
+			new_node_p->arguments.clear(); // might reinitialize instead for saving memory
 			new_node_p->first_index = token_i;
 			new_node_p->last_index = 0;
 			if (!parent_stack.empty()) {

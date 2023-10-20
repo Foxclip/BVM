@@ -75,9 +75,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("cast", 2),
 	InstructionDef("sys", 2),
 };
-const std::set<InstructionDef> INSTRUCTION_SET = std::set<InstructionDef>(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end());
 
 InstructionInfo get_instruction_info(std::string token);
 InstructionInfo get_instruction_info(int index);
-InstructionDef get_instruction_def(std::string str);
 ProgramCounterType get_arg_count(InstructionDataType index);
