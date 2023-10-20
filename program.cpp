@@ -725,11 +725,11 @@ void Program::parse() {
 		}
 		std::stack<PointerDataType> parent_stack;
 		for (PointerDataType token_i = 0; token_i < tokens.size(); token_i++) {
-			Token& current_token = get_token(tokens, token_i);
+			Token& current_token = tokens[token_i];
 			Node* new_node_p = &nodes[token_i];
 			new_node_p->parent_index = -1;
 			new_node_p->arg_count = 0;
-			new_node_p->arguments = std::vector<PointerDataType>();
+			new_node_p->arguments.clear(); // might reinialize instead for saving memory
 			new_node_p->first_index = token_i;
 			new_node_p->last_index = 0;
 			if (!parent_stack.empty()) {
