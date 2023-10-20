@@ -2296,7 +2296,7 @@ seq :outer_sp
     seq :sp
         cpy sp outer_sp_end
         if
-            cmp get i 100000
+            cmp get i 5000
             q del add sp_end 1
             q set i add get i 1
     end :sp_end
@@ -2377,3 +2377,7 @@ end :outer_sp_end
 #     list
 #         5
 #     end
+
+# add
+#     2
+#     3

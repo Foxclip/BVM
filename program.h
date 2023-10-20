@@ -18,15 +18,18 @@ void throwUnexpectedCharException(char c, std::string current_word, ProgramCount
 class Node {
 public:
 	Token token;
-	Node* parent = nullptr;
+	PointerDataType parent_index = -1;
 	ProgramCounterType arg_count = 0;
-	std::vector<std::unique_ptr<Node>> arguments;
+	std::vector<PointerDataType> arguments;
 	ProgramCounterType first_index;
 	ProgramCounterType last_index;
 
+	Node();
 	Node(Token token);
 	std::string to_string();
-	std::vector<Token> tokenize();
+	std::vector<Token> tokenize(std::vector<Node>& nodes);
+	Node* get_parent(std::vector<Node>& nodes);
+	ProgramCounterType get_parent_count(std::vector<Node>& nodes);
 };
 
 class Program {
@@ -38,7 +41,7 @@ public:
 	};
 	std::vector<Token> tokens;
 	std::vector<Token> prev_tokens;
-	std::vector<std::unique_ptr<Node>> nodes;
+	std::vector<Node> nodes;
 	std::string local_print_buffer;
 	std::string global_print_buffer;
 	bool print_buffer_enabled = false;
@@ -138,7 +141,6 @@ private:
 		bool is_temp();
 		bool is_not_temp();
 	};
-	std::vector<Node*> node_pointers;
 	std::vector<IndexShiftEntry> index_shift;
 	std::vector<PointerDataType> index_shift_rev;
 	std::vector<DeleteOp> delete_ops;
@@ -181,7 +183,7 @@ private:
 	void exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority);
 	void exec_pending_ops();
 	void reset_index_shift();
-	void print_node(Node* node, int indent_level);
+	void print_node(Node* node);
 	void shift_pointers();
 	void unary_func(std::function<Token(Token)> func);
 	void binary_func(std::function<Token(Token, Token)> func);

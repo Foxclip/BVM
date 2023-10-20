@@ -42,6 +42,6 @@ InstructionDef get_instruction_def(std::string str) {
 	}
 }
 
-int get_arg_count(std::string str) {
-	return get_instruction_def(str).arg_count;
+ProgramCounterType get_arg_count(InstructionDataType index) {
+	return INSTRUCTION_LIST[index].arg_count;
 }

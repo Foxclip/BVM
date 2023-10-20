@@ -80,4 +80,4 @@ const std::set<InstructionDef> INSTRUCTION_SET = std::set<InstructionDef>(INSTRU
 InstructionInfo get_instruction_info(std::string token);
 InstructionInfo get_instruction_info(int index);
 InstructionDef get_instruction_def(std::string str);
-int get_arg_count(std::string str);
+ProgramCounterType get_arg_count(InstructionDataType index);
