@@ -11,13 +11,12 @@
 #include "utils.h"
 #include <set>
 
-const long long MAX_ITERATIONS = 1000000;
+const long long MAX_ITERATIONS = 10000000;
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
 class Node {
 public:
-	Token token;
 	PointerDataType parent_index = -1;
 	ProgramCounterType arg_count = 0;
 	std::vector<PointerDataType> arguments;
@@ -25,11 +24,10 @@ public:
 	ProgramCounterType last_index;
 
 	Node();
-	Node(Token token);
-	std::string to_string();
-	std::vector<Token> tokenize(std::vector<Node>& nodes);
+	std::vector<Token> tokenize(std::vector<Node>& nodes, std::vector<Token>& tokens);
 	Node* get_parent(std::vector<Node>& nodes);
 	ProgramCounterType get_parent_count(std::vector<Node>& nodes);
+	Token* get_token(std::vector<Token>& tokens);
 };
 
 class Program {
