@@ -12,7 +12,6 @@
 #include <set>
 
 const long long MAX_ITERATIONS = 1000000;
-const long long MAX_NESTED_NODES = 100;
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
@@ -20,6 +19,7 @@ class Node {
 public:
 	Token token;
 	Node* parent = nullptr;
+	ProgramCounterType arg_count = 0;
 	std::vector<std::unique_ptr<Node>> arguments;
 	ProgramCounterType first_index;
 	ProgramCounterType last_index;
@@ -154,10 +154,6 @@ private:
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
-	std::unique_ptr<Node> parse_token(
-		std::vector<Token>& token_list, PointerDataType token_index,
-		PointerDataType& new_token_index, int depth = 0
-	);
 	bool inside_seq();
 	bool inside_list();
 	bool parent_is_seq();

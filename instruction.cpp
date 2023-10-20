@@ -21,3 +21,7 @@ InstructionInfo get_instruction_info(int index) {
 	}
 	return InstructionInfo(INSTRUCTION_LIST[index], index);
 }
+
+int get_arg_count(std::string str) {
+	return get_instruction_info(str).arg_count;
+}

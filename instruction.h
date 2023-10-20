@@ -2,11 +2,12 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include "types.h"
 
 struct InstructionDef {
 	std::string str;
-	int arg_count;
-	InstructionDef(std::string str, int arg_count) {
+	ProgramCounterType arg_count;
+	InstructionDef(std::string str, ProgramCounterType arg_count) {
 		this->str = str;
 		this->arg_count = arg_count;
 	}
@@ -14,10 +15,10 @@ struct InstructionDef {
 
 struct InstructionInfo {
 	std::string str = "";
-	int arg_count = 0;
+	ProgramCounterType arg_count = 0;
 	int index = -1;
 	InstructionInfo() { }
-	InstructionInfo(std::string str, int arg_count, int index) {
+	InstructionInfo(std::string str, ProgramCounterType arg_count, int index) {
 		this->str = str;
 		this->arg_count = arg_count;
 		this->index = index;
@@ -64,8 +65,8 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("move", 2),
 	InstructionDef("mrep", 2),
 	InstructionDef("if", 3),
-	InstructionDef("list", -1),
-	InstructionDef("seq", -1),
+	InstructionDef("list", (ProgramCounterType)-1),
+	InstructionDef("seq", (ProgramCounterType)-1),
 	InstructionDef("end", 0),
 	InstructionDef("q", 1),
 	InstructionDef("cast", 2),
@@ -74,3 +75,4 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 
 InstructionInfo get_instruction_info(std::string token);
 InstructionInfo get_instruction_info(int index);
+int get_arg_count(std::string str);

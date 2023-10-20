@@ -2280,16 +2280,16 @@
 #             33
 #         end
 
-# seq :outer_sp
-#     seq :sp
-#         0 :i
-#         cpy sp outer_sp_end
-#         if
-#             cmp get i 500
-#             q del add sp_end 1
-#             q set add sp_end 2 add get i 1 
-#     end :sp_end
-# end :outer_sp_end
+seq :outer_sp
+    seq :sp
+        0 :i
+        cpy sp outer_sp_end
+        if
+            cmp get i 500
+            q del add sp_end 1
+            q set add sp_end 2 add get i 1 
+    end :sp_end
+end :outer_sp_end
 
 # 0 :i
 # seq :outer_sp
@@ -2302,17 +2302,78 @@
 #     end :sp_end
 # end :outer_sp_end
 
-seq :sp
-    5 :arg
-    repl replthis sp
-    set
-        add replthis 1
-        sub get arg 1
-    mul
-        get arg
-        if
-            cmp get arg 1
-            1
-            0 :replthis
-    del arg
-end
+# seq :sp
+#     5 :arg
+#     repl replthis sp
+#     set
+#         add replthis 1
+#         sub get arg 1
+#     mul
+#         get arg
+#         if
+#             cmp get arg 1
+#             1
+#             0 :replthis
+#     del arg
+# end
+
+# list
+# end
+# 1
+# list
+#     1
+#     list
+#         5
+#         6
+#         7
+#     end
+#     3
+# end
+# list
+# end
+
+# add
+#     1
+#     add
+#         2
+#         add
+#             3
+#             add
+#                 4
+#                 5
+# 1
+# 2
+# 3
+
+# list
+#     list
+#     end
+# end
+
+# add
+#     5
+#     list
+#         1
+#         2
+#     end
+
+# 1
+# 2 :two
+# 3
+# ins
+#     two
+#     55
+
+# add
+#     1
+#     add
+#         2
+#         3
+# 4
+
+# 2 :two
+# ins
+#     two
+#     list
+#         5
+#     end

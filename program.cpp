@@ -709,16 +709,54 @@ bool Program::try_execute_instruction() {
 void Program::parse() {
 	node_pointers = std::vector<Node*>();
 	try {
-		nodes.clear();
-		Node* parent_node;
+		nodes = std::vector<std::unique_ptr<Node>>();
+		std::stack<Node*> parent_stack;
 		for (PointerDataType token_i = 0; token_i < tokens.size(); token_i++) {
-			PointerDataType new_token_i;
-			std::unique_ptr<Node> node = parse_token(tokens, token_i, new_token_i);
-			nodes.push_back(std::move(node));
-			token_i = new_token_i;
+			Token current_token = get_token(tokens, token_i);
+			std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
+			Node* new_node_p = new_node.get();
+			new_node_p->first_index = token_i;
+			if (!parent_stack.empty()) {
+				new_node_p->parent = parent_stack.top();
+				parent_stack.top()->arguments.push_back(std::move(new_node));
+			} else {
+				nodes.push_back(std::move(new_node));
+			}
+			node_pointers.push_back(new_node_p);
+			ProgramCounterType arg_count = 0;
+			if (!current_token.is_num_or_ptr()) {
+				arg_count = get_arg_count(current_token.str);
+			}
+			new_node_p->arg_count = arg_count;
+			parent_stack.push(new_node_p);
+			ProgramCounterType current_index = token_i;
+			ProgramCounterType current_last_index;
+			bool first = true;
+			while (!parent_stack.empty()) {
+				ProgramCounterType arg_offset = current_index - parent_stack.top()->first_index;
+				bool arg_offset_end = arg_offset >= parent_stack.top()->arg_count;
+				bool end_end = parent_stack.top()->token.str == "end";
+				auto exit_level = [&]() {
+					if (first) {
+						current_last_index = current_index;
+						first = false;
+					}
+					parent_stack.top()->last_index = current_last_index;
+					current_index = parent_stack.top()->first_index;
+					parent_stack.pop();
+				};
+				if (arg_offset_end || end_end) {
+					exit_level();
+					if (end_end) {
+						exit_level();
+					}
+				} else {
+					break;
+				}
+			}
 		}
 	} catch (std::exception exc) {
-		throw std::runtime_error("Node parse error: " + std::string(exc.what()));
+		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
 
@@ -732,65 +770,6 @@ Token& Program::get_token(std::vector<Token>& token_list, PointerDataType index)
 
 Token& Program::rel_token(std::vector<Token>& token_list, PointerDataType offset) {
 	return get_token(token_list, program_counter + offset);
-}
-
-std::unique_ptr<Node> Program::parse_token(
-	std::vector<Token>& token_list, PointerDataType parse_token_index,
-	PointerDataType& new_token_index, int depth
-) {
-	if (depth >= MAX_NESTED_NODES) {
-		throw std::runtime_error("Too many nested nodes: " + std::to_string(depth));
-	}
-	Token current_token = get_token(token_list, parse_token_index);
-	std::unique_ptr<Node> new_node = std::make_unique<Node>(current_token);
-	Node* new_node_p = new_node.get();
-	new_node_p->first_index = parse_token_index;
-	node_pointers.push_back(new_node_p);
-	if (!current_token.is_num_or_ptr()) {
-		auto it = std::find_if(INSTRUCTION_LIST.begin(), INSTRUCTION_LIST.end(),
-			[&](InstructionDef def) {
-				return def.str == current_token.str;
-			}
-		);
-		if (it == INSTRUCTION_LIST.end()) {
-			throw std::runtime_error("Unexpected token: " + current_token.str);
-		}
-		int instruction_index = it - INSTRUCTION_LIST.begin();
-		int arg_count = (*it).arg_count;
-		if (current_token.str == "list" || current_token.str == "seq") {
-			PointerDataType cur_index = parse_token_index + 1;
-			while (true) {
-				Token cur_token = get_token(tokens, cur_index);
-				std::unique_ptr<Node> node = parse_token(
-					token_list,
-					token_index(token_list, cur_index),
-					parse_token_index, depth + 1
-				);
-				node->parent = new_node_p;
-				new_node_p->arguments.push_back(std::move(node));
-				if (cur_token.str == "end") {
-					break;
-				}
-				cur_index = parse_token_index + 1;
-			}
-		} else {
-			for (int arg_i = 0; arg_i < arg_count; arg_i++) {
-				if (parse_token_index + 1 >= token_list.size()) {
-					std::cout << "Parser: End of program reached";
-					std::cout << "\n";
-					break;
-				}
-				std::unique_ptr<Node> node = parse_token(
-					token_list, parse_token_index + 1, parse_token_index
-				);
-				node->parent = new_node_p;
-				new_node_p->arguments.push_back(std::move(node));
-			}
-		}
-	}
-	new_node_p->last_index = parse_token_index;
-	new_token_index = parse_token_index;
-	return new_node;
 }
 
 bool Program::inside_seq() {
