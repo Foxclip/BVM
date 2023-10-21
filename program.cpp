@@ -1092,7 +1092,7 @@ void Program::print_node(Node* node) {
 	for (int j = 0; j < indent_level; j++) {
 		indent_string += "    ";
 	}
-	std::cout << indent_string << node->get_token(tokens)->to_string() << "\n";
+	std::cout << indent_string << node->get_token(tokens)->orig_str << "\n";
 }
 
 void Program::shift_pointers() {

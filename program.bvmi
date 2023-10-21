@@ -2459,27 +2459,47 @@
 #     instr
 #     2
 
-cast
-    int32
-    5
-cast
-    int64
-    5
-cast
-    uint32
-    5
-cast
-    uint64
-    5
-cast
-    float
-    5
-cast
-    double
-    5
-cast
-    instr
-    5
-cast
-    ptr
-    5
+# cast
+#     int32
+#     5
+# cast
+#     int64
+#     5
+# cast
+#     uint32
+#     5
+# cast
+#     uint64
+#     5
+# cast
+#     float
+#     5
+# cast
+#     double
+#     5
+# cast
+#     instr
+#     5
+# cast
+#     ptr
+#     5
+
+# 0
+# "abc"
+# 1
+# "string"
+# 2
+# "Hello, World!"
+# 3
+# "Line 1
+# Line 2"
+# 4
+
+"\n"
+"\r"
+"\t"
+"\\"
+"\""
+"a\\b\\c"
+"a\nb\nc"
+"\"abc\""
