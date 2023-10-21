@@ -2401,13 +2401,20 @@
 #     end
 # end
 
-seq :outer_sp
-    seq :sp
-        0 :i
-        cpy sp outer_sp_end
-        if
-            cmp get i 10000
-            q del add sp_end 1
-            q set add sp_end 2 add get i 1 
-    end :sp_end
-end :outer_sp_end
+# seq :outer_sp
+#     seq :sp
+#         0 :i
+#         cpy sp outer_sp_end
+#         if
+#             cmp get i 10000
+#             q del add sp_end 1
+#             q set add sp_end 2 add get i 1 
+#     end :sp_end
+# end :outer_sp_end
+
+# mul
+#     2.0f
+#     2.0
+# add
+#     -3p
+#     2
