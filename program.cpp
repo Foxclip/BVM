@@ -376,10 +376,10 @@ std::vector<Token> Program::execute() {
 			};
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
 				Token& current_token = prev_tokens[program_counter];
-				if (parent_is_seq() && list_scope_stack.top().instruction_executed) {
-					exit_parent();
-				} else if (current_token.is_num_or_ptr()) {
+				if (current_token.is_num_or_ptr()) {
 					// skipping
+				} else if (parent_is_seq() && list_scope_stack.top().instruction_executed) {
+					exit_parent();
 				} else if (current_token.str == "seq" || current_token.str == "list") {
 					try_exec_silent();
 				} else if (current_token.str == "q") {
