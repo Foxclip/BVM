@@ -2418,3 +2418,68 @@
 # add
 #     -3p
 #     2
+
+# cast
+#     -1
+#     5.0f
+# cast
+#     -1.5
+#     5
+# cast
+#     55
+#     5.0
+# cast
+#     nan
+#     -5
+# cast
+#     int32
+#     inf
+# cast
+#     float
+#     nan
+# cast
+#     double
+#     inff
+# cast
+#     inf
+#     3.0f
+# cast
+#     nan
+#     -5.0
+# cast
+#     instr
+#     -1
+# cast
+#     instr
+#     nan
+# cast
+#     instr
+#     0
+# cast
+#     instr
+#     2
+
+cast
+    int32
+    5
+cast
+    int64
+    5
+cast
+    uint32
+    5
+cast
+    uint64
+    5
+cast
+    float
+    5
+cast
+    double
+    5
+cast
+    instr
+    5
+cast
+    ptr
+    5

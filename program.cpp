@@ -648,29 +648,32 @@ bool Program::try_execute_instruction() {
 			return true;
 		}
 		return false;
-	//} else if (current_token.str == "cast") {
-	//	if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
-	//		shift_pointers(tokens, program_counter, -2);
-	//		Token arg1 = rel_token(tokens, 1);
-	//		Token arg2 = rel_token(tokens, 2);
-	//		token_type type = static_cast<token_type>(arg1.get_data_cast<int>());
-	//		if (type >= 0 && type < type_unknown) {
-	//			if (type == type_instr) {
-	//				int instruction_index = arg2.get_data_cast<int>();
-	//				if (get_instruction_info(instruction_index).index != -1) {
-	//					arg2.cast(type);
-	//				}
-	//			} else {
-	//				arg2.cast(type);
-	//			}
-	//		}
-	//		Token result = arg2;
-	//		result.str = result.to_string();
-	//		tokens.erase(tokens.begin() + program_counter);
-	//		tokens.erase(tokens.begin() + program_counter);
-	//		rel_token(tokens, 0) = result;
-	//		break;
-	//	}
+	} else if (current_token.str == "cast") {
+		if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
+			Token& arg1 = rel_token(prev_tokens, 1);
+			Token& arg2 = rel_token(prev_tokens, 2);
+			if (arg1.is_ptr()) {
+				arg1.set_data<PointerDataType>(arg1.get_data<PointerDataType>() + 1);
+			}
+			if (arg2.is_ptr()) {
+				arg2.set_data<PointerDataType>(arg2.get_data<PointerDataType>() + 2);
+			}
+			token_type type = static_cast<token_type>(arg1.get_data_cast<int>());
+			if (type >= 0 && type < type_unknown && type != type_instr) {
+				arg2.cast(type);
+				if (type == type_ptr) {
+					arg2.set_data<PointerDataType>(arg2.get_data<PointerDataType>() + 2);
+				}
+			}
+			Token result = arg2;
+			result.str = result.to_string();
+			if (result.is_ptr()) {
+				new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
+			}
+			replace_tokens_func(program_counter, program_counter + 3, program_counter, { result });
+			return true;
+		}
+		return false;
 	//} else if (current_token.str == "sys") {
 	//	bool arg1_valid = rel_token(tokens, 1).is_num_or_ptr();
 	//	bool arg2_valid = rel_token(tokens, 2).is_list_header() || rel_token(tokens, 2).is_singular_data();

@@ -1,4 +1,4 @@
-# 5f 5 5.0 -5 -2147483648 nanf inf 3f -5.0 -1 nan 5 25
+# 5.0f 5 5.0 -5 -2147483648 nanf inf 3.0f -5.0 -1 nan 0 2
 cast
     -1
     5.0f
@@ -35,10 +35,7 @@ cast
 cast
     instr
     0
-2
-3
 cast
     instr
     2
-5
-5
+

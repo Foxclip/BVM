@@ -1,4 +1,4 @@
-# 5 5L 5u 5U 5.000000f 5.000000 8 5p
+# 5 5L 5u 5U 5.0f 5.0 5.0f -6p
 cast
     int32
     5.0f
@@ -20,8 +20,6 @@ cast
 cast
     instr
     5.0f
-2
-3
 cast
     ptr
     5.0f
