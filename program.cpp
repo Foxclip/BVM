@@ -741,7 +741,11 @@ void Program::parse() {
 				arg_count = get_arg_count(current_token.get_data_cast<InstructionDataType>());
 			}
 			new_node_p->arg_count = arg_count;
-			parent_stack.push(token_i);
+			if (arg_count > 0) {
+				parent_stack.push(token_i);
+			} else {
+				new_node_p->last_index = token_i;
+			}
 			ProgramCounterType current_index = token_i;
 			ProgramCounterType current_last_index;
 			bool first = true;
@@ -749,7 +753,7 @@ void Program::parse() {
 				Node& current_parent = nodes[parent_stack.top()];
 				ProgramCounterType arg_offset = current_index - current_parent.first_index;
 				bool arg_offset_end = arg_offset >= current_parent.arg_count;
-				bool end_end = tokens[current_parent.first_index].str == "end";
+				bool end_end = tokens[current_index].str == "end";
 				auto exit_level = [&]() {
 					if (first) {
 						current_last_index = current_index;
@@ -761,9 +765,6 @@ void Program::parse() {
 				};
 				if (arg_offset_end || end_end) {
 					exit_level();
-					if (end_end) {
-						exit_level();
-					}
 				} else {
 					break;
 				}
