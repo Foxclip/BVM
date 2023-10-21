@@ -174,20 +174,6 @@ std::vector<Token> Program::tokenize(std::string str) {
 			throw std::runtime_error("Line " + std::to_string(current_line) + ": " + std::string(exc.what()));
 		}
 
-		// replacing macros
-		for (ProgramCounterType i = 0; i < words.size(); i++) {
-			WordToken current_word_token = words[i];
-			try {
-				std::string current_word = current_word_token.str;
-				if (current_word == "print") {
-					words[i] = WordToken("sys", current_line);
-					words.insert(words.begin() + i + 1, WordToken("0", current_line));
-				}
-			} catch (std::exception exc) {
-				throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
-			}
-		}
-
 		// replacing string literals with lists
 		for (ProgramCounterType i = 0; i < words.size(); i++) {
 			WordToken current_word_token = words[i];
@@ -515,7 +501,7 @@ bool Program::try_execute_instruction() {
 			if (src_index_begin != prev_tokens.size()) {
 				ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
 				Node* node = &nodes[token_index(prev_tokens, src_index_begin)];
-				std::vector<Token> node_tokens = node->tokenize(nodes, tokens);
+				std::vector<Token> node_tokens = node->tokenize(nodes, prev_tokens);
 				insert_tokens(src_index_begin, dst_index, node_tokens);
 			}
 			return true;
@@ -528,7 +514,7 @@ bool Program::try_execute_instruction() {
 			delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
 			if (target_index != prev_tokens.size()) {
 				Node* node = &nodes[token_index(prev_tokens, target_index)];
-				std::vector<Token> node_tokens = node->tokenize(nodes, tokens);
+				std::vector<Token> node_tokens = node->tokenize(nodes, prev_tokens);
 				delete_tokens(target_index, target_index + node_tokens.size(), OP_PRIORITY_STRONG_DELETE);
 			}
 			return true;
@@ -540,7 +526,7 @@ bool Program::try_execute_instruction() {
 			PointerDataType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
 			if (src_index_begin != prev_tokens.size()) {
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
-				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, tokens);
+				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, prev_tokens);
 				replace_tokens(program_counter, program_counter + 2, src_index_begin, src_node_tokens);
 			} else {
 				delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
@@ -556,12 +542,12 @@ bool Program::try_execute_instruction() {
 			delete_tokens(program_counter, nodes[program_counter].last_index + 1, OP_PRIORITY_WEAK_DELETE);
 			if (dst_index_begin != prev_tokens.size()) {
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
-				if (tokens[src_node->first_index].str == "q") {
+				if (prev_tokens[src_node->first_index].str == "q") {
 					src_node = &nodes[src_node->arguments[0]];
 				}
 				Node* dst_node = &nodes[token_index(prev_tokens, dst_index_begin)];
-				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, tokens);
-				std::vector<Token> dst_node_tokens = dst_node->tokenize(nodes, tokens);
+				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, prev_tokens);
+				std::vector<Token> dst_node_tokens = dst_node->tokenize(nodes, prev_tokens);
 				replace_tokens(dst_index_begin, dst_node->last_index + 1, src_index_begin, src_node_tokens);
 			}
 			return true;
@@ -573,10 +559,10 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
 			Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
-			if (tokens[src_node->first_index].str == "q") {
+			if (prev_tokens[src_node->first_index].str == "q") {
 				src_node = &nodes[src_node->arguments[0]];
 			}
-			std::vector<Token> src_node_tokens = src_node->tokenize(nodes, tokens);
+			std::vector<Token> src_node_tokens = src_node->tokenize(nodes, prev_tokens);
 			delete_tokens(program_counter, nodes[program_counter].last_index + 1, OP_PRIORITY_WEAK_DELETE);
 			insert_tokens(src_index_begin, dst_index_begin, src_node_tokens);
 			return true;
@@ -593,7 +579,7 @@ bool Program::try_execute_instruction() {
 				Node* dst_node = &nodes[token_index(prev_tokens, dst_index_begin)];
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
 				ProgramCounterType dst_index_end = dst_node->last_index + 1;
-				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, tokens);
+				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, prev_tokens);
 				replace_tokens(dst_index_begin, dst_index_end, src_index_begin, src_node_tokens);
 			}
 			return true;
@@ -632,13 +618,13 @@ bool Program::try_execute_instruction() {
 		}
 		return false;
 	} else if (current_token.str == "if") {
-		if (rel_token(tokens, 1).is_num_or_ptr()) {
-			BoolType cond = rel_token(tokens, 1).get_data_cast<BoolType>();
-			Node* if_node = &nodes[token_index(tokens, program_counter)];
+		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+			BoolType cond = rel_token(prev_tokens, 1).get_data_cast<BoolType>();
+			Node* if_node = &nodes[token_index(prev_tokens, program_counter)];
 			Node* true_node = &nodes[if_node->arguments[1]];
 			Node* false_node = &nodes[if_node->arguments[2]];
 			Node* selected_node = cond != 0 ? true_node : false_node;
-			if (tokens[selected_node->first_index].str == "q") {
+			if (prev_tokens[selected_node->first_index].str == "q") {
 				selected_node = &nodes[selected_node->arguments[0]];
 			}
 			movereplace_tokens(
@@ -649,7 +635,7 @@ bool Program::try_execute_instruction() {
 		}
 		return false;
 	} else if (current_token.str == "cast") {
-		if (rel_token(tokens, 1).is_num_or_ptr() && rel_token(tokens, 2).is_num_or_ptr()) {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			Token& arg1 = rel_token(prev_tokens, 1);
 			Token& arg2 = rel_token(prev_tokens, 2);
 			if (arg1.is_ptr()) {
@@ -658,7 +644,7 @@ bool Program::try_execute_instruction() {
 			if (arg2.is_ptr()) {
 				arg2.set_data<PointerDataType>(arg2.get_data<PointerDataType>() + 2);
 			}
-			token_type type = static_cast<token_type>(arg1.get_data_cast<int>());
+			token_type type = static_cast<token_type>(arg1.get_data_cast<Int32Type>());
 			if (type >= 0 && type < type_unknown && type != type_instr) {
 				arg2.cast(type);
 				if (type == type_ptr) {
@@ -674,31 +660,30 @@ bool Program::try_execute_instruction() {
 			return true;
 		}
 		return false;
-	//} else if (current_token.str == "sys") {
-	//	bool arg1_valid = rel_token(tokens, 1).is_num_or_ptr();
-	//	bool arg2_valid = rel_token(tokens, 2).is_list_header() || rel_token(tokens, 2).is_singular_data();
-	//	if (arg1_valid && arg2_valid) {
-	//		ProgramCounterType sys_position = program_counter;
-	//		int sys_call_index = rel_token(tokens, 1).get_data_cast<int>();
-	//		std::vector<Token> arg_list;
-	//		if (rel_token(tokens, 2).is_singular_data()) {
-	//			arg_list.push_back(rel_token(tokens, 2));
-	//			shift_pointers(tokens, sys_position, -3);
-	//			tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + 3);
-	//		} else {
-	//			ProgramCounterType current_token_offset = 3;
-	//			while (!rel_token(tokens, current_token_offset).is_list_end()) {
-	//				Token arg_token = rel_token(tokens, current_token_offset);
-	//				arg_list.push_back(arg_token);
-	//				current_token_offset++;
-	//			}
-	//			ProgramCounterType sys_tokens_size = current_token_offset - sys_position + 1;
-	//			shift_pointers(tokens, sys_position, -(PointerDataType)sys_tokens_size);
-	//			tokens.erase(tokens.begin() + sys_position, tokens.begin() + sys_position + current_token_offset + 1);
-	//		}
-	//		sys_call(sys_call_index, arg_list);
-	//		break;
-	//	}
+	} else if (current_token.str == "print") {
+		if (rel_token(prev_tokens, 1).is_list_header()) {
+			ProgramCounterType char_token_index = 1;
+			std::string str;
+			while (true) {
+				char_token_index++;
+				Token& char_token = rel_token(prev_tokens, char_token_index);
+				if (char_token.str == "end") {
+					break;
+				}
+				char c = char_token.get_data_cast<Int32Type>();
+				str += c;
+			}
+			local_print_buffer += str;
+			delete_tokens(program_counter, program_counter + char_token_index + 1, OP_PRIORITY_WEAK_DELETE);
+			return true;
+		} else if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+			Token& char_token = rel_token(prev_tokens, 1);
+			char c = char_token.get_data_cast<Int32Type>();
+			local_print_buffer += c;
+			delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
+			return true;
+		}
+		return false;
 	} else if (current_token.str == "list") {
 		list_scope_stack.push({ program_counter, false });
 		return true;
@@ -1153,23 +1138,6 @@ void Program::binary_func(std::function<Token(Token, Token)> func) {
 		}
 		replace_tokens_func(program_counter, program_counter + 3, program_counter, { result });
 	}
-}
-
-std::vector<Token> Program::sys_call(int index, std::vector<Token> input) {
-	switch (index) {
-		case 0: return sys_print(input); break;
-		default: return std::vector<Token>();
-	}
-}
-
-std::vector<Token> Program::sys_print(std::vector<Token> input) {
-	std::string str;
-	for (Token token : input) {
-		char c = token.get_data_cast<int>();
-		str += c;
-	}
-	local_print_buffer += str;
-	return std::vector<Token>();
 }
 
 bool operator<(const Program::NewPointersEntry& left, const Program::NewPointersEntry& right) {

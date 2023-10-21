@@ -185,8 +185,6 @@ private:
 	void shift_pointers();
 	void unary_func(std::function<Token(Token)> func);
 	void binary_func(std::function<Token(Token, Token)> func);
-	std::vector<Token> sys_call(int index, std::vector<Token> input);
-	std::vector<Token> sys_print(std::vector<Token> input);
 
 };
 
