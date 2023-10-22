@@ -2504,9 +2504,57 @@
 # "a\nb\nc"
 # "\"abc\""
 
+# 0 :i
+# seq
+#     print "Hello, World!"
+#     print 126
+# end
+# set i add get i 1
+
 0 :i
-seq
-    print "Hello, World!"
-    print 126
-end
-set i add get i 1
+seq :outer_sp
+    seq :sp
+        cpy sp outer_sp_end
+        if
+            cmp get i 100
+            q del add sp_end 1
+            q
+                seq
+                    if
+                        and
+                            not cmp mod get i 3 0
+                            not cmp mod get i 5 0
+                        q print "i"
+                        q del 0
+                    if
+                        cmp mod get i 3 0
+                        q print "Fizz"
+                        q del 0
+                    if
+                        cmp mod get i 5 0
+                        q print "Buzz"
+                        q del 0
+                    print "\n"
+                    set i add get i 1
+                end
+    end :sp_end
+end :outer_sp_end
+
+# 15 :i
+# seq
+#     if
+#         and
+#             not cmp mod get i 3 0
+#             not cmp mod get i 5 0
+#         q print "i"
+#         q del 0
+#     if
+#         cmp mod get i 3 0
+#         q print "Fizz"
+#         q del 0
+#     if
+#         cmp mod get i 5 0
+#         q print "Buzz"
+#         q del 0
+#     set i add get i 1
+# end

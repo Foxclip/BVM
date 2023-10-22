@@ -183,8 +183,8 @@ private:
 	void reset_index_shift();
 	void print_node(Node* node);
 	void shift_pointers();
-	void unary_func(std::function<Token(Token)> func);
-	void binary_func(std::function<Token(Token, Token)> func);
+	bool unary_func(std::function<Token(Token)> func);
+	bool binary_func(std::function<Token(Token, Token)> func);
 
 };
 

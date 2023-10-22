@@ -421,77 +421,53 @@ std::vector<Token> Program::execute() {
 bool Program::try_execute_instruction() {
 	Token current_token = rel_token(prev_tokens, 0);
 	if (current_token.str == "add") {
-		binary_func([](Token a, Token b) { return Token::add(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::add(a, b); });
 	} else if (current_token.str == "sub") {
-		binary_func([](Token a, Token b) { return Token::sub(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::sub(a, b); });
 	} else if (current_token.str == "mul") {
-		binary_func([](Token a, Token b) { return Token::mul(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::mul(a, b); });
 	} else if (current_token.str == "div") {
-		binary_func([](Token a, Token b) { return Token::div(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::div(a, b); });
 	} else if (current_token.str == "mod") {
-		binary_func([](Token a, Token b) { return Token::mod(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::mod(a, b); });
 	} else if (current_token.str == "pow") {
-		binary_func([](Token a, Token b) { return Token::pow(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::pow(a, b); });
 	} else if (current_token.str == "log") {
-		unary_func([](Token a) { return Token::log(a); });
-		return true;
+		return unary_func([](Token a) { return Token::log(a); });
 	} else if (current_token.str == "log2") {
-		unary_func([](Token a) { return Token::log2(a); });
-		return true;
+		return unary_func([](Token a) { return Token::log2(a); });
 	} else if (current_token.str == "sin") {
-		unary_func([](Token a) { return Token::sin(a); });
-		return true;
+		return unary_func([](Token a) { return Token::sin(a); });
 	} else if (current_token.str == "cos") {
-		unary_func([](Token a) { return Token::cos(a); });
-		return true;
+		return unary_func([](Token a) { return Token::cos(a); });
 	} else if (current_token.str == "tan") {
-		unary_func([](Token a) { return Token::tan(a); });
-		return true;
+		return unary_func([](Token a) { return Token::tan(a); });
 	} else if (current_token.str == "asin") {
-		unary_func([](Token a) { return Token::asin(a); });
-		return true;
+		return unary_func([](Token a) { return Token::asin(a); });
 	} else if (current_token.str == "acos") {
-		unary_func([](Token a) { return Token::acos(a); });
-		return true;
+		return unary_func([](Token a) { return Token::acos(a); });
 	} else if (current_token.str == "atan") {
-		unary_func([](Token a) { return Token::atan(a); });
-		return true;
+		return unary_func([](Token a) { return Token::atan(a); });
 	} else if (current_token.str == "atan2") {
-		binary_func([](Token a, Token b) { return Token::atan2(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::atan2(a, b); });
 	} else if (current_token.str == "floor") {
-		unary_func([](Token a) { return Token::floor(a); });
-		return true;
+		return unary_func([](Token a) { return Token::floor(a); });
 	} else if (current_token.str == "ceil") {
-		unary_func([](Token a) { return Token::ceil(a); });
-		return true;
+		return unary_func([](Token a) { return Token::ceil(a); });
 	} else if (current_token.str == "cmp") {
-		binary_func([](Token a, Token b) { return Token::cmp(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::cmp(a, b); });
 	} else if (current_token.str == "lt") {
-		binary_func([](Token a, Token b) { return Token::lt(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::lt(a, b); });
 	} else if (current_token.str == "gt") {
-		binary_func([](Token a, Token b) { return Token::gt(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::gt(a, b); });
 	} else if (current_token.str == "and") {
-		binary_func([](Token a, Token b) { return Token::and_op(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::and_op(a, b); });
 	} else if (current_token.str == "or") {
-		binary_func([](Token a, Token b) { return Token::or_op(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::or_op(a, b); });
 	} else if (current_token.str == "xor") {
-		binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
-		return true;
+		return binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
 	} else if (current_token.str == "not") {
-		unary_func([](Token a) { return Token::not_op(a); });
-		return true;
+		return unary_func([](Token a) { return Token::not_op(a); });
 	} else if (current_token.str == "cpy") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
@@ -1112,17 +1088,21 @@ void Program::shift_pointers() {
 	}
 }
 
-void Program::unary_func(std::function<Token(Token)> func) {
-	Token& arg = rel_token(prev_tokens, 1);
-	if (arg.is_ptr()) {
-		arg.set_data<PointerDataType>(arg.get_data<PointerDataType>() + 1);
+bool Program::unary_func(std::function<Token(Token)> func) {
+	if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+		Token& arg = rel_token(prev_tokens, 1);
+		if (arg.is_ptr()) {
+			arg.set_data<PointerDataType>(arg.get_data<PointerDataType>() + 1);
+		}
+		Token result = func(arg);
+		new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
+		replace_tokens_func(program_counter, program_counter + 2, program_counter, { result });
+		return true;
 	}
-	Token result = func(arg);
-	new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
-	replace_tokens_func(program_counter, program_counter + 2, program_counter, { result });
+	return false;
 }
 
-void Program::binary_func(std::function<Token(Token, Token)> func) {
+bool Program::binary_func(std::function<Token(Token, Token)> func) {
 	if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 		Token& arg1 = rel_token(prev_tokens, 1);
 		Token& arg2 = rel_token(prev_tokens, 2);
@@ -1137,7 +1117,9 @@ void Program::binary_func(std::function<Token(Token, Token)> func) {
 			new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
 		}
 		replace_tokens_func(program_counter, program_counter + 3, program_counter, { result });
+		return true;
 	}
+	return false;
 }
 
 bool operator<(const Program::NewPointersEntry& left, const Program::NewPointersEntry& right) {

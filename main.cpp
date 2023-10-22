@@ -42,8 +42,8 @@ void execute_program_normal(std::string path) {
 int main() {
 	try {
 
-		execute_program_debug("program.bvmi");
-		//execute_program_normal("program.bvmi");
+		//execute_program_debug("program.bvmi");
+		execute_program_normal("program.bvmi");
 		//test::run_tests();
 
 	} catch (std::string msg) {
@@ -52,7 +52,7 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: test list in the ins and set second arg
+	// TODO: tostring instruction, converts token to string
 	// TODO: undeletable and uncopyable end instruction
 	// movable list, seq, end instructions
 	// TODO: duplicate label error, keyword label error, instruction name label error
@@ -63,7 +63,8 @@ int main() {
 	// TODO: function call macro
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number
-	// TODO: repl executes its second argument, also add code instruction (quote, written in source as ') to stop code from executing
+	// TODO: test list in the ins and set second arg
+	// TODO: do not unbox lists automatically
 	// TODO: move and swap instructions, for moving and swapping subtrees
 	// TODO: def instruction, for defining macros
 	// TODO: builtin macros (which are part of the intermediate language itself)
