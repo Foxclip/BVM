@@ -2559,37 +2559,66 @@
 #     set i add get i 1
 # end
 
-seq
-    print str 5
-    print " "
-    print str -5
-    print " "
-    print str 5u
-    print " "
-    print str -5u
-    print " "
-    print str 5L
-    print " "
-    print str -5L
-    print " "
-    print str 5U
-    print " "
-    print str -5U
-    print " "
-    print str 5f
-    print " "
-    print str -5f
-    print " "
-    print str 5.5f
-    print " "
-    print str 5.5
-    print " "
-    print str -5.5f
-    print " "
-    print str -5.5
-    print " "
-    print str 5p
-    print " "
-    print str -5p
-    print " "
-end
+# seq
+#     print str 5
+#     print " "
+#     print str -5
+#     print " "
+#     print str 5u
+#     print " "
+#     print str -5u
+#     print " "
+#     print str 5L
+#     print " "
+#     print str -5L
+#     print " "
+#     print str 5U
+#     print " "
+#     print str -5U
+#     print " "
+#     print str 5f
+#     print " "
+#     print str -5f
+#     print " "
+#     print str 5.5f
+#     print " "
+#     print str 5.5
+#     print " "
+#     print str -5.5f
+#     print " "
+#     print str -5.5
+#     print " "
+#     print str 5p
+#     print " "
+#     print str -5p
+#     print " "
+# end
+
+1 :i
+seq :outer_sp
+    seq :sp
+        cpy sp outer_sp_end
+        if
+            cmp get i 16
+            q del add sp_end 1
+            q
+                seq
+                    if
+                        and
+                            not cmp mod get i 3 0
+                            not cmp mod get i 5 0
+                        q print str get i
+                        q del 0
+                    if
+                        cmp mod get i 3 0
+                        q print "Fizz"
+                        q del 0
+                    if
+                        cmp mod get i 5 0
+                        q print "Buzz"
+                        q del 0
+                    print "\n"
+                    set i add get i 1
+                end
+    end :sp_end
+end :outer_sp_end

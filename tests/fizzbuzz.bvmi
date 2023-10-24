@@ -1,5 +1,5 @@
 # 16
-#i\ni\nFizz\ni\nBuzz\nFizz\ni\ni\nFizz\nBuzz\ni\nFizz\ni\ni\nFizzBuzz\n
+#1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n
 1 :i
 seq :outer_sp
     seq :sp
@@ -13,7 +13,7 @@ seq :outer_sp
                         and
                             not cmp mod get i 3 0
                             not cmp mod get i 5 0
-                        q print "i"
+                        q print str get i
                         q del 0
                     if
                         cmp mod get i 3 0
