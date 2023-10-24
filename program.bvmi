@@ -2511,12 +2511,12 @@
 # end
 # set i add get i 1
 
-0 :i
+1 :i
 seq :outer_sp
     seq :sp
         cpy sp outer_sp_end
         if
-            cmp get i 100
+            cmp get i 16
             q del add sp_end 1
             q
                 seq

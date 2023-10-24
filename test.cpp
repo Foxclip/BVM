@@ -104,6 +104,7 @@ namespace test {
 		"cast_float.bvmi",
 		"string_literal.bvmi",
 		"string_escape_seq.bvmi",
+		"fizzbuzz.bvmi",
 	};
 
 	bool is_terminating_char(char c) {
@@ -162,7 +163,75 @@ namespace test {
 		}
 	}
 
-	bool run_test(std::filesystem::path test_path, std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p) {
+	void tokenize(std::string str, std::string& correct_results_p, std::string& correct_print_p) {
+		ProgramCounterType current_line = 1;
+		try {
+			enum TokenizerState {
+				STATE_BEGIN,
+				STATE_CORRECT_RESULTS,
+				STATE_AFTER_CORRECT_RESULTS,
+				STATE_CORRECT_PRINT,
+			};
+			TokenizerState state = STATE_BEGIN;
+			std::string program_text;
+			std::string correct_results;
+			std::string correct_print;
+			str += EOF;
+			auto throw_unexp_char = [](char c) {
+				throw std::runtime_error("Unexpected char: " + utils::char_to_str(c));
+			};
+			for (ProgramCounterType i = 0; i < str.size(); i++) {
+				char current_char = str[i];
+				if (state == STATE_BEGIN) {
+					if (isspace(current_char)) {
+						// skipping
+					} else if (current_char == '#') {
+						state = STATE_CORRECT_RESULTS;
+					} else {
+						throw_unexp_char(current_char);
+					}
+				} else if (state == STATE_CORRECT_RESULTS) {
+					if (utils::is_newline(current_char)) {
+						state = STATE_AFTER_CORRECT_RESULTS;
+					} else if (current_char == EOF) {
+						throw_unexp_char(current_char);
+					} else {
+						correct_results += current_char;
+					}
+				} else if (state == STATE_AFTER_CORRECT_RESULTS) {
+					if (isspace(current_char)) {
+						// skipping
+					} else if (current_char == '#') {
+						state = STATE_CORRECT_PRINT;
+					} else {
+						break;
+					}
+				} else if (state == STATE_CORRECT_PRINT) {
+					if (utils::is_newline(current_char)) {
+						break;
+					} else if (current_char == EOF) {
+						throw_unexp_char(current_char);
+					} else {
+						correct_print += current_char;
+					}
+				}
+				if (utils::is_newline(current_char)) {
+					current_line++;
+				}
+			}
+			correct_results_p = correct_results;
+			correct_print_p = correct_print;
+		} catch (std::exception exc) {
+			throw std::runtime_error("Line " + std::to_string(current_line) + ": " + std::string(exc.what()));
+		}
+	}
+
+	bool run_test(
+		std::filesystem::path test_path,
+		std::vector<Token>& actual_results_p, std::vector<Token>& correct_results_p,
+		std::string& actual_print_p, std::string& correct_print_p,
+		bool& results_compare_p, bool& print_compare_p
+	) {
 		if (!std::filesystem::exists(test_path)) {
 			throw std::runtime_error(test_path.string() + " not found");
 		}
@@ -170,7 +239,10 @@ namespace test {
 			throw std::runtime_error(test_path.string() + " is not a file");
 		}
 		std::string program_text = utils::file_to_str(test_path);
-		std::string correct_results_str = program_text.substr(1, program_text.find('\n') - 1);
+		std::string correct_results_str;
+		std::string correct_print_str;
+		tokenize(program_text, correct_results_str, correct_print_str);
+		correct_print_str = utils::replace_escape_seq(correct_print_str);
 		std::vector<bool> approx_flags = get_approx_flags(correct_results_str);
 		remove_approx_flags(correct_results_str);
 		std::vector<Token> correct_results;
@@ -186,9 +258,13 @@ namespace test {
 		} catch (std::exception exc) {
 			throw std::runtime_error("Program execution error: " + std::string(exc.what()));
 		}
-		bool passed = compare_results(actual_results, correct_results, approx_flags);
+		results_compare_p = compare_results(actual_results, correct_results, approx_flags);
+		print_compare_p = program.global_print_buffer == correct_print_str;
+		bool passed = results_compare_p && print_compare_p;
 		actual_results_p = actual_results;
 		correct_results_p = correct_results;
+		actual_print_p = program.global_print_buffer;
+		correct_print_p = correct_print_str;
 		return passed;
 	}
 
@@ -207,11 +283,20 @@ namespace test {
 				std::filesystem::path test_path = test_directory / test_filename;
 				std::vector<Token> actual_results;
 				std::vector<Token> correct_results;
+				std::string actual_print;
+				std::string correct_print;
+				bool results_compare;
+				bool print_compare;
 				bool passed = false;
 				bool exception = false;
 				std::string exc_message;
 				try {
-					passed = run_test(test_path, actual_results, correct_results);
+					passed = run_test(
+						test_path,
+						actual_results, correct_results,
+						actual_print, correct_print,
+						results_compare, print_compare
+					);
 				} catch (std::exception exc) {
 					exception = true;
 					exc_message = exc.what();
@@ -226,8 +311,14 @@ namespace test {
 					if (exception) {
 						std::cout << "        ERROR: " << exc_message << "\n";
 					} else {
-						std::cout << "        Correct results: " + Token::tokens_to_str(correct_results) << "\n";
-						std::cout << "         Actual results: " + Token::tokens_to_str(actual_results) << "\n";
+						if (!results_compare) {
+							std::cout << "        Correct results: " + Token::tokens_to_str(correct_results) << "\n";
+							std::cout << "         Actual results: " + Token::tokens_to_str(actual_results) << "\n";
+						}
+						if (!print_compare) {
+							std::cout << "        Correct print: " + correct_print << "\n";
+							std::cout << "         Actual print: " + actual_print << "\n";
+						}
 					}
 				}
 			}

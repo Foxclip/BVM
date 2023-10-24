@@ -397,6 +397,7 @@ std::vector<Token> Program::execute() {
 			if (print_iterations) {
 				print_tokens(tokens, false);
 			}
+			global_print_buffer += local_print_buffer;
 			if (print_buffer_enabled && local_print_buffer.size() > 0) {
 				if (print_iterations) {
 					std::cout << "Print: ";
@@ -405,7 +406,6 @@ std::vector<Token> Program::execute() {
 				if (print_iterations && !utils::is_newline(local_print_buffer.back())) {
 					std::cout << "\n";
 				}
-				global_print_buffer += local_print_buffer;
 			}
 			if (tokens == prev_tokens) {
 				break;

@@ -43,8 +43,8 @@ int main() {
 	try {
 
 		//execute_program_debug("program.bvmi");
-		execute_program_normal("program.bvmi");
-		//test::run_tests();
+		//execute_program_normal("program.bvmi");
+		test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "ERROR: " << msg << "\n";
