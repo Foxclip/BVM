@@ -52,7 +52,6 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: tostring instruction, converts token to string
 	// TODO: undeletable and uncopyable end instruction
 	// movable list, seq, end instructions
 	// TODO: duplicate label error, keyword label error, instruction name label error

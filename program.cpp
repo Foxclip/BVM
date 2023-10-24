@@ -660,6 +660,23 @@ bool Program::try_execute_instruction() {
 			return true;
 		}
 		return false;
+	} else if (current_token.str == "str") {
+		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
+			Token& arg = rel_token(prev_tokens, 1);
+			std::string str = arg.to_string();
+			std::vector<Token> results;
+			results.push_back(Token("list"));
+			for (ProgramCounterType char_i = 0; char_i < str.size(); char_i++) {
+				Token char_token;
+				char_token.type = type_int32;
+				char_token.set_data<Int32Type>(str[char_i]);
+				results.push_back(char_token);
+			}
+			results.push_back(Token("end"));
+			replace_tokens_func(program_counter, program_counter + 2, program_counter, results);
+			return true;
+		}
+		return false;
 	} else if (current_token.str == "list") {
 		list_scope_stack.push({ program_counter, false });
 		return true;

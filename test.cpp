@@ -105,6 +105,7 @@ namespace test {
 		"string_literal.bvmi",
 		"string_escape_seq.bvmi",
 		"fizzbuzz.bvmi",
+		"str.bvmi",
 	};
 
 	bool is_terminating_char(char c) {
