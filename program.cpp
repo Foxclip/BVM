@@ -474,7 +474,7 @@ bool Program::try_execute_instruction() {
 			PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();
 			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			if (src_index_begin != prev_tokens.size()) {
+			if (src_index_begin != prev_tokens.size() && prev_tokens[src_index_begin].str != "end") {
 				ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
 				Node* node = &nodes[token_index(prev_tokens, src_index_begin)];
 				std::vector<Token> node_tokens = node->tokenize(nodes, prev_tokens);
@@ -488,7 +488,7 @@ bool Program::try_execute_instruction() {
 			PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType target_index = token_index(prev_tokens, program_counter + 1 + arg);
 			delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
-			if (target_index != prev_tokens.size()) {
+			if (target_index != prev_tokens.size() && prev_tokens[target_index].str != "end") {
 				Node* node = &nodes[token_index(prev_tokens, target_index)];
 				std::vector<Token> node_tokens = node->tokenize(nodes, prev_tokens);
 				delete_tokens(target_index, target_index + node_tokens.size(), OP_PRIORITY_STRONG_DELETE);
@@ -500,7 +500,7 @@ bool Program::try_execute_instruction() {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			PointerDataType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
-			if (src_index_begin != prev_tokens.size()) {
+			if (src_index_begin != prev_tokens.size() && prev_tokens[src_index_begin].str != "end") {
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
 				std::vector<Token> src_node_tokens = src_node->tokenize(nodes, prev_tokens);
 				replace_tokens(program_counter, program_counter + 2, src_index_begin, src_node_tokens);
@@ -516,7 +516,7 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
 			delete_tokens(program_counter, nodes[program_counter].last_index + 1, OP_PRIORITY_WEAK_DELETE);
-			if (dst_index_begin != prev_tokens.size()) {
+			if (dst_index_begin != prev_tokens.size() && prev_tokens[dst_index_begin].str != "end") {
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
 				if (prev_tokens[src_node->first_index].str == "q") {
 					src_node = &nodes[src_node->arguments[0]];
@@ -551,7 +551,10 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
 			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 2 + src);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size()) {
+			if (
+				src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size()
+				&& prev_tokens[src_index_begin].str != "end" && prev_tokens[dst_index_begin].str != "end"
+			) {
 				Node* dst_node = &nodes[token_index(prev_tokens, dst_index_begin)];
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
 				ProgramCounterType dst_index_end = dst_node->last_index + 1;
@@ -582,7 +585,7 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 2 + dst);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size()) {
+			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size() && prev_tokens[dst_index_begin].str != "end") {
 				Node* src_node = &nodes[token_index(prev_tokens, src_index_begin)];
 				Node* dst_node = &nodes[token_index(prev_tokens, dst_index_begin)];
 				movereplace_tokens(

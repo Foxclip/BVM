@@ -2594,31 +2594,48 @@
 #     print " "
 # end
 
-1 :i
-seq :outer_sp
-    seq :sp
-        cpy sp outer_sp_end
-        if
-            cmp get i 16
-            q del add sp_end 1
-            q
-                seq
-                    if
-                        and
-                            not cmp mod get i 3 0
-                            not cmp mod get i 5 0
-                        q print str get i
-                        q del 0
-                    if
-                        cmp mod get i 3 0
-                        q print "Fizz"
-                        q del 0
-                    if
-                        cmp mod get i 5 0
-                        q print "Buzz"
-                        q del 0
-                    print "\n"
-                    set i add get i 1
-                end
-    end :sp_end
-end :outer_sp_end
+# 1 :i
+# seq :outer_sp
+#     seq :sp
+#         cpy sp outer_sp_end
+#         if
+#             cmp get i 101
+#             q del add sp_end 1
+#             q
+#                 seq
+#                     if
+#                         and
+#                             not cmp mod get i 3 0
+#                             not cmp mod get i 5 0
+#                         q print str get i
+#                         q del 0
+#                     if
+#                         cmp mod get i 3 0
+#                         q print "Fizz"
+#                         q del 0
+#                     if
+#                         cmp mod get i 5 0
+#                         q print "Buzz"
+#                         q del 0
+#                     print "\n"
+#                     set i add get i 1
+#                 end
+#     end :sp_end
+# end :outer_sp_end
+
+q :qp1
+    list
+    end :end1
+q :qp2
+    list
+    end :end2
+seq
+    cpy end1 0
+    del end1
+    get end1
+    set end1 qp1
+    set end2 qp2
+    repl qp1 end2
+    repl end1 qp2
+    mrep qp2 end1
+end

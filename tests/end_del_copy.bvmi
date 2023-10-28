@@ -1,0 +1,17 @@
+# q list end q list end
+q :qp1
+    list
+    end :end1
+q :qp2
+    list
+    end :end2
+seq
+    cpy end1 0
+    del end1
+    get end1
+    set end1 qp1
+    set end2 qp2
+    repl qp1 end2
+    repl end1 qp2
+    mrep qp2 end1
+end
