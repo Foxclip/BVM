@@ -1,6 +1,6 @@
-# 3 7 11 15 3 11 7 15
+# 3 11 7 15
 :end_p
-seq
+seq :seq1
     list
         seq
             add :add1
@@ -23,4 +23,5 @@ seq
             cpy add4 end_p
         end
     end
+    del seq1
 end

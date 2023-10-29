@@ -1,6 +1,6 @@
 # list seq end seq list end end end 0 1 0 2 0 3 4 0 5 0
 :end_p
-list :list1
+list
     seq
         ins end_p 0
         ins end_p 0
@@ -17,5 +17,4 @@ list :list1
         end
         ins end_p 5
     end
-    del list1
 end

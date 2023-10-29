@@ -3,12 +3,12 @@
 1 :i
 seq :outer_sp
     seq :sp
-        cpy sp outer_sp_end
+        cpy sp u_p
         if
             cmp get i 16
             q del add sp_end 1
             q
-                seq
+                seq :sp2
                     if
                         and
                             not cmp mod get i 3 0
@@ -25,6 +25,9 @@ seq :outer_sp
                         q del 0
                     print "\n"
                     set i add get i 1
+                    unbox sp2
                 end
+        unbox sp
     end :sp_end
+    unbox :u_p outer_sp
 end :outer_sp_end

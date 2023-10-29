@@ -2775,22 +2775,67 @@
 #     end
 # end
 
-:end_p
-list :list1
-    seq
-        ins end_p 0
-        ins end_p 0
-        ins end_p 0
-        ins end_p 0
-        ins end_p 0
-    end
-    seq
-        ins end_p 1
-        ins end_p 2
-        list
-            ins end_p 3
-            ins end_p 4
-        end
-        ins end_p 5
-    end
-end
+# :end_p
+# list :list1
+#     seq
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#     end
+#     seq
+#         ins end_p 1
+#         ins end_p 2
+#         list
+#             ins end_p 3
+#             ins end_p 4
+#         end
+#         ins end_p 5
+#     end
+# end
+
+# seq :outer_sp
+#     seq :sp
+#         0 :i
+#         cpy sp u_p
+#         if
+#             cmp get i 9
+#             q del add sp_end 1
+#             q set add sp_end 2 add get i 1 
+#         unbox sp
+#     end :sp_end
+#     unbox :u_p outer_sp
+# end :outer_sp_end
+
+# 1 :i
+# seq :outer_sp
+#     seq :sp
+#         cpy sp u_p
+#         if
+#             cmp get i 16
+#             q del add sp_end 1
+#             q
+#                 seq :sp2
+#                     if
+#                         and
+#                             not cmp mod get i 3 0
+#                             not cmp mod get i 5 0
+#                         q print str get i
+#                         q del 0
+#                     if
+#                         cmp mod get i 3 0
+#                         q print "Fizz"
+#                         q del 0
+#                     if
+#                         cmp mod get i 5 0
+#                         q print "Buzz"
+#                         q del 0
+#                     print "\n"
+#                     set i add get i 1
+#                     unbox sp2
+#                 end
+#         unbox sp
+#     end :sp_end
+#     unbox :u_p outer_sp
+# end :outer_sp_end

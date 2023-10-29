@@ -42,9 +42,9 @@ void execute_program_normal(std::string path) {
 int main() {
 	try {
 
-		execute_program_debug("program.bvmi");
+		//execute_program_debug("program.bvmi");
 		//execute_program_normal("program.bvmi");
-		//test::run_tests();
+		test::run_tests();
 
 	} catch (std::string msg) {
 		std::cout << "ERROR: " << msg << "\n";
@@ -53,6 +53,7 @@ int main() {
 	}
 
 	// TODO: movable list, seq, end instructions
+	// TODO: inserting and unboxing only into containers but not argument lists
 	// TODO: duplicate label error, keyword label error, instruction name label error
 	// TODO: duplicate test error
 	// TODO: mismathed end error

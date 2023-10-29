@@ -2,10 +2,12 @@
 seq :outer_sp
     seq :sp
         0 :i
-        cpy sp outer_sp_end
+        cpy sp u_p
         if
             cmp get i 9
             q del add sp_end 1
             q set add sp_end 2 add get i 1 
+        unbox sp
     end :sp_end
+    unbox :u_p outer_sp
 end :outer_sp_end
