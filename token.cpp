@@ -82,6 +82,10 @@ bool Token::is_list_header() {
 	return str == "list";
 }
 
+bool Token::is_container_header() {
+	return str == "list" || str == "seq";
+}
+
 bool Token::is_list_end() {
 	return str == "end";
 }

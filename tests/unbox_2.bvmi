@@ -1,0 +1,21 @@
+# 1 2 3 4 5 list 6 end 7 list 8 9 10 end
+1
+2
+3
+4
+list :list1
+    5
+    list :list2
+        6
+    end
+    7
+end
+list :list3
+    8
+    list :list4
+        9
+    end
+    10
+end
+unbox list1
+unbox list4

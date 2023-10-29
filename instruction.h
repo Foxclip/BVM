@@ -71,6 +71,8 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("list", (ProgramCounterType)-1),
 	InstructionDef("seq", (ProgramCounterType)-1),
 	InstructionDef("end", 0),
+	InstructionDef("box", 2),
+	InstructionDef("unbox", 1),
 	InstructionDef("q", 1),
 	InstructionDef("cast", 2),
 	InstructionDef("print", 1),

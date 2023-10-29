@@ -55,7 +55,6 @@ private:
 		OP_PRIORITY_NULL,
 		OP_PRIORITY_TEMP,
 		OP_PRIORITY_FUNC_REPLACE,
-		OP_PRIORITY_LIST_DELETE,
 		OP_PRIORITY_MOVE,
 		OP_PRIORITY_MREP_SRC,
 		OP_PRIORITY_WEAK_DELETE,
@@ -126,7 +125,6 @@ private:
 		PointerDataType index = -1;
 		OpPriority op_priority = OP_PRIORITY_NULL;
 		bool is_deleted();
-		bool is_list_deleted();
 		bool is_weakly_deleted();
 		bool is_strongly_deleted();
 		bool is_normal_moved();
