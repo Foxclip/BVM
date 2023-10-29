@@ -2623,19 +2623,32 @@
 #     end :sp_end
 # end :outer_sp_end
 
-q :qp1
-    list
-    end :end1
-q :qp2
-    list
-    end :end2
-seq
-    cpy end1 0
-    del end1
-    get end1
-    set end1 qp1
-    set end2 qp2
-    repl qp1 end2
-    repl end1 qp2
-    mrep qp2 end1
-end
+# q :qp1
+#     list
+#     end :end1
+# q :qp2
+#     list
+#     end :end2
+# seq
+#     cpy end1 0
+#     del end1
+#     get end1
+#     set end1 qp1
+#     set end2 qp2
+#     repl qp1 end2
+#     repl end1 qp2
+#     mrep qp2 end1
+# end
+
+1
+2
+3 :three
+list :list1
+    5 :five
+    6 :six
+    7 :seven
+end :end1
+8 :eight
+9
+10
+move end1 eight

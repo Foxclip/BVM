@@ -1115,7 +1115,9 @@ bool Program::unary_func(std::function<Token(Token)> func) {
 			arg.set_data<PointerDataType>(arg.get_data<PointerDataType>() + 1);
 		}
 		Token result = func(arg);
-		new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
+		if (result.is_ptr()) {
+			new_pointers.insert(NewPointersEntry(program_counter, result.get_data_cast<PointerDataType>()));
+		}
 		replace_tokens_func(program_counter, program_counter + 2, program_counter, { result });
 		return true;
 	}
