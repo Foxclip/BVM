@@ -1,4 +1,4 @@
-# 55 1 -2p 3 1 -5p 3
+# 55 list 1 -3p 3 end list 1 -8p 3 end
 55 :ff
 list :lst_p
     1

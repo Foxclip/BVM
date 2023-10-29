@@ -116,11 +116,11 @@ private:
 		OP_TYPE_MOVEREPLACE,
 	};
 	ProgramCounterType program_counter = 0;
-	struct ListScopeStackEntry {
+	struct ScopeListEntry {
 		ProgramCounterType pos;
 		bool instruction_executed = false;
 	};
-	std::stack<ListScopeStackEntry> list_scope_stack;
+	std::vector<ScopeListEntry> scope_list;
 	struct IndexShiftEntry {
 		PointerDataType index = -1;
 		OpPriority op_priority = OP_PRIORITY_NULL;

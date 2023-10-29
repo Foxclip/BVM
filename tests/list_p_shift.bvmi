@@ -1,11 +1,12 @@
 # 6p 5 6 7 2p 5 6 7
 six
-list
+list :list1
     5
     6
     7
     six   
-    end
+end
 5
 6 :six
 7
+unbox list1

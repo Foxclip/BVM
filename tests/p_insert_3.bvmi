@@ -1,4 +1,4 @@
-# 55 2p -2p -2p 2p -5p -2p
+# 55 list 2p -3p -2p end list 2p -8p -2p end
 55 :ff
 list :lst_p
     2p

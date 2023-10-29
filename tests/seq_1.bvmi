@@ -1,6 +1,7 @@
 # 1 2
 :end_p
-seq
+seq :seq1
     ins end_p 1
     ins end_p 2
+    del seq1
 end

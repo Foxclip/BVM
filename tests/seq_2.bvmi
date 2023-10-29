@@ -2,9 +2,10 @@
 1
 2 :two
 3
-seq
+seq :seq1
     set eleven 22
     set
         two
         11 :eleven
+    del seq1
 end

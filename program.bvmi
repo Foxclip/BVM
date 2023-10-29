@@ -2690,9 +2690,107 @@
 
 # unbox 0
 
-seq :seq1
-    1
-    2
-    3
+# seq :seq1
+#     1
+#     2
+#     3
+# end
+# unbox seq1
+
+# list
+# end
+# list
+#     list
+#         0
+#         add
+#             11
+#             22
+#         2
+#         list
+#             55
+#             66
+#             77
+#         end
+#         3
+#         4
+#     end
+#     list
+#     end
+#     list
+#         1
+#     end
+# end
+# list
+# end
+
+# six
+# list :list1
+#     5
+#     6
+#     7
+#     six   
+# end
+# 5
+# 6 :six
+# 7
+# unbox list1
+
+# 1
+# get_p
+# add
+#     get_p
+#     1
+# add
+#     get_p
+#     2
+# 2
+# get :get_p
+#     lst_p
+# 3
+# 4
+# list :lst_p
+#     5
+#     6
+# end
+# 7
+
+# :end_p
+# list
+#     seq
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#         ins end_p 0
+#     end
+#     seq
+#         ins end_p 1
+#         ins end_p 2
+#         list
+#             ins end_p 3
+#             ins end_p 4
+#         end
+#         ins end_p 5
+#     end
+# end
+
+:end_p
+list :list1
+    seq
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+        ins end_p 0
+    end
+    seq
+        ins end_p 1
+        ins end_p 2
+        list
+            ins end_p 3
+            ins end_p 4
+        end
+        ins end_p 5
+    end
 end
-unbox seq1

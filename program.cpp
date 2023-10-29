@@ -335,22 +335,22 @@ std::vector<Token> Program::execute() {
 			local_print_buffer = "";
 			parse();
 			auto jump_to_end = [&]() {
-				Node* seq_node = &nodes[list_scope_stack.top().pos];
+				Node* seq_node = &nodes[scope_list.back().pos];
 				program_counter = seq_node->last_index;
 			};
-			auto notify_container = [&]() {
-				if (list_scope_stack.size() > 0) {
-					list_scope_stack.top().instruction_executed = true;
+			auto notify_parents = [&]() {
+				for (int i = 0; i < scope_list.size(); i++) {
+					scope_list[i].instruction_executed = true;
 				}
 			};
 			auto exit_parent = [&]() {
 				jump_to_end();
-				list_scope_stack.pop();
-				notify_container();
+				scope_list.pop_back();
+				notify_parents();
 			};
 			auto try_exec_normal = [&]() {
 				if (try_execute_instruction()) {
-					notify_container();
+					notify_parents();
 				}
 			};
 			auto try_exec_silent = [&]() {
@@ -360,13 +360,13 @@ std::vector<Token> Program::execute() {
 				Token& current_token = prev_tokens[program_counter];
 				if (current_token.is_num_or_ptr()) {
 					// skipping
-				} else if (parent_is_seq() && list_scope_stack.top().instruction_executed) {
+				} else if (parent_is_seq() && scope_list.back().instruction_executed) {
 					exit_parent();
 				} else if (current_token.str == "seq" || current_token.str == "list") {
-					list_scope_stack.push({ program_counter, false });
+					scope_list.push_back({ program_counter, false });
 					try_exec_silent();
 				} else if (current_token.str == "end") {
-					list_scope_stack.pop();
+					scope_list.pop_back();
 					try_exec_silent();
 				} else if (current_token.str == "q") {
 					try_exec_silent();
@@ -780,15 +780,15 @@ Token& Program::rel_token(std::vector<Token>& token_list, PointerDataType offset
 
 bool Program::inside_seq() {
 	return
-		list_scope_stack.size() > 0
-		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "seq"
+		scope_list.size() > 0
+		&& get_token(prev_tokens, scope_list.back().pos).str == "seq"
 	;
 }
 
 bool Program::inside_list() {
 	return
-		list_scope_stack.size() > 0
-		&& get_token(prev_tokens, list_scope_stack.top().pos).str == "list"
+		scope_list.size() > 0
+		&& get_token(prev_tokens, scope_list.back().pos).str == "list"
 	;
 }
 
@@ -1061,7 +1061,7 @@ void Program::reset_index_shift() {
 		move_ops.clear();
 		movereplace_ops.clear();
 		new_pointers.clear();
-		list_scope_stack = std::stack<ListScopeStackEntry>();
+		scope_list = std::vector<ScopeListEntry>();
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}

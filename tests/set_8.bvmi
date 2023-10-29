@@ -1,4 +1,4 @@
-# q 0 1 5 q 5
+# q 0 1 5 seq q 5 end
 q :q0 0
 1 :one
 seq
