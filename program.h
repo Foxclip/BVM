@@ -7,9 +7,10 @@
 #include <iostream>
 #include <algorithm>
 #include <ranges>
+#include <set>
+#include <cassert>
 #include "token.h"
 #include "utils.h"
-#include <set>
 
 const long long MAX_ITERATIONS = 10000000;
 

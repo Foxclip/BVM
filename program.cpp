@@ -367,7 +367,6 @@ std::vector<Token> Program::execute() {
 			if (tokens == prev_tokens) {
 				break;
 			}
-			prev_tokens = tokens;
 		}
 		return tokens;
 	} catch (std::exception exc) {
@@ -1010,12 +1009,8 @@ void Program::exec_pending_ops() {
 }
 
 void Program::reset_index_shift() {
-	try {
-		if (tokens.size() != prev_tokens.size()) {
-			throw std::runtime_error("tokens.size() != prev_tokens.size()");
-		}
-		index_shift = std::vector<IndexShiftEntry>(prev_tokens.size() + 1);
-		index_shift_rev = std::vector<PointerDataType>(prev_tokens.size() + 1);
+		index_shift = std::vector<IndexShiftEntry>(tokens.size() + 1);
+		index_shift_rev = std::vector<PointerDataType>(tokens.size() + 1);
 		for (ProgramCounterType i = 0; i < index_shift.size(); i++) {
 			index_shift[i].index = i;
 			index_shift_rev[i] = i;
@@ -1028,9 +1023,6 @@ void Program::reset_index_shift() {
 		movereplace_ops.clear();
 		new_pointers.clear();
 		scope_list = std::vector<ScopeListEntry>();
-	} catch (std::exception exc) {
-		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
-	}
 }
 
 void Program::print_node(Token& token) {

@@ -2881,20 +2881,20 @@
 #     three
 #     cpy_p
 
-# :end_p
-# 1
-# 2 :two
-# 3
-# ins
-#     two
-#     q
-#         list
-#             11
-#             ins
-#                 end_p
-#                 200
-#             33
-#         end
-# ins
-#     end_p
-#     100
+:end_p
+1
+2 :two
+3
+ins
+    two
+    q
+        list
+            11
+            ins
+                end_p
+                200
+            33
+        end
+ins
+    end_p
+    100
