@@ -12,4 +12,4 @@ cpy :cpy_p
 7 :seven
 cpy
     seven
-    0 :end_p
+    -2p :end_p

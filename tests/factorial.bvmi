@@ -12,5 +12,5 @@ seq :sp
             1
             0 :replthis
     del arg
-    unbox sp
+    repl sp arg
 end

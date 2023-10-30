@@ -52,13 +52,11 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: movable end instruction
-	// TODO: inserting and unboxing only into containers but not argument lists
+	// TODO: useq and ulist instructions, unbox themselves if they are static (?)
 	// TODO: duplicate label error, keyword label error, instruction name label error
 	// TODO: duplicate test error
 	// TODO: mismathed end error
 	// TODO: hanging files in test folder warning
-	// TODO: string printing test
 	// TODO: function call macro
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number

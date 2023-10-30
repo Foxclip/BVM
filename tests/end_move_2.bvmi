@@ -8,5 +8,5 @@ list
     end :end1
     2
 end :end2
-3
-move end1 0
+3 :three
+move end1 three

@@ -1,0 +1,17 @@
+# 1 q add 2 list 5 6 7 end
+1 :one
+q
+    add
+        2 :two
+        list :list1
+            5
+            6
+            7
+        end
+cpy two two
+del two
+ins two 5
+move two one
+move one two
+mrep two one
+unbox list1

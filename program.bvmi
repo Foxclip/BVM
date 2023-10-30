@@ -2929,14 +2929,91 @@
 # 10
 # mrep end1 three
 
-list
-    1
-    list
-        5
-        6
-        7
-    end :end1
-    2
-end :end2
-3 :three
-mrep end1 end2
+# list
+#     1
+#     list
+#         5
+#         6
+#         7
+#     end :end1
+#     2
+# end :end2
+# 3 :three
+# mrep end1 end2
+
+# 1 :one
+# q
+#     add
+#         2 :two
+#         list :list1
+#             5
+#             6
+#             7
+#         end
+# cpy two two
+# ins two 5
+# move two one
+# move one two
+# mrep two one
+# unbox list1
+
+# 5 :five
+# cpy
+#     five
+#     cpy_p
+# 6 :six
+# cpy :cpy_p
+#     six
+#     add
+#         end_p
+#         1
+# 7 :seven
+# cpy
+#     seven
+#     -2p :end_p
+
+# 0 :zero
+# 1
+# cpy
+#     zero
+#     last_cpy
+# 2
+# cpy
+#     ten
+#     eight
+# 3 :three
+# del
+#     three
+# 4
+# 5
+# 6 :six
+# cpy
+#     zero
+#     -2p
+# cpy
+#     six
+#     -2p
+# 7
+# 8 :eight
+# 9
+# 10 :ten
+# 11
+# cpy :last_cpy
+#     zero
+#     last_cpy
+
+seq :sp
+    5 :arg
+    repl replthis sp
+    set
+        add replthis 1
+        sub get arg 1
+    mul
+        get arg
+        if
+            cmp get arg 1
+            1
+            0 :replthis
+    del arg
+    repl sp arg
+end
