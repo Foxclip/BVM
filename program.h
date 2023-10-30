@@ -15,21 +15,6 @@ const long long MAX_ITERATIONS = 10000000;
 
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
-class Node {
-public:
-	PointerDataType parent_index = -1;
-	ProgramCounterType arg_count = 0;
-	std::vector<PointerDataType> arguments;
-	ProgramCounterType first_index;
-	ProgramCounterType last_index;
-
-	Node();
-	std::vector<Token> tokenize(std::vector<Node>& nodes, std::vector<Token>& tokens);
-	Node* get_parent(std::vector<Node>& nodes);
-	ProgramCounterType get_parent_count(std::vector<Node>& nodes);
-	Token* get_token(std::vector<Token>& tokens);
-};
-
 class Program {
 public:
 	struct NewPointersEntry {
@@ -39,7 +24,6 @@ public:
 	};
 	std::vector<Token> tokens;
 	std::vector<Token> prev_tokens;
-	std::vector<Node> nodes;
 	std::string local_print_buffer;
 	std::string global_print_buffer;
 	bool print_buffer_enabled = false;
@@ -179,7 +163,7 @@ private:
 	void exec_replace_ops(std::vector<ReplaceOp>& vec, OpPriority priority);
 	void exec_pending_ops();
 	void reset_index_shift();
-	void print_node(Node* node);
+	void print_node(Token& token);
 	void shift_pointers();
 	bool unary_func(std::function<Token(Token)> func);
 	bool binary_func(std::function<Token(Token, Token)> func);

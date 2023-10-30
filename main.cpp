@@ -52,7 +52,7 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: movable list, seq, end instructions
+	// TODO: movable end instruction
 	// TODO: inserting and unboxing only into containers but not argument lists
 	// TODO: duplicate label error, keyword label error, instruction name label error
 	// TODO: duplicate test error
@@ -63,7 +63,6 @@ int main() {
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: wait instruction, like get but executes only if its target is a number
 	// TODO: test list in the ins and set second arg
-	// TODO: do not unbox lists automatically
 	// TODO: move and swap instructions, for moving and swapping subtrees
 	// TODO: def instruction, for defining macros
 	// TODO: builtin macros (which are part of the intermediate language itself)

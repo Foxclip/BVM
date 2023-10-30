@@ -11,6 +11,12 @@ public:
 	std::string orig_str = "<token_orig_str>";
 	token_type type = type_int32;
 
+	PointerDataType parent_index = -1;
+	ProgramCounterType arg_count = 0;
+	std::vector<PointerDataType> arguments;
+	ProgramCounterType first_index;
+	ProgramCounterType last_index;
+
 	Token();
 	Token(std::string str, token_type type);
 	Token(std::string str);
@@ -138,6 +144,10 @@ public:
 			static_assert(true, "Unknown token_data type");
 		}
 	}
+
+	std::vector<Token> tokenize(std::vector<Token>& tokens);
+	Token& get_parent(std::vector<Token>& tokens);
+	ProgramCounterType get_parent_count(std::vector<Token>& tokens);
 
 private:
 	union token_data {

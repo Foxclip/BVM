@@ -2839,3 +2839,62 @@
 #     end :sp_end
 #     unbox :u_p outer_sp
 # end :outer_sp_end
+
+# 1
+# 2
+# 3 :three
+# list :list1
+#     5 :five
+#     6 :six
+#     7 :seven
+# end :end1
+# 8 :eight
+# 9
+# 10
+# move end1 three
+
+# list :list1
+#     1
+#     2
+#     3
+# end
+# unbox list1
+
+# 1
+# 2 :two
+# cpy
+#     two
+#     four
+# 3
+# 4 :four
+
+# 1 :one
+# 2 :two
+# 3 :three
+# cpy :cpy_p
+#     one
+#     cpy_p
+# cpy
+#     two
+#     cpy_p
+# cpy
+#     three
+#     cpy_p
+
+# :end_p
+# 1
+# 2 :two
+# 3
+# ins
+#     two
+#     q
+#         list
+#             11
+#             ins
+#                 end_p
+#                 200
+#             33
+#         end
+# ins
+#     end_p
+#     100

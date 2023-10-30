@@ -521,3 +521,27 @@ bool approx_compare(const Token& first, const Token& second, float epsilon) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
 }
+
+std::vector<Token> Token::tokenize(std::vector<Token>& tokens) {
+	std::vector<Token> result_tokens;
+	result_tokens.push_back(tokens[first_index]);
+	for (ProgramCounterType i = 0; i < arguments.size(); i++) {
+		std::vector<Token> arg_tokens = tokens[arguments[i]].tokenize(tokens);
+		result_tokens.insert(result_tokens.end(), arg_tokens.begin(), arg_tokens.end());
+	}
+	return result_tokens;
+}
+
+Token& Token::get_parent(std::vector<Token>& tokens) {
+	return tokens[tokens[first_index].parent_index];
+}
+
+ProgramCounterType Token::get_parent_count(std::vector<Token>& tokens) {
+	ProgramCounterType count = 0;
+	Token* current_token = this;
+	while (current_token->parent_index >= 0) {
+		count++;
+		current_token = &current_token->get_parent(tokens);
+	}
+	return count;
+}
