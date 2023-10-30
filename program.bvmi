@@ -2881,20 +2881,62 @@
 #     three
 #     cpy_p
 
-:end_p
-1
-2 :two
-3
-ins
-    two
-    q
-        list
-            11
-            ins
-                end_p
-                200
-            33
-        end
-ins
-    end_p
-    100
+# :end_p
+# 1
+# 2 :two
+# 3
+# ins
+#     two
+#     q
+#         list
+#             11
+#             ins
+#                 end_p
+#                 200
+#             33
+#         end
+# ins
+#     end_p
+#     100
+
+# 1
+# 2
+# 3 :three
+# list :list1
+#     5 :five
+#     6 :six
+#     7 :seven
+# end :end1
+# 8 :eight
+# 9
+# 10
+# move end1 three
+
+# list
+# end :end1
+# move end1 1
+
+# 1
+# 2
+# 3 :three
+# list :list1
+#     5 :five
+#     6 :six
+#     7 :seven
+# end :end1
+# 8 :eight
+# 9
+# 10
+# mrep end1 three
+
+list
+    1
+    list
+        5
+        6
+        7
+    end :end1
+    2
+end :end2
+3 :three
+mrep end1 end2

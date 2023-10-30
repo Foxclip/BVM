@@ -115,6 +115,13 @@ namespace test {
 		"fizzbuzz.bvmi",
 		"str.bvmi",
 		"end_del_copy.bvmi",
+		"end_move_1.bvmi",
+		"end_move_2.bvmi",
+		"end_move_3.bvmi",
+		"end_move_4.bvmi",
+		"end_move_5.bvmi",
+		"end_move_6.bvmi",
+		"end_move_7.bvmi",
 	};
 
 	bool is_terminating_char(char c) {

@@ -528,8 +528,12 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 2 + dst);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
 			if (src_index_begin != prev_tokens.size()) {
-				Token* src_node = &prev_tokens[token_index(prev_tokens, src_index_begin)];
-				move_tokens(src_index_begin, src_node->last_index + 1, dst_index_begin);
+				Token& src_token = prev_tokens[src_index_begin];
+				if (src_token.is_list_end()) {
+					RangePair move_range = get_end_move_range(prev_tokens, src_index_begin);
+					dst_index_begin = std::clamp(dst_index_begin, move_range.first, move_range.last);
+				}
+				move_tokens(src_index_begin, src_token.last_index + 1, dst_index_begin);
 			}
 			return true;
 		}
@@ -541,7 +545,15 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 2 + dst);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size() && prev_tokens[dst_index_begin].str != "end") {
+			Token& src_token = prev_tokens[src_index_begin];
+			bool within_move_range = true;
+			if (src_token.is_list_end()) {
+				RangePair move_range = get_end_move_range(prev_tokens, src_index_begin);
+				within_move_range = dst_index_begin >= move_range.first && dst_index_begin <= move_range.last;
+			}
+			if (src_index_begin != prev_tokens.size() && dst_index_begin != prev_tokens.size()
+				&& prev_tokens[dst_index_begin].str != "end" && within_move_range
+			) {
 				Token* src_node = &prev_tokens[token_index(prev_tokens, src_index_begin)];
 				Token* dst_node = &prev_tokens[token_index(prev_tokens, dst_index_begin)];
 				movereplace_tokens(
@@ -906,6 +918,17 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 	index_shift_rev.erase(index_shift_rev.begin() + new_pos_begin, index_shift_rev.begin() + new_pos_end);
 	tokens.erase(tokens.begin() + new_pos_begin, tokens.begin() + new_pos_end);
 	return offset;
+}
+
+Program::RangePair Program::get_end_move_range(std::vector<Token>& tokens, ProgramCounterType index) {
+	Token& token = tokens[index];
+	ProgramCounterType clamp_begin = token.parent_index + 1;
+	ProgramCounterType clamp_end = -1;
+	Token& header_token = token.get_parent(prev_tokens);
+	if (header_token.has_parent()) {
+		clamp_end = header_token.get_parent(prev_tokens).last_index;
+	}
+	return { clamp_begin, clamp_end };
 }
 
 void Program::delete_tokens(ProgramCounterType pos_begin, ProgramCounterType pos_end, OpPriority priority) {

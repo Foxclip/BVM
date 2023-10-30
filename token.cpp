@@ -545,3 +545,7 @@ ProgramCounterType Token::get_parent_count(std::vector<Token>& tokens) {
 	}
 	return count;
 }
+
+bool Token::has_parent() {
+	return parent_index != -1;
+}

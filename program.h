@@ -131,12 +131,16 @@ private:
 	std::vector<MoveOp> move_ops;
 	std::vector<MoveReplaceOp> movereplace_ops;
 	std::set<NewPointersEntry> new_pointers;
+	struct RangePair {
+		ProgramCounterType first, last;
+	};
 	std::vector<Token> tokenize(std::string str);
 	void parse();
 	bool try_execute_instruction();
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
+	RangePair get_end_move_range(std::vector<Token>& tokens, ProgramCounterType token_index);
 	bool inside_seq();
 	bool inside_list();
 	bool parent_is_seq();
