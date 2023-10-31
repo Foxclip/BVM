@@ -36,6 +36,7 @@ namespace test {
 		"unbox_2.bvmi",
 		"unbox_3.bvmi",
 		"unbox_4.bvmi",
+		"unbox_5.bvmi",
 		"p_shift_1.bvmi",
 		"p_shift_2.bvmi",
 		"p_shift_3.bvmi",

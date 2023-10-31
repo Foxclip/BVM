@@ -3051,8 +3051,20 @@
 
 # box -1p 0p
 
+# q
+#     add
+#         2 :two
+#         3 :three
+# box two three
+
 q
-    add
-        2 :two
-        3 :three
-box two three
+    list :list1
+        1
+    end
+q
+    list :list2
+        1
+        2
+    end
+unbox list1
+unbox list2

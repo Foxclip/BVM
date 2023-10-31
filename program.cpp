@@ -678,7 +678,8 @@ bool Program::try_execute_instruction() {
 			PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType header_index = token_index(prev_tokens, program_counter + 1 + arg);
 			delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
-			if (prev_tokens[header_index].is_container_header() && parent_is_container(header_index)) {
+			bool one_arg = prev_tokens[header_index].arguments.size() == 2;
+			if (prev_tokens[header_index].is_container_header() && (parent_is_container(header_index) || one_arg)) {
 				ProgramCounterType end_index = prev_tokens[header_index].last_index;
 				delete_tokens(header_index, header_index + 1, OP_PRIORITY_STRONG_DELETE);
 				delete_tokens(end_index, end_index + 1, OP_PRIORITY_STRONG_DELETE);

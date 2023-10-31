@@ -1,0 +1,12 @@
+# q 1 q list 1 2 end
+q
+    list :list1
+        1
+    end
+q
+    list :list2
+        1
+        2
+    end
+unbox list1
+unbox list2
