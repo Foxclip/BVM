@@ -663,8 +663,13 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType begin_index_new = std::min(begin_index, end_index);
 			ProgramCounterType end_index_new = std::max(begin_index, end_index) + 1;
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			insert_tokens(0, begin_index_new, { Token("list") });
-			insert_tokens(0, end_index_new, { Token("end") });
+			bool same_parent = prev_tokens[begin_index_new].parent_index == prev_tokens[end_index_new - 1].parent_index;
+			bool cont_args = same_parent && parent_is_container(begin_index_new);
+			bool one_arg = prev_tokens[begin_index_new].last_index == end_index_new - 1;
+			if (cont_args || one_arg) {
+				insert_tokens(0, begin_index_new, { Token("list") });
+				insert_tokens(0, end_index_new, { Token("end") });
+			}
 			return true;
 		}
 		return false;
@@ -932,6 +937,17 @@ bool Program::parent_is_container(ProgramCounterType index) {
 		|| !prev_tokens[index].has_parent()
 		|| (prev_tokens[index].has_parent() && prev_tokens[index].get_parent(prev_tokens).is_container_header())
 	;
+}
+
+PointerDataType Program::next_arg_parent(ProgramCounterType index) {
+	Token* current_token = &prev_tokens[index];
+	while (current_token->last_index < index + 1) {
+		if (!current_token->has_parent()) {
+			return -1;
+		}
+		current_token = &current_token->get_parent(prev_tokens);
+	}
+	return current_token->first_index;
 }
 
 Program::RangePair Program::get_end_move_range(std::vector<Token>& tokens, ProgramCounterType index) {

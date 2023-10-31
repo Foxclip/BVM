@@ -142,6 +142,7 @@ private:
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
 	RangePair get_end_move_range(std::vector<Token>& tokens, ProgramCounterType token_index);
 	bool parent_is_container(ProgramCounterType index);
+	PointerDataType next_arg_parent(ProgramCounterType index);
 	bool inside_seq();
 	bool inside_list();
 	bool parent_is_seq();

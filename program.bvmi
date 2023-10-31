@@ -3002,18 +3002,57 @@
 #     zero
 #     last_cpy
 
-seq :sp
-    5 :arg
-    repl replthis sp
-    set
-        add replthis 1
-        sub get arg 1
-    mul
-        get arg
-        if
-            cmp get arg 1
-            1
-            0 :replthis
-    del arg
-    repl sp arg
-end
+# 1 :one
+# q
+#     add
+#         2 :two
+#         list :list1
+#             5
+#             6
+#             7
+#         end
+# seq :seq1
+#     cpy two two
+#     del two
+#     ins two 5
+#     move two one
+#     move one two
+#     mrep two one
+#     box two two
+#     unbox list1
+#     unbox seq1
+# end
+
+# q
+#     add
+#         1
+#         add :add2
+#             1
+#             add :add3
+#                 2 :two
+#                 3 :three
+# 5 :five
+# box add2 three
+
+# list
+#     1
+#     list
+#         5
+#         6 :six
+#         7
+#     end
+#     3 :three
+# end
+# seq :seq1
+#     box six three
+#     box six six
+#     unbox seq1
+# end
+
+# box -1p 0p
+
+q
+    add
+        2 :two
+        3 :three
+box two three

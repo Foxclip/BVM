@@ -1,0 +1,6 @@
+# q add 2 3
+q
+    add
+        2 :two
+        3 :three
+box two three
