@@ -296,7 +296,7 @@ std::vector<Token> Program::execute() {
 			std::cout << "Iteration *: ";
 			print_tokens(tokens, false);
 		}
-		for (ProgramCounterType iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+		for (ProgramCounterType iteration = 0; iteration < max_iterations; iteration++) {
 			if (print_iterations) {
 				std::cout << "Iteration " << iteration << ": ";
 			}

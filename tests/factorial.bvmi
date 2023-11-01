@@ -5,12 +5,11 @@ seq :sp
     set
         add replthis 1
         sub get arg 1
-    mul
+    mul :mp
         get arg
         if
             cmp get arg 1
             1
             0 :replthis
-    del arg
-    repl sp arg
+    repl sp mp
 end

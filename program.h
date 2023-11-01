@@ -12,8 +12,6 @@
 #include "token.h"
 #include "utils.h"
 
-const long long MAX_ITERATIONS = 10000000;
-
 void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
 
 class Program {
@@ -29,6 +27,7 @@ public:
 	std::string global_print_buffer;
 	bool print_buffer_enabled = false;
 	bool print_iterations = false;
+	ProgramCounterType max_iterations = -1;
 
 	Program(std::string str);
 	void print_tokens(std::vector<Token>& token_list, bool print_program_counter = true);

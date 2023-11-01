@@ -9,6 +9,7 @@ void execute_program_debug(std::string path) {
 		Program program(program_text);
 		program.print_iterations = true;
 		program.print_buffer_enabled = true;
+		program.max_iterations = 100;
 		std::cout << "Nodes:";
 		std::cout << "\n";
 		program.print_nodes();
