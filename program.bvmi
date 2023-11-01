@@ -3123,9 +3123,33 @@
 #     ins endp 3
 # end
 
-:endp
-useq
-    ins endp 1
-    ins endp add 1 1
-    ins endp 3
-end
+# :endp
+# useq
+#     ins endp 1
+#     ins endp add 1 1
+#     ins endp 3
+# end
+
+# add
+#     2
+#     ulist
+#         3
+#     end
+# add
+#     2
+#     ulist
+#         5
+#         6
+#     end
+
+add
+    2
+    useq
+        3
+    end
+add
+    2
+    useq
+        5
+        6
+    end

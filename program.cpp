@@ -699,9 +699,14 @@ bool Program::try_execute_instruction() {
 	} else if (current_token.str == "useq") {
 		return true;
 	} else if (current_token.str == "end") {
-		if (parent_is_ulist_or_useq() && !scope_list.back().instruction_executed) {
-			PointerDataType list_pos = prev_tokens[program_counter].parent_index;
-			delete_tokens(list_pos, list_pos + 1, OP_PRIORITY_LIST_DELETE);
+		PointerDataType header_index = prev_tokens[program_counter].parent_index;
+		auto one_arg = [&]() { return prev_tokens[header_index].arguments.size() == 2; };
+		if (
+			parent_is_ulist_or_useq()
+			&& !scope_list.back().instruction_executed
+			&& (parent_is_container(header_index, true) || one_arg())
+		) {
+			delete_tokens(header_index, header_index + 1, OP_PRIORITY_LIST_DELETE);
 			delete_tokens(program_counter, program_counter + 1, OP_PRIORITY_LIST_DELETE);
 		}
 		return true;
