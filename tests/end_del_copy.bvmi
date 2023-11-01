@@ -5,7 +5,7 @@ q :qp1
 q :qp2
     list
     end :end2
-seq :seq1
+useq
     cpy end1 0
     del end1
     get end1
@@ -14,5 +14,4 @@ seq :seq1
     repl qp1 end2
     repl end1 qp2
     mrep qp2 end1
-    unbox seq1
 end

@@ -1,6 +1,6 @@
 #
 #5 -5 5u 4294967291u 5L -5L 5U 18446744073709551611U 5.000000f -5.000000f 5.500000f 5.500000 -5.500000f -5.500000 5p -2p
-seq :seq1
+useq
     print str 5
     print " "
     print str -5
@@ -32,5 +32,4 @@ seq :seq1
     print str 5p
     print " "
     print str -5p
-    unbox seq1
 end

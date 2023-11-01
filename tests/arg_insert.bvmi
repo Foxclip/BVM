@@ -8,7 +8,7 @@ q
             6
             7
         end
-seq :seq1
+useq
     cpy two two
     del two
     ins two 5
@@ -17,5 +17,4 @@ seq :seq1
     mrep two one
     box two two
     unbox list1
-    unbox seq1
 end

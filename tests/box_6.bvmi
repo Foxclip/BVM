@@ -8,8 +8,7 @@ list
     end
     3 :three
 end
-seq :seq1
+useq
     box six three
     box six six
-    unbox seq1
 end
