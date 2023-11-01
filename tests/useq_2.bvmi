@@ -1,0 +1,7 @@
+# 1 2 3
+:endp
+useq
+    ins endp 1
+    ins endp add 1 1
+    ins endp 3
+end

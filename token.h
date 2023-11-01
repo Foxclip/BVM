@@ -24,12 +24,7 @@ public:
 	bool is_ptr();
 	bool is_num_or_ptr();
 	bool is_static();
-	bool is_list_header();
 	bool is_container_header();
-	bool is_list_end();
-	bool is_list();
-	bool is_singular_data();
-	bool is_nlist_instr();
 	void cast(token_type new_type);
 	std::string to_string() const;
 	static token_type get_return_type(token_type type1, token_type type2);

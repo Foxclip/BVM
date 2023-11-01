@@ -78,28 +78,8 @@ bool Token::is_static() {
 	return is_num_or_ptr() || str == "q";
 }
 
-bool Token::is_list_header() {
-	return str == "list";
-}
-
 bool Token::is_container_header() {
-	return str == "list" || str == "seq";
-}
-
-bool Token::is_list_end() {
-	return str == "end";
-}
-
-bool Token::is_list() {
-	return is_list_header() || is_list_end();
-}
-
-bool Token::is_singular_data() {
-	return type != type_instr && !is_list();
-}
-
-bool Token::is_nlist_instr() {
-	return type == type_instr && !is_list();
+	return str == "list" || str == "seq" || str == "ulist" || str == "useq";
 }
 
 void Token::cast(token_type new_type) {

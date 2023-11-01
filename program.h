@@ -40,6 +40,7 @@ private:
 		OP_PRIORITY_NULL,
 		OP_PRIORITY_TEMP,
 		OP_PRIORITY_FUNC_REPLACE,
+		OP_PRIORITY_LIST_DELETE,
 		OP_PRIORITY_MOVE,
 		OP_PRIORITY_MREP_SRC,
 		OP_PRIORITY_WEAK_DELETE,
@@ -141,12 +142,14 @@ private:
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);
 	RangePair get_end_move_range(std::vector<Token>& tokens, ProgramCounterType token_index);
-	bool parent_is_container(ProgramCounterType index);
+	bool parent_is_container(ProgramCounterType index, bool root_is_container);
 	PointerDataType next_arg_parent(ProgramCounterType index);
 	bool inside_seq();
 	bool inside_list();
-	bool parent_is_seq();
-	bool parent_is_list();
+	bool inside_container();
+	bool parent_is_seq_or_useq();
+	bool parent_is_list_or_ulist();
+	bool parent_is_ulist_or_useq();
 	bool parent_is_if();
 	PointerDataType to_dst_index(PointerDataType old_index);
 	PointerDataType to_src_index(PointerDataType new_index);

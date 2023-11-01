@@ -3057,14 +3057,75 @@
 #         3 :three
 # box two three
 
-q
-    list :list1
-        1
-    end
-q
-    list :list2
-        1
-        2
-    end
-unbox list1
-unbox list2
+# q
+#     list :list1
+#         1
+#     end
+# q
+#     list :list2
+#         1
+#         2
+#     end
+# unbox list1
+# unbox list2
+
+# useq
+#     add
+#         2
+#         3
+#     add
+#         5
+#         6
+# end
+
+# list
+# end
+
+# seq :seq1
+#     print str 5
+#     print " "
+#     print str -5
+#     print " "
+#     print str 5u
+#     print " "
+#     print str -5u
+#     print " "
+#     print str 5L
+#     print " "
+#     print str -5L
+#     print " "
+#     print str 5U
+#     print " "
+#     print str -5U
+#     print " "
+#     print str 5f
+#     print " "
+#     print str -5f
+#     print " "
+#     print str 5.5f
+#     print " "
+#     print str 5.5
+#     print " "
+#     print str -5.5f
+#     print " "
+#     print str -5.5
+#     print " "
+#     print str 5p
+#     print " "
+#     print str -5p
+#     unbox seq1
+# end
+
+# :endp
+# ulist
+#     ins endp 1
+#     ins endp add 1 1
+#     ins endp 3
+# end
+
+:endp
+useq
+    ins endp 1
+    ins endp add 1 1
+    ins endp 3
+end

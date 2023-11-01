@@ -320,9 +320,8 @@ std::vector<Token> Program::execute() {
 				notify_parents();
 			};
 			auto try_exec_normal = [&]() {
-				if (try_execute_instruction()) {
-					notify_parents();
-				}
+				try_execute_instruction();
+				notify_parents();
 			};
 			auto try_exec_silent = [&]() {
 				try_execute_instruction();
@@ -331,18 +330,22 @@ std::vector<Token> Program::execute() {
 				Token& current_token = prev_tokens[program_counter];
 				if (current_token.is_num_or_ptr()) {
 					// skipping
-				} else if (parent_is_seq() && scope_list.back().instruction_executed) {
+				} else if (parent_is_seq_or_useq() && scope_list.back().instruction_executed) {
 					exit_parent();
-				} else if (current_token.str == "seq" || current_token.str == "list") {
+				} else if (current_token.is_container_header()) {
 					scope_list.push_back({ program_counter, false });
 					try_exec_silent();
 				} else if (current_token.str == "end") {
+					if (parent_is_ulist_or_useq()) {
+						try_exec_normal();
+					} else {
+						try_exec_silent();
+					}
 					scope_list.pop_back();
-					try_exec_silent();
 				} else if (current_token.str == "q") {
 					try_exec_silent();
 				} else {
-					if (inside_seq() || inside_list()) {
+					if (parent_is_container(program_counter, false)) {
 			   			try_exec_normal();
 					} else {
 						try_exec_silent();
@@ -431,7 +434,7 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
 			ProgramCounterType dst_index = token_index(prev_tokens, program_counter + 2 + dst);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			if (src_index_begin != prev_tokens.size() && prev_tokens[src_index_begin].str != "end" && parent_is_container(dst_index)) {
+			if (src_index_begin != prev_tokens.size() && prev_tokens[src_index_begin].str != "end" && parent_is_container(dst_index, true)) {
 				Token* node = &prev_tokens[token_index(prev_tokens, src_index_begin)];
 				std::vector<Token> node_tokens = node->tokenize(prev_tokens);
 				insert_tokens(src_index_begin, dst_index, node_tokens);
@@ -444,7 +447,7 @@ bool Program::try_execute_instruction() {
 			PointerDataType arg = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			ProgramCounterType target_index = token_index(prev_tokens, program_counter + 1 + arg);
 			delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
-			if (target_index != prev_tokens.size() && prev_tokens[target_index].str != "end" && parent_is_container(target_index)) {
+			if (target_index != prev_tokens.size() && prev_tokens[target_index].str != "end" && parent_is_container(target_index, true)) {
 				Token* node = &prev_tokens[token_index(prev_tokens, target_index)];
 				std::vector<Token> node_tokens = node->tokenize(prev_tokens);
 				delete_tokens(target_index, target_index + node_tokens.size(), OP_PRIORITY_STRONG_DELETE);
@@ -491,7 +494,7 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = program_counter + 2;
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 1 + dst);
 			delete_tokens(program_counter, prev_tokens[program_counter].last_index + 1, OP_PRIORITY_WEAK_DELETE);
-			if (parent_is_container(dst_index_begin)) {
+			if (parent_is_container(dst_index_begin, true)) {
 				Token* src_node = &prev_tokens[token_index(prev_tokens, src_index_begin)];
 				if (prev_tokens[src_node->first_index].str == "q") {
 					src_node = &prev_tokens[src_node->arguments[0]];
@@ -529,9 +532,9 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType src_index_begin = token_index(prev_tokens, program_counter + 1 + src);
 			ProgramCounterType dst_index_begin = token_index(prev_tokens, program_counter + 2 + dst);
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
-			if (src_index_begin != prev_tokens.size() && parent_is_container(src_index_begin) && parent_is_container(dst_index_begin)) {
+			if (src_index_begin != prev_tokens.size() && parent_is_container(src_index_begin, true) && parent_is_container(dst_index_begin, true)) {
 				Token& src_token = prev_tokens[src_index_begin];
-				if (src_token.is_list_end()) {
+				if (src_token.str == "end") {
 					RangePair move_range = get_end_move_range(prev_tokens, src_index_begin);
 					dst_index_begin = std::clamp(dst_index_begin, move_range.first, move_range.last);
 				}
@@ -549,7 +552,7 @@ bool Program::try_execute_instruction() {
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
 			Token& src_token = prev_tokens[src_index_begin];
 			bool within_move_range = true;
-			if (src_token.is_list_end()) {
+			if (src_token.str == "end") {
 				RangePair move_range = get_end_move_range(prev_tokens, src_index_begin);
 				within_move_range = dst_index_begin >= move_range.first && dst_index_begin <= move_range.last;
 			}
@@ -558,7 +561,7 @@ bool Program::try_execute_instruction() {
 				&& dst_index_begin != prev_tokens.size()
 				&& prev_tokens[dst_index_begin].str != "end"
 				&& within_move_range
-				&& parent_is_container(src_index_begin)
+				&& parent_is_container(src_index_begin, true)
 			) {
 				Token* src_node = &prev_tokens[token_index(prev_tokens, src_index_begin)];
 				Token* dst_node = &prev_tokens[token_index(prev_tokens, dst_index_begin)];
@@ -614,7 +617,7 @@ bool Program::try_execute_instruction() {
 		}
 		return false;
 	} else if (current_token.str == "print") {
-		if (rel_token(prev_tokens, 1).is_list_header()) {
+		if (rel_token(prev_tokens, 1).str == "list") {
 			ProgramCounterType char_token_index = 1;
 			std::string str;
 			while (true) {
@@ -664,7 +667,7 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType end_index_new = std::max(begin_index, end_index) + 1;
 			delete_tokens(program_counter, program_counter + 3, OP_PRIORITY_WEAK_DELETE);
 			bool same_parent = prev_tokens[begin_index_new].parent_index == prev_tokens[end_index_new - 1].parent_index;
-			bool cont_args = same_parent && parent_is_container(begin_index_new);
+			bool cont_args = same_parent && parent_is_container(begin_index_new, true);
 			bool one_arg = prev_tokens[begin_index_new].last_index == end_index_new - 1;
 			if (cont_args || one_arg) {
 				insert_tokens(0, begin_index_new, { Token("list") });
@@ -679,7 +682,7 @@ bool Program::try_execute_instruction() {
 			ProgramCounterType header_index = token_index(prev_tokens, program_counter + 1 + arg);
 			delete_tokens(program_counter, program_counter + 2, OP_PRIORITY_WEAK_DELETE);
 			bool one_arg = prev_tokens[header_index].arguments.size() == 2;
-			if (prev_tokens[header_index].is_container_header() && (parent_is_container(header_index) || one_arg)) {
+			if (prev_tokens[header_index].is_container_header() && (parent_is_container(header_index, true) || one_arg)) {
 				ProgramCounterType end_index = prev_tokens[header_index].last_index;
 				delete_tokens(header_index, header_index + 1, OP_PRIORITY_STRONG_DELETE);
 				delete_tokens(end_index, end_index + 1, OP_PRIORITY_STRONG_DELETE);
@@ -691,7 +694,16 @@ bool Program::try_execute_instruction() {
 		return true;
 	} else if (current_token.str == "seq") {
 		return true;
+	} else if (current_token.str == "ulist") {
+		return true;
+	} else if (current_token.str == "useq") {
+		return true;
 	} else if (current_token.str == "end") {
+		if (parent_is_ulist_or_useq() && !scope_list.back().instruction_executed) {
+			PointerDataType list_pos = prev_tokens[program_counter].parent_index;
+			delete_tokens(list_pos, list_pos + 1, OP_PRIORITY_LIST_DELETE);
+			delete_tokens(program_counter, program_counter + 1, OP_PRIORITY_LIST_DELETE);
+		}
 		return true;
 	} else if (current_token.str == "q") {
 		Token& node = prev_tokens[program_counter];
@@ -781,14 +793,26 @@ bool Program::inside_list() {
 	;
 }
 
-bool Program::parent_is_seq() {
-	PointerDataType parent_index = prev_tokens[program_counter].parent_index;
-	return parent_index >= 0 && prev_tokens[parent_index].str == "seq";
+bool Program::inside_container() {
+	return false;
 }
 
-bool Program::parent_is_list() {
+bool Program::parent_is_seq_or_useq() {
 	PointerDataType parent_index = prev_tokens[program_counter].parent_index;
-	return parent_index >= 0 && prev_tokens[parent_index].str == "list";
+	return parent_index >= 0
+		&& (prev_tokens[parent_index].str == "seq" || prev_tokens[parent_index].str == "useq");
+}
+
+bool Program::parent_is_list_or_ulist() {
+	PointerDataType parent_index = prev_tokens[program_counter].parent_index;
+	return parent_index >= 0
+		&& (prev_tokens[parent_index].str == "list" || prev_tokens[parent_index].str == "ulist");
+}
+
+bool Program::parent_is_ulist_or_useq() {
+	PointerDataType parent_index = prev_tokens[program_counter].parent_index;
+	return parent_index >= 0
+		&& (prev_tokens[parent_index].str == "ulist" || prev_tokens[parent_index].str == "useq");
 }
 
 bool Program::parent_is_if() {
@@ -932,12 +956,17 @@ PointerDataType Program::delete_op_exec(ProgramCounterType old_pos_begin, Progra
 	return offset;
 }
 
-bool Program::parent_is_container(ProgramCounterType index) {
-	return
-		index == prev_tokens.size()
-		|| !prev_tokens[index].has_parent()
-		|| (prev_tokens[index].has_parent() && prev_tokens[index].get_parent(prev_tokens).is_container_header())
-	;
+bool Program::parent_is_container(ProgramCounterType index, bool root_is_container) {
+	auto end = [&]() { return index == prev_tokens.size(); };
+	auto hasparent = [&]() { return prev_tokens[index].has_parent(); };
+	auto parent_is_cont = [&]() { return prev_tokens[index].has_parent() && prev_tokens[index].get_parent(prev_tokens).is_container_header(); };
+	bool result;
+	if (root_is_container) {
+		result = end() || !hasparent() || parent_is_cont();
+	} else {
+		result = parent_is_cont();
+	}
+	return result;
 }
 
 PointerDataType Program::next_arg_parent(ProgramCounterType index) {
@@ -1082,7 +1111,7 @@ void Program::reset_index_shift() {
 void Program::print_node(Token& token) {
 	std::string indent_string = "";
 	ProgramCounterType indent_level = token.get_parent_count(tokens);
-	if (token.is_list_end()) {
+	if (token.str == "end") {
 		indent_level--;
 	}
 	for (int j = 0; j < indent_level; j++) {
