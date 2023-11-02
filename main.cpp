@@ -53,8 +53,6 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: duplicate test error
-	// TODO: mismathed end error
 	// TODO: hanging files in test folder warning
 	// TODO: function call macro
 	// TODO: def instruction, for defining macros

@@ -735,6 +735,9 @@ void Program::parse() {
 		std::stack<PointerDataType> parent_stack;
 		for (PointerDataType token_i = 0; token_i < tokens.size(); token_i++) {
 			Token& current_token = tokens[token_i];
+			if (current_token.str == "end" && parent_stack.empty()) {
+				throw std::runtime_error("Mismathed end");
+			}
 			current_token.parent_index = -1;
 			current_token.arg_count = 0;
 			current_token.arguments.clear(); // might reinitialize instead for saving memory
@@ -777,6 +780,9 @@ void Program::parse() {
 					break;
 				}
 			}
+		}
+		if (!parent_stack.empty()) {
+			throw std::runtime_error("Missing end");
 		}
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
