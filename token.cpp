@@ -45,6 +45,10 @@ Token::Token(std::string str) {
 			}
 		} else {
 			type = get_token_type<InstructionTokenType>();
+			InstructionInfo instr = get_instruction_info(str);
+			if (instr.index < 0) {
+				throw std::runtime_error("Instruction not found: " + str);
+			}
 			set_data<InstructionDataType>(get_instruction_info(str).index);
 		}
 	} catch (std::exception exc) {

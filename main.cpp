@@ -53,7 +53,6 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: keyword label error, instruction name label error
 	// TODO: duplicate test error
 	// TODO: mismathed end error
 	// TODO: hanging files in test folder warning

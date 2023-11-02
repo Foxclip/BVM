@@ -12,7 +12,7 @@ InstructionInfo get_instruction_info(std::string token) {
 			}
 		);
 		if (it == INSTRUCTION_LIST.end()) {
-			throw std::runtime_error("Instruction not found: " + token);
+			return InstructionInfo();
 		}
 		const InstructionDef def = *it;
 		int index = it - INSTRUCTION_LIST.begin();

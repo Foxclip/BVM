@@ -230,6 +230,14 @@ std::vector<Token> Program::tokenize(std::string str) {
 					if (labels.find(new_label) != labels.end()) {
 						throw std::runtime_error("Duplicate label: " + label_str);
 					}
+					token_type type = string_to_type(label_str);
+					if (type != type_unknown) {
+						throw std::runtime_error("Label cannot be a type name: " + label_str);
+					}
+					InstructionInfo instr = get_instruction_info(label_str);
+					if (instr.index >= 0) {
+						throw std::runtime_error("Label cannot be an instruction name: " + label_str);
+					}
 					labels.insert(new_label);
 					words.erase(words.begin() + i);
 					i--;
