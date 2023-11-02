@@ -305,6 +305,15 @@ namespace test {
 			if (!std::filesystem::is_directory(test_directory)) {
 				throw std::runtime_error(test_directory.string() + " is not a directory");
 			}
+			std::set<std::filesystem::path> test_list_set;
+			for (int i = 0; i < test_list.size(); i++) {
+				std::filesystem::path path = test_list[i];
+				auto it = test_list_set.find(path);
+				if (it != test_list_set.end()) {
+					throw std::runtime_error("Duplicate test: " + path.string());
+				}
+				test_list_set.insert(path);
+			}
 			std::cout << "Running tests in " << test_directory << "\n";
 			int passed_count = 0;
 			std::vector<std::string> failed_list;
