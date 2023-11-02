@@ -314,6 +314,15 @@ namespace test {
 				}
 				test_list_set.insert(path);
 			}
+			std::vector<std::filesystem::path> file_list = utils::list_directory(test_directory);
+			std::vector<std::filesystem::path> hanging_files;
+			for (int i = 0; i < file_list.size(); i++) {
+				std::filesystem::path path = file_list[i].filename();
+				auto it = test_list_set.find(path);
+				if (it == test_list_set.end()) {
+					hanging_files.push_back(path);
+				}
+			}
 			std::cout << "Running tests in " << test_directory << "\n";
 			int passed_count = 0;
 			std::vector<std::string> failed_list;
@@ -363,11 +372,20 @@ namespace test {
 			std::cout << "\n";
 			std::cout << "Passed " << passed_count << " tests, failed " << failed_list.size() << " tests";
 			if (failed_list.size() > 0) {
-				std::cout << ":";
+				std::cout << ":\n";
+				for (int i = 0; i < failed_list.size(); i++) {
+					std::cout << "    " << failed_list[i] << "\n";
+				}
 			}
 			std::cout << "\n";
-			for (int i = 0; i < failed_list.size(); i++) {
-				std::cout << "    " << failed_list[i] << "\n";
+			std::cout << hanging_files.size() << " hanging files";
+			if (hanging_files.size() > 0) {
+				std::cout << ":\n";
+				for (int i = 0; i < hanging_files.size(); i++) {
+					std::cout << "    " << hanging_files[i].string() << "\n";
+				}
+			} else {
+				std::cout << "\n";
 			}
 		} catch (std::exception exc) {
 			throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));

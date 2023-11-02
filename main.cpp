@@ -53,7 +53,6 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: hanging files in test folder warning
 	// TODO: function call macro
 	// TODO: def instruction, for defining macros
 	// TODO: builtin macros (which are part of the intermediate language itself)
