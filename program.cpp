@@ -85,10 +85,13 @@ std::vector<Token> Program::tokenize(std::string str) {
 				this->token_index = token_index;
 			}
 		};
+		auto label_cmp = [](const Label& left, const Label& right) {
+			return left.str < right.str;
+		};
 
 		std::vector<WordToken> words;
 		std::vector<Token> tokens;
-		std::vector<Label> labels;
+		std::set<Label, decltype(label_cmp)> labels;
 		if (str.size() < 1) {
 			return tokens;
 		}
@@ -222,8 +225,12 @@ std::vector<Token> Program::tokenize(std::string str) {
 			try {
 				std::string current_word = current_word_token.str;
 				if (current_word.front() == ':') {
-					Label new_label(current_word.substr(1, current_word.size() - 1), (PointerDataType)i - 1);
-					labels.push_back(new_label);
+					std::string label_str = current_word.substr(1, current_word.size() - 1);
+					Label new_label(label_str, (PointerDataType)i - 1);
+					if (labels.find(new_label) != labels.end()) {
+						throw std::runtime_error("Duplicate label: " + label_str);
+					}
+					labels.insert(new_label);
 					words.erase(words.begin() + i);
 					i--;
 				}
@@ -238,11 +245,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 			try {
 				std::string str = current_word_token.str;
 				Token new_token;
-				auto it = std::find_if(labels.begin(), labels.end(),
-					[&](Label& label) {
-						return label.str == str;
-					}
-				);
+				auto it = labels.find(Label(str, 0));
 				if (it != labels.end()) {
 					PointerDataType relative_address = (*it).token_index - i;
 					new_token = Token(str, Token::get_token_type<PointerTokenType>());

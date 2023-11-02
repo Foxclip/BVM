@@ -9,7 +9,7 @@ void execute_program_debug(std::string path) {
 		Program program(program_text);
 		program.print_iterations = true;
 		program.print_buffer_enabled = true;
-		program.max_iterations = 100;
+		//program.max_iterations = 1000000;
 		std::cout << "Nodes:";
 		std::cout << "\n";
 		program.print_nodes();
@@ -53,7 +53,7 @@ int main() {
 		std::cout << "ERROR: " << exc.what() << "\n";
 	}
 
-	// TODO: duplicate label error, keyword label error, instruction name label error
+	// TODO: keyword label error, instruction name label error
 	// TODO: duplicate test error
 	// TODO: mismathed end error
 	// TODO: hanging files in test folder warning
@@ -62,7 +62,7 @@ int main() {
 	// TODO: builtin macros (which are part of the intermediate language itself)
 	// TODO: nodes disappear if they are not connected to anything
 	// TODO: move and swap instructions, for moving and swapping subtrees
-	// TODO: next and prev instructions, return address of the next and previous subtree
+	// TODO: next and prev instructions, move pointer to the next and previous subtree
 	// up, down to go between the tree levels
 	// hshift and vshift to multiple steps
 	// TODO: block instruction, separates program into blocks, blocks have

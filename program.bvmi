@@ -3160,17 +3160,23 @@
 #     # cpy ul1 endp
 # end
 
-seq :sp
-    5 :arg
-    repl replthis sp
-    set
-        add replthis 1
-        sub get arg 1
-    mul :mp
-        get arg
-        if
-            cmp get arg 1
-            1
-            0 :replthis
-    repl sp mp
-end
+# seq :sp
+#     5 :arg
+#     repl replthis sp
+#     set
+#         add replthis 1
+#         sub get arg 1
+#     mul :mp
+#         get arg
+#         if
+#             cmp get arg 1
+#             1
+#             0 :replthis
+#     repl sp mp
+# end
+
+1 :one
+2
+3 :two
+4
+5 :one
