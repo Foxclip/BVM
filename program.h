@@ -12,8 +12,6 @@
 #include "token.h"
 #include "utils.h"
 
-void throwUnexpectedCharException(char c, std::string current_word, ProgramCounterType line);
-
 class Program {
 public:
 	struct NewPointersEntry {
@@ -136,7 +134,8 @@ private:
 	};
 	std::vector<Token> tokenize(std::string str);
 	void parse();
-	bool try_execute_instruction();
+	bool try_execute_mod_instruction();
+	bool try_execute_func_instruction();
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
 	Token& get_token(std::vector<Token>& token_list, PointerDataType index);
 	Token& rel_token(std::vector<Token>& token_list, PointerDataType offset);

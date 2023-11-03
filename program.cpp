@@ -54,10 +54,6 @@ Program::MoveReplaceOp::MoveReplaceOp(
 	this->new_end = new_end;
 }
 
-void throwUnexpectedCharException(char c, std::string current_word) {
-	throw std::runtime_error("Current word: " + current_word + ", unexpected char: " + utils::char_to_str(c));
-}
-
 std::vector<Token> Program::tokenize(std::string str) {
 	try {
 
@@ -106,6 +102,9 @@ std::vector<Token> Program::tokenize(std::string str) {
 		SplitterState state = STATE_SPACE;
 		std::string current_word = "";
 		ProgramCounterType current_line = 1;
+		auto throw_unexp_char = [](char c, std::string w) {
+			throw std::runtime_error("Current word: " + w + ", unexpected char: " + utils::char_to_str(c));
+		};
 		try {
 			for (ProgramCounterType i = 0; i < str.size(); i++) {
 				char current_char = str[i];
@@ -152,7 +151,7 @@ std::vector<Token> Program::tokenize(std::string str) {
 					} else if (current_char == '\\') {
 						state = STATE_ESCAPE;
 					} else if (current_char == EOF) {
-						throwUnexpectedCharException(current_char, current_word);
+						throw_unexp_char(current_char, current_word);
 					} else {
 						current_word += current_char;
 					}
@@ -331,11 +330,11 @@ std::vector<Token> Program::execute() {
 				notify_parents();
 			};
 			auto try_exec_normal = [&]() {
-				try_execute_instruction();
+				try_execute_func_instruction();
 				notify_parents();
 			};
 			auto try_exec_silent = [&]() {
-				try_execute_instruction();
+				try_execute_func_instruction();
 			};
 			for (program_counter = 0; program_counter < prev_tokens.size(); program_counter++) {
 				Token& current_token = prev_tokens[program_counter];
@@ -388,7 +387,7 @@ std::vector<Token> Program::execute() {
 	}
 }
 
-bool Program::try_execute_instruction() {
+bool Program::try_execute_func_instruction() {
 	Token current_token = rel_token(prev_tokens, 0);
 	if (current_token.str == "add") {
 		return binary_func([](Token a, Token b) { return Token::add(a, b); });
@@ -438,7 +437,14 @@ bool Program::try_execute_instruction() {
 		return binary_func([](Token a, Token b) { return Token::xor_op(a, b); });
 	} else if (current_token.str == "not") {
 		return unary_func([](Token a) { return Token::not_op(a); });
-	} else if (current_token.str == "cpy") {
+	} else {
+		return try_execute_mod_instruction();
+	}
+}
+
+bool Program::try_execute_mod_instruction() {
+	Token current_token = rel_token(prev_tokens, 0);
+	if (current_token.str == "cpy") {
 		if (rel_token(prev_tokens, 1).is_num_or_ptr() && rel_token(prev_tokens, 2).is_num_or_ptr()) {
 			PointerDataType src = rel_token(prev_tokens, 1).get_data_cast<PointerDataType>();
 			PointerDataType dst = rel_token(prev_tokens, 2).get_data_cast<PointerDataType>();

@@ -138,8 +138,8 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="program.h" />
     <ClInclude Include="instruction.h" />
+    <ClInclude Include="program.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="token.h" />
     <ClInclude Include="types.h" />
