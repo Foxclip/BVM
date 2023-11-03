@@ -46,10 +46,11 @@ Token::Token(std::string str) {
 		} else {
 			type = get_token_type<InstructionTokenType>();
 			InstructionInfo instr = get_instruction_info(str);
-			if (instr.index < 0) {
-				throw std::runtime_error("Instruction not found: " + str);
+			if (instr.index >= 0) {
+				set_data<InstructionDataType>(get_instruction_info(str).index);
+			} else {
+				set_data<InstructionDataType>(-1);
 			}
-			set_data<InstructionDataType>(get_instruction_info(str).index);
 		}
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
@@ -84,6 +85,10 @@ bool Token::is_static() {
 
 bool Token::is_container_header() {
 	return str == "list" || str == "seq" || str == "ulist" || str == "useq";
+}
+
+bool Token::is_string_token() {
+	return type == type_instr && get_data_cast<InstructionDataType>() == -1;
 }
 
 void Token::cast(token_type new_type) {

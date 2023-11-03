@@ -79,6 +79,7 @@ const std::vector<InstructionDef> INSTRUCTION_LIST =
 	InstructionDef("cast", 2),
 	InstructionDef("print", 1),
 	InstructionDef("str", 1),
+	InstructionDef("def", 3),
 };
 
 InstructionInfo get_instruction_info(std::string token);

@@ -707,6 +707,27 @@ bool Program::try_execute_mod_instruction() {
 			return true;
 		}
 		return false;
+	} else if (current_token.str == "def") {
+		Token& arg0 = get_arg(program_counter, 0);
+		Token& arg1 = get_arg(program_counter, 1);
+		Token& arg2 = get_arg(program_counter, 2);
+		if (arg0.is_string_token() && (arg1.is_string_token() || arg1.is_container_header())) {
+			Macro new_macro;
+			new_macro.str = arg0.str;
+			if (arg1.is_string_token()) {
+				std::string arg_name = arg1.str;
+				new_macro.arg_names.push_back(arg_name);
+			} else {
+				for (ProgramCounterType arg_i = 0; arg_i < get_arg(program_counter, 1).arguments.size() - 2; arg_i++) {
+					std::string arg_name = get_arg(arg1, arg_i).str;
+					new_macro.arg_names.push_back(arg_name);
+				}
+			}
+			new_macro.tokens = get_arg(program_counter, 2).tokenize(prev_tokens);
+			macros.insert(new_macro);
+			return true;
+		}
+		return false;
 	} else if (current_token.str == "list") {
 		return true;
 	} else if (current_token.str == "seq") {
@@ -1008,6 +1029,14 @@ PointerDataType Program::next_arg_parent(ProgramCounterType index) {
 	return current_token->first_index;
 }
 
+Token& Program::get_arg(Token& token, int index) {
+	return prev_tokens[token.arguments[index]];
+}
+
+Token& Program::get_arg(ProgramCounterType token_index, int arg_index) {
+	return prev_tokens[prev_tokens[token_index].arguments[arg_index]];
+}
+
 Program::RangePair Program::get_end_move_range(std::vector<Token>& tokens, ProgramCounterType index) {
 	Token& token = tokens[index];
 	ProgramCounterType clamp_begin = token.parent_index + 1;
@@ -1218,4 +1247,8 @@ bool Program::binary_func(std::function<Token(Token, Token)> func) {
 
 bool operator<(const Program::NewPointersEntry& left, const Program::NewPointersEntry& right) {
 	return left.index < right.index;
+}
+
+bool macro_cmp(const Macro& left, const Macro& right) {
+	return left.str < right.str;
 }

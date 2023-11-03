@@ -18,7 +18,7 @@ struct PointerTokenType {
 typedef PointerTokenType::data_type PointerDataType;
 
 struct InstructionTokenType {
-	using data_type = Uint32Type;
+	using data_type = Int32Type;
 };
 typedef InstructionTokenType::data_type InstructionDataType;
 

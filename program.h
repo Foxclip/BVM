@@ -12,6 +12,14 @@
 #include "token.h"
 #include "utils.h"
 
+struct Macro {
+	std::string str;
+	std::vector<std::string> arg_names;
+	std::vector<Token> tokens;
+};
+
+bool macro_cmp(const Macro& left, const Macro& right);
+
 class Program {
 public:
 	struct NewPointersEntry {
@@ -21,6 +29,7 @@ public:
 	};
 	std::vector<Token> tokens;
 	std::vector<Token> prev_tokens;
+	std::set<Macro, decltype(&macro_cmp)> macros;
 	std::string local_print_buffer;
 	std::string global_print_buffer;
 	bool print_buffer_enabled = false;
@@ -142,6 +151,8 @@ private:
 	RangePair get_end_move_range(std::vector<Token>& tokens, ProgramCounterType token_index);
 	bool parent_is_container(ProgramCounterType index, bool root_is_container);
 	PointerDataType next_arg_parent(ProgramCounterType index);
+	Token& get_arg(Token& token, int index);
+	Token& get_arg(ProgramCounterType token_index, int arg_index);
 	bool inside_seq();
 	bool inside_list();
 	bool inside_container();
