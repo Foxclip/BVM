@@ -3186,3 +3186,19 @@
 
 # list
 # end
+
+# add 2 3
+
+# 1
+# 2 :two
+# cpy
+#     two
+#     four
+# 3
+# 4 :four
+
+q
+    add
+        2 :two
+        3 :three
+box two three

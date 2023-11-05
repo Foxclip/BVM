@@ -140,7 +140,6 @@ public:
 		}
 	}
 
-	std::vector<Token> tokenize(std::vector<Token>& tokens);
 	Token& get_parent(std::vector<Token>& tokens);
 	ProgramCounterType get_parent_count(std::vector<Token>& tokens);
 	bool has_parent();

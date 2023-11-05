@@ -12,7 +12,7 @@ void execute_program_debug(std::string path) {
 		//program.max_iterations = 1000000;
 		std::cout << "Nodes:";
 		std::cout << "\n";
-		program.print_nodes();
+		//program.print_nodes();
 		std::vector<Token> results = program.execute();
 		std::cout << "Results: ";
 		program.print_tokens(program.tokens, false);

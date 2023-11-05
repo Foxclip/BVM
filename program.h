@@ -133,7 +133,8 @@ private:
 		ProgramCounterType first, last;
 	};
 	std::vector<Token> tokenize(std::string str);
-	void parse();
+	ProgramCounterType parse_token(std::vector<Token>& token_list, ProgramCounterType index);
+	void parse_all_tokens(std::vector<Token>& token_list);
 	bool try_execute_mod_instruction();
 	bool try_execute_func_instruction();
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
@@ -142,6 +143,7 @@ private:
 	RangePair get_end_move_range(std::vector<Token>& tokens, ProgramCounterType token_index);
 	bool parent_is_container(ProgramCounterType index, bool root_is_container);
 	PointerDataType next_arg_parent(ProgramCounterType index);
+	std::vector<Token> get_subtree(ProgramCounterType index);
 	bool inside_seq();
 	bool inside_list();
 	bool inside_container();
