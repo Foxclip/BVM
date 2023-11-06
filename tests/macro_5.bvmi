@@ -1,0 +1,12 @@
+# ?1.414214
+defmacro sqr
+    x
+    mul x x
+
+defmacro dist
+    list x1 y1 x2 y2 end
+    pow
+        add sqr sub x1 x2 sqr sub y1 y2
+        0.5
+
+dist 0 0 1 1

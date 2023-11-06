@@ -1,0 +1,6 @@
+# 25
+defmacro sqr
+    x
+    mul x x
+
+sqr 5

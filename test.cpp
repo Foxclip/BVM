@@ -134,6 +134,11 @@ namespace test {
 		"end_move_6.bvmi",
 		"end_move_7.bvmi",
 		"arg_insert.bvmi",
+		"macro_1.bvmi",
+		"macro_2.bvmi",
+		"macro_3.bvmi",
+		"macro_4.bvmi",
+		"macro_5.bvmi",
 	};
 
 	bool is_terminating_char(char c) {

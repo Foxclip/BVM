@@ -1,0 +1,6 @@
+# 5
+defmacro five
+    list end
+    5
+
+five

@@ -1,0 +1,6 @@
+# 150
+defmacro add5
+    list x1 x2 x3 x4 x5 end
+    add x1 add x2 add x3 add x4 x5
+
+add5 10 20 30 40 50

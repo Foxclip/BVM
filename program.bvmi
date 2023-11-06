@@ -3187,11 +3187,11 @@
 # list
 # end
 
-defmacro avg
-    list a b end
-    div add a b 2.0
+# defmacro avg
+#     list a b end
+#     div add a b 2.0
 
-avg add 1 1 sub 4 1
+# avg add 1 1 sub 4 1
 
 
 # def
@@ -3200,3 +3200,33 @@ avg add 1 1 sub 4 1
 #     5
 
 # five
+
+# defmacro five
+#     list end
+#     5
+
+# five
+
+# defmacro sqr
+#     x
+#     mul x x
+
+# sqr 5
+
+# defmacro add5
+#     list x1 x2 x3 x4 x5 end
+#     add x1 add x2 add x3 add x4 x5
+
+# add5 10 20 30 40 50
+
+defmacro sqr
+    x
+    mul x x
+
+defmacro dist
+    list x1 y1 x2 y2 end
+    pow
+        add sqr sub x1 x2 sqr sub y1 y2
+        0.5
+
+dist 0 0 1 1
