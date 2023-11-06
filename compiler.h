@@ -32,17 +32,28 @@ typedef std::set<Label, decltype(&label_cmp)> LabelSet;
 struct Macro {
 	std::string name;
 	std::vector<std::string> arg_names;
-	std::vector<std::string> body;
+	std::vector<WordToken> body;
 	Macro() {}
 	Macro(std::string name) {
 		this->name = name;
 	}
 };
 bool macro_cmp(const Macro& left, const Macro& right);
+typedef std::set<Macro, decltype(&macro_cmp)> MacroSet;
+
+struct TreeToken {
+	std::string str;
+	ProgramCounterType first_index;
+	ProgramCounterType parent_index;
+	ProgramCounterType arg_count;
+	TreeToken();
+	TreeToken(std::string str, ProgramCounterType first_index);
+};
 
 std::vector<WordToken> tokenize(std::string str);
-std::vector<std::string> get_word_subtree(ProgramCounterType& index);
-void expand_macro(Macro& macro);
+std::vector<std::string> get_subtree(ProgramCounterType& index);
+void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, Macro& macro);
+ProgramCounterType parse_macro_body(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& current_macro);
 void replace_macros(std::vector<WordToken>& words);
 void replace_string_literals(std::vector<WordToken>& words);
 void replace_type_literals(std::vector<WordToken>& words);

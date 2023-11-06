@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include <stack>
 
 bool label_cmp(const Label& left, const Label& right) {
 	return left.str < right.str;
@@ -100,102 +101,128 @@ std::vector<WordToken> tokenize(std::string str) {
 	return words;
 }
 
-std::vector<std::string> get_word_subtree(ProgramCounterType& index) {
+std::vector<std::string> get_subtree(ProgramCounterType& index) {
 	return std::vector<std::string>();
 }
 
-void expand_macro(Macro& macro) {
+void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, Macro& macro) {
+	words.erase(words.begin() + index);
+	words.insert(words.begin() + index, macro.body.begin(), macro.body.end());
+}
 
+ProgramCounterType parse_macro_body(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& current_macro) {
+	std::stack<TreeToken> parent_stack;
+	ProgramCounterType i;
+	for (i = index; i < words.size(); i++) {
+		TreeToken current_token(words[i].str, i);
+		ProgramCounterType arg_count = 0;
+		InstructionInfo instr = get_instruction_info(current_token.str);
+		if (instr.index >= 0) {
+			arg_count = instr.arg_count;
+			current_token.arg_count = arg_count;
+			if (arg_count > 0) {
+				parent_stack.push(current_token);
+			}
+			current_macro.body.push_back(words[i]);
+		} else {
+			auto macro_it = macros.find(Macro(current_token.str));
+			if (macro_it != macros.end()) {
+				expand_macro(words, i, (Macro&)*macro_it);
+				i--;
+				continue;
+			} else {
+				current_macro.body.push_back(words[i]);
+			}
+		}
+		ProgramCounterType current_index = i;
+		ProgramCounterType current_last_index;
+		bool first = true;
+		while (!parent_stack.empty()) {
+			TreeToken& current_parent = parent_stack.top();
+			ProgramCounterType arg_offset = current_index - current_parent.first_index;
+			bool arg_offset_end = arg_offset >= current_parent.arg_count;
+			bool end_end = current_token.str == "end";
+			auto exit_level = [&]() {
+				if (first) {
+					current_last_index = current_index;
+					first = false;
+				}
+				current_index = parent_stack.top().first_index;
+				parent_stack.pop();
+			};
+			if (arg_offset_end || end_end) {
+				exit_level();
+			} else {
+				break;
+			}
+		}
+		if (parent_stack.empty()) {
+			break;
+		}
+
+	}
+	return i;
 }
 
 void replace_macros(std::vector<WordToken>& words) {
-	std::set<Macro, decltype(&macro_cmp)> macros;
+	std::set<Macro, decltype(&macro_cmp)> macros(macro_cmp);
 	enum DefState {
-		DS_BEGIN,
-		DS_NAME,
-		DS_ARG,
-		DS_ARGLIST,
-		DS_BODY_BEGIN,
-		DS_BODY,
+		STATE_BEGIN,
+		STATE_NAME,
+		STATE_ARG,
+		STATE_ARGLIST,
+		STATE_BODY,
 	};
-	DefState def_state = DS_BEGIN;
+	DefState state = STATE_BEGIN;
 	Macro current_macro;
-	ProgramCounterType parent_count = 0;
-	for (ProgramCounterType i = 0; i < words.size(); i++) {
+	PointerDataType first_index;
+	for (PointerDataType i = 0; i < words.size(); i++) {
 		WordToken current_word_token = words[i];
 		try {
-			if (def_state == DS_BEGIN) {
+			if (state == STATE_BEGIN) {
 				if (current_word_token.str == "def") {
-					def_state = DS_NAME;
+					first_index = i;
+					state = STATE_NAME;
 				} else {
 					auto it = macros.find(Macro(current_word_token.str));
 					if (it != macros.end()) {
-						expand_macro((Macro&)*it);
+						expand_macro(words, i, (Macro&)*it);
+						i--;
 					} else {
 						// ok
 					}
 				}
-			} else if (def_state == DS_NAME) {
+			} else if (state == STATE_NAME) {
 				if (utils::is_valid_word_prefix(current_word_token.str.front())) {
 					current_macro = Macro();
 					current_macro.name = current_word_token.str;
-					def_state = DS_ARG;
+					state = STATE_ARG;
 				} else {
 					throw std::runtime_error("Invalid macro name: " + current_word_token.str);
 				}
-			} else if (def_state == DS_ARG) {
+			} else if (state == STATE_ARG) {
 				if (current_word_token.str == "list") {
-					def_state = DS_ARGLIST;
+					state = STATE_ARGLIST;
 				} else if (utils::is_valid_word_prefix(current_word_token.str.front())) {
 					current_macro.arg_names.push_back(current_word_token.str);
-					def_state = DS_BODY_BEGIN;
+					state = STATE_BODY;
 				} else {
 					throw std::runtime_error("Invalid macro argument name: " + current_word_token.str);
 				}
-			} else if (def_state == DS_ARGLIST) {
+			} else if (state == STATE_ARGLIST) {
 				if (current_word_token.str == "end") {
-					def_state = DS_BODY_BEGIN;
+					state = STATE_BODY;
 				} else if (utils::is_valid_word_prefix(current_word_token.str.front())) {
 					current_macro.arg_names.push_back(current_word_token.str);
 				} else {
 					throw std::runtime_error("Invalid macro argument name: " + current_word_token.str);
 				}
-			} else if (def_state == DS_BODY_BEGIN) {
-				if (utils::is_container_name(current_word_token.str)) {
-					parent_count++;
-					current_macro.body.push_back(current_word_token.str);
-					def_state = DS_BODY;
-				} else if (current_word_token.str == "end") {
-					throw std::runtime_error("Macro body cannot begin with end token");
-				} else {
-					auto it = macros.find(Macro(current_word_token.str));
-					if (it != macros.end()) {
-						expand_macro((Macro&)*it);
-					} else {
-						current_macro.body.push_back(current_word_token.str);
-						macros.insert(current_macro);
-						def_state = DS_BEGIN;
-					}
-				}
-			} else if (def_state == DS_BODY) {
-				if (utils::is_container_name(current_word_token.str)) {
-					parent_count++;
-					current_macro.body.push_back(current_word_token.str);
-				} else if (current_word_token.str == "end") {
-					parent_count--;
-					if (parent_count == 0) {
-						current_macro.body.push_back(current_word_token.str);
-						macros.insert(current_macro);
-						def_state = DS_BEGIN;
-					}
-				} else {
-					auto it = macros.find(Macro(current_word_token.str));
-					if (it != macros.end()) {
-						expand_macro((Macro&)*it);
-					} else {
-						current_macro.body.push_back(current_word_token.str);
-					}
-				}
+			} else if (state == STATE_BODY) {
+				ProgramCounterType last_index = parse_macro_body(words, i, macros, current_macro);
+				macros.insert(current_macro);
+				words.erase(words.begin() + first_index, words.begin() + last_index + 1);
+				i = first_index - 1;
+				state = STATE_BEGIN;
 			}
 		} catch (std::exception exc) {
 			throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
@@ -306,7 +333,7 @@ std::vector<Token> create_tokens(std::vector<WordToken>& words, LabelSet labels)
 std::vector<Token> compile(std::string str) {
 	try {
 		std::vector<WordToken> words = tokenize(str);
-		//replace_macros(words);
+		replace_macros(words);
 		replace_string_literals(words);
 		replace_type_literals(words);
 		LabelSet labels = create_labels(words);
@@ -315,4 +342,11 @@ std::vector<Token> compile(std::string str) {
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));
 	}
+}
+
+TreeToken::TreeToken() {}
+
+TreeToken::TreeToken(std::string str, ProgramCounterType first_index) {
+	this->str = str;
+	this->first_index = first_index;
 }
