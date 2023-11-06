@@ -130,7 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />
-    <ClCompile Include="program.cpp" />
+    <ClCompile Include="interpreter.cpp" />
     <ClCompile Include="instruction.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="test.cpp" />
@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClInclude Include="compiler.h" />
     <ClInclude Include="instruction.h" />
-    <ClInclude Include="program.h" />
+    <ClInclude Include="interpreter.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="token.h" />
     <ClInclude Include="types.h" />

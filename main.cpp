@@ -1,12 +1,12 @@
 #include <chrono>
-#include "program.h"
+#include "interpreter.h"
 #include "utils.h"
 #include "test.h"
 
 void execute_program_debug(std::string path) {
 	try {
 		std::string program_text = utils::file_to_str(path);
-		Program program(program_text);
+		Interpreter program(program_text);
 		program.print_iterations = true;
 		program.print_buffer_enabled = true;
 		//program.max_iterations = 1000000;
@@ -26,7 +26,7 @@ void execute_program_debug(std::string path) {
 void execute_program_normal(std::string path) {
 	try {
 		std::string program_text = utils::file_to_str(path);
-		Program program(program_text);
+		Interpreter program(program_text);
 		program.print_buffer_enabled = true;
 		auto t1 = std::chrono::high_resolution_clock::now();
 		std::vector<Token> results = program.execute();

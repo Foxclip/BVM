@@ -13,7 +13,7 @@
 #include "compiler.h"
 #include "utils.h"
 
-class Program {
+class Interpreter {
 public:
 	struct NewPointersEntry {
 		PointerDataType index;
@@ -28,7 +28,7 @@ public:
 	bool print_iterations = false;
 	ProgramCounterType max_iterations = -1;
 
-	Program(std::string str);
+	Interpreter(std::string str);
 	void print_tokens(std::vector<Token>& token_list, bool print_program_counter = true);
 	void print_nodes();
 	std::vector<Token> execute();
@@ -178,4 +178,4 @@ private:
 
 };
 
-bool operator<(const Program::NewPointersEntry& left, const Program::NewPointersEntry& right);
+bool operator<(const Interpreter::NewPointersEntry& left, const Interpreter::NewPointersEntry& right);

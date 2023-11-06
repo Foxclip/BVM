@@ -50,12 +50,23 @@ struct TreeToken {
 	TreeToken(std::string str, ProgramCounterType first_index);
 };
 
-std::vector<WordToken> tokenize(std::string str);
-std::vector<WordToken> get_subtree(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, ProgramCounterType& last_index);
-void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& macro);
-void replace_macros(std::vector<WordToken>& words);
-void replace_string_literals(std::vector<WordToken>& words);
-void replace_type_literals(std::vector<WordToken>& words);
-LabelSet create_labels(std::vector<WordToken>& words);
-std::vector<Token> create_tokens(std::vector<WordToken>& words, LabelSet labels);
-std::vector<Token> compile(std::string str);
+class Compiler {
+public:
+	std::vector<Token> compile(std::string str);
+
+private:
+	std::vector<WordToken> words;
+	MacroSet macros = MacroSet(macro_cmp);
+	LabelSet labels = LabelSet(label_cmp);
+	std::vector<Token> tokens;
+
+	std::vector<WordToken> get_subtree(ProgramCounterType index, ProgramCounterType& last_index);
+	void expand_macro(ProgramCounterType index, Macro& macro);
+	void tokenize(std::string str);
+	void replace_macros();
+	void replace_string_literals();
+	void replace_type_literals();
+	void create_labels();
+	void create_tokens();
+
+};

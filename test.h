@@ -2,7 +2,7 @@
 
 #include <string>
 #include <filesystem>
-#include "program.h"
+#include "interpreter.h"
 
 namespace test {
 

@@ -9,10 +9,88 @@ bool macro_cmp(const Macro& left, const Macro& right) {
 	return left.name < right.name;
 }
 
-std::vector<WordToken> tokenize(std::string str) {
-	std::vector<WordToken> words;
+std::vector<WordToken> Compiler::get_subtree(ProgramCounterType index, ProgramCounterType& last_index) {
+	std::vector<WordToken> subtree;
+	std::stack<TreeToken> parent_stack;
+	ProgramCounterType i;
+	for (i = index; i < words.size(); i++) {
+		TreeToken current_token(words[i].str, i);
+		ProgramCounterType arg_count = 0;
+		InstructionInfo instr = get_instruction_info(current_token.str);
+		if (instr.index >= 0) {
+			arg_count = instr.arg_count;
+			current_token.arg_count = arg_count;
+			if (arg_count > 0) {
+				parent_stack.push(current_token);
+			}
+			subtree.push_back(words[i]);
+		} else {
+			auto macro_it = macros.find(Macro(current_token.str));
+			if (macro_it != macros.end()) {
+				expand_macro(i, (Macro&)*macro_it);
+				i--;
+				continue;
+			} else {
+				subtree.push_back(words[i]);
+			}
+		}
+		ProgramCounterType current_index = i;
+		ProgramCounterType current_last_index;
+		bool first = true;
+		while (!parent_stack.empty()) {
+			TreeToken& current_parent = parent_stack.top();
+			ProgramCounterType arg_offset = current_index - current_parent.first_index;
+			bool arg_offset_end = arg_offset >= current_parent.arg_count;
+			bool end_end = current_token.str == "end";
+			auto exit_level = [&]() {
+				if (first) {
+					current_last_index = current_index;
+					first = false;
+				}
+				current_index = parent_stack.top().first_index;
+				parent_stack.pop();
+				};
+			if (arg_offset_end || end_end) {
+				exit_level();
+			} else {
+				break;
+			}
+		}
+		if (parent_stack.empty()) {
+			break;
+		}
+	}
+	last_index = i;
+	return subtree;
+}
+
+void Compiler::expand_macro(ProgramCounterType index, Macro& macro) {
+	words.erase(words.begin() + index);
+	std::vector<std::vector<WordToken>> args;
+	for (ProgramCounterType i = 0; i < macro.arg_names.size(); i++) {
+		ProgramCounterType last_index;
+		std::vector<WordToken> arg_subtree = get_subtree(index, last_index);
+		args.push_back(arg_subtree);
+		words.erase(words.begin() + index, words.begin() + last_index + 1);
+	}
+	ProgramCounterType insert_offset = 0;
+	for (ProgramCounterType i = 0; i < macro.body.size(); i++) {
+		auto it = std::find(macro.arg_names.begin(), macro.arg_names.end(), macro.body[i].str);
+		ProgramCounterType arg_index;
+		if (it != macro.arg_names.end()) {
+			arg_index = it - macro.arg_names.begin();
+			words.insert(words.begin() + index + insert_offset, args[arg_index].begin(), args[arg_index].end());
+			insert_offset += args[arg_index].size();
+		} else {
+			words.insert(words.begin() + index + insert_offset, macro.body[i]);
+			insert_offset++;
+		}
+	}
+}
+
+void Compiler::tokenize(std::string str) {
 	if (str.size() < 1) {
-		return words;
+		return;
 	}
 	enum SplitterState {
 		STATE_SPACE,
@@ -98,90 +176,9 @@ std::vector<WordToken> tokenize(std::string str) {
 	} catch (std::exception exc) {
 		throw std::runtime_error("Line " + std::to_string(current_line) + ": " + std::string(exc.what()));
 	}
-	return words;
 }
 
-std::vector<WordToken> get_subtree(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, ProgramCounterType& last_index) {
-	std::vector<WordToken> subtree;
-	std::stack<TreeToken> parent_stack;
-	ProgramCounterType i;
-	for (i = index; i < words.size(); i++) {
-		TreeToken current_token(words[i].str, i);
-		ProgramCounterType arg_count = 0;
-		InstructionInfo instr = get_instruction_info(current_token.str);
-		if (instr.index >= 0) {
-			arg_count = instr.arg_count;
-			current_token.arg_count = arg_count;
-			if (arg_count > 0) {
-				parent_stack.push(current_token);
-			}
-			subtree.push_back(words[i]);
-		} else {
-			auto macro_it = macros.find(Macro(current_token.str));
-			if (macro_it != macros.end()) {
-				expand_macro(words, i, macros, (Macro&)*macro_it);
-				i--;
-				continue;
-			} else {
-				subtree.push_back(words[i]);
-			}
-		}
-		ProgramCounterType current_index = i;
-		ProgramCounterType current_last_index;
-		bool first = true;
-		while (!parent_stack.empty()) {
-			TreeToken& current_parent = parent_stack.top();
-			ProgramCounterType arg_offset = current_index - current_parent.first_index;
-			bool arg_offset_end = arg_offset >= current_parent.arg_count;
-			bool end_end = current_token.str == "end";
-			auto exit_level = [&]() {
-				if (first) {
-					current_last_index = current_index;
-					first = false;
-				}
-				current_index = parent_stack.top().first_index;
-				parent_stack.pop();
-			};
-			if (arg_offset_end || end_end) {
-				exit_level();
-			} else {
-				break;
-			}
-		}
-		if (parent_stack.empty()) {
-			break;
-		}
-	}
-	last_index = i;
-	return subtree;
-}
-
-void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& macro) {
-	words.erase(words.begin() + index);
-	std::vector<std::vector<WordToken>> args;
-	for (ProgramCounterType i = 0; i < macro.arg_names.size(); i++) {
-		ProgramCounterType last_index;
-		std::vector<WordToken> arg_subtree = get_subtree(words, index, macros, last_index);
-		args.push_back(arg_subtree);
-		words.erase(words.begin() + index, words.begin() + last_index + 1);
-	}
-	ProgramCounterType insert_offset = 0;
-	for (ProgramCounterType i = 0; i < macro.body.size(); i++) {
-		auto it = std::find(macro.arg_names.begin(), macro.arg_names.end(), macro.body[i].str);
-		ProgramCounterType arg_index;
-		if (it != macro.arg_names.end()) {
-			arg_index = it - macro.arg_names.begin();
-			words.insert(words.begin() + index + insert_offset, args[arg_index].begin(), args[arg_index].end());
-			insert_offset += args[arg_index].size();
-		} else {
-			words.insert(words.begin() + index + insert_offset, macro.body[i]);
-			insert_offset++;
-		}
-	}
-}
-
-void replace_macros(std::vector<WordToken>& words) {
-	std::set<Macro, decltype(&macro_cmp)> macros(macro_cmp);
+void Compiler::replace_macros() {
 	enum DefState {
 		STATE_BEGIN,
 		STATE_NAME,
@@ -202,7 +199,7 @@ void replace_macros(std::vector<WordToken>& words) {
 				} else {
 					auto it = macros.find(Macro(current_word_token.str));
 					if (it != macros.end()) {
-						expand_macro(words, i, macros, (Macro&)*it);
+						expand_macro(i, (Macro&)*it);
 						i--;
 					} else {
 						// ok
@@ -235,7 +232,7 @@ void replace_macros(std::vector<WordToken>& words) {
 				}
 			} else if (state == STATE_BODY) {
 				ProgramCounterType last_index;
-				current_macro.body = get_subtree(words, i, macros, last_index);
+				current_macro.body = get_subtree(i, last_index);
 				macros.insert(current_macro);
 				words.erase(words.begin() + first_index, words.begin() + last_index + 1);
 				i = first_index - 1;
@@ -247,7 +244,7 @@ void replace_macros(std::vector<WordToken>& words) {
 	}
 }
 
-void replace_string_literals(std::vector<WordToken>& words) {
+void Compiler::replace_string_literals() {
 	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		WordToken current_word_token = words[i];
 		try {
@@ -275,7 +272,7 @@ void replace_string_literals(std::vector<WordToken>& words) {
 	}
 }
 
-void replace_type_literals(std::vector<WordToken>& words) {
+void Compiler::replace_type_literals() {
 	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		WordToken current_word_token = words[i];
 		try {
@@ -291,8 +288,7 @@ void replace_type_literals(std::vector<WordToken>& words) {
 	}
 }
 
-LabelSet create_labels(std::vector<WordToken>& words) {
-	LabelSet labels(label_cmp);
+void Compiler::create_labels() {
 	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		WordToken current_word_token = words[i];
 		try {
@@ -319,11 +315,9 @@ LabelSet create_labels(std::vector<WordToken>& words) {
 			throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
 		}
 	}
-	return labels;
 }
 
-std::vector<Token> create_tokens(std::vector<WordToken>& words, LabelSet labels) {
-	std::vector<Token> tokens;
+void Compiler::create_tokens() {
 	for (ProgramCounterType i = 0; i < words.size(); i++) {
 		WordToken current_word_token = words[i];
 		try {
@@ -344,17 +338,16 @@ std::vector<Token> create_tokens(std::vector<WordToken>& words, LabelSet labels)
 			throw std::runtime_error("Line " + std::to_string(current_word_token.line) + ": " + std::string(exc.what()));
 		}
 	}
-	return tokens;
 }
 
-std::vector<Token> compile(std::string str) {
+std::vector<Token> Compiler::compile(std::string str) {
 	try {
-		std::vector<WordToken> words = tokenize(str);
-		replace_macros(words);
-		replace_string_literals(words);
-		replace_type_literals(words);
-		LabelSet labels = create_labels(words);
-		std::vector<Token> tokens = create_tokens(words, labels);
+		tokenize(str);
+		replace_macros();
+		replace_string_literals();
+		replace_type_literals();
+		create_labels();
+		create_tokens();
 		return tokens;
 	} catch (std::exception exc) {
 		throw std::runtime_error(__FUNCTION__": " + std::string(exc.what()));

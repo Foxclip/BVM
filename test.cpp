@@ -285,7 +285,7 @@ namespace test {
 		} catch (std::exception exc) {
 			throw std::runtime_error("Cannot parse correct results: " + std::string(exc.what()));
 		}
-		Program program(program_text);
+		Interpreter program(program_text);
 		std::vector<Token> actual_results;
 		try {
 			actual_results = program.execute();
