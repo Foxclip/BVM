@@ -139,6 +139,7 @@ namespace test {
 		"macro_3.bvmi",
 		"macro_4.bvmi",
 		"macro_5.bvmi",
+		"macro_6.bvmi",
 	};
 
 	bool is_terminating_char(char c) {

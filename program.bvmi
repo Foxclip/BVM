@@ -3219,14 +3219,33 @@
 
 # add5 10 20 30 40 50
 
-defmacro sqr
-    x
-    mul x x
+# defmacro sqr
+#     x
+#     mul x x
 
-defmacro dist
-    list x1 y1 x2 y2 end
-    pow
-        add sqr sub x1 x2 sqr sub y1 y2
-        0.5
+# defmacro dist
+#     list x1 y1 x2 y2 end
+#     pow
+#         add sqr sub x1 x2 sqr sub y1 y2
+#         0.5
 
-dist 0 0 1 1
+# dist 0 0 1 1
+
+:endp
+
+defmacro repeat
+    list n x end
+    useq
+        1 :i
+        useq :sp
+            cpy sp delp
+            x
+            if
+                cmp get i n
+                q del add sp_end 1
+                q set i add get i 1
+        end :sp_end
+        del :delp i
+    end
+
+repeat 10 ins endp 5

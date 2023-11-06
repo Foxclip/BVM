@@ -16,6 +16,9 @@ std::vector<WordToken> Compiler::get_subtree(ProgramCounterType index, ProgramCo
 	for (i = index; i < words.size(); i++) {
 		TreeToken current_token(words[i].str, i);
 		ProgramCounterType arg_count = 0;
+		if (i > index && parent_stack.empty() && current_token.str.front() != ':') {
+			break;
+		}
 		InstructionInfo instr = get_instruction_info(current_token.str);
 		if (instr.index >= 0) {
 			arg_count = instr.arg_count;
@@ -41,7 +44,7 @@ std::vector<WordToken> Compiler::get_subtree(ProgramCounterType index, ProgramCo
 			TreeToken& current_parent = parent_stack.top();
 			ProgramCounterType arg_offset = current_index - current_parent.first_index;
 			bool arg_offset_end = arg_offset >= current_parent.arg_count;
-			bool end_end = current_token.str == "end";
+			bool end_end = words[current_index].str == "end";
 			auto exit_level = [&]() {
 				if (first) {
 					current_last_index = current_index;
@@ -49,18 +52,15 @@ std::vector<WordToken> Compiler::get_subtree(ProgramCounterType index, ProgramCo
 				}
 				current_index = parent_stack.top().first_index;
 				parent_stack.pop();
-				};
+			};
 			if (arg_offset_end || end_end) {
 				exit_level();
 			} else {
 				break;
 			}
 		}
-		if (parent_stack.empty()) {
-			break;
-		}
 	}
-	last_index = i;
+	last_index = i - 1;
 	return subtree;
 }
 
