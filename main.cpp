@@ -44,6 +44,7 @@ int main() {
 	try {
 
 		//execute_program_debug("program.bvmi");
+		//execute_program_debug("tests/label.bvmi");
 		//execute_program_normal("program.bvmi");
 		test::run_tests();
 

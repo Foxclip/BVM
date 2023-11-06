@@ -172,6 +172,10 @@ namespace utils {
 		return c == '\n' || c == '\r';
 	}
 
+	bool is_container_name(std::string str) {
+		return str == "list" || str == "seq" || str == "ulist" || str == "useq";
+	}
+
 	std::string char_to_str(char c) {
 		if (c == '\n') {
 			return "\\n";

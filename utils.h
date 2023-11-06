@@ -39,6 +39,7 @@ namespace utils {
 	bool is_float_suffix(char c);
 	bool is_number_suffix(char c);
 	bool is_newline(char c);
+	bool is_container_name(std::string str);
 	std::string char_to_str(char c);
 	std::string string_conv(std::string str);
 	std::string replace_escape_seq(std::string str);

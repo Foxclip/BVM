@@ -83,7 +83,7 @@ bool Token::is_static() {
 }
 
 bool Token::is_container_header() {
-	return str == "list" || str == "seq" || str == "ulist" || str == "useq";
+	return utils::is_container_name(str);
 }
 
 void Token::cast(token_type new_type) {

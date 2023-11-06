@@ -10,6 +10,7 @@
 #include <set>
 #include <cassert>
 #include "token.h"
+#include "compiler.h"
 #include "utils.h"
 
 class Program {
@@ -132,8 +133,7 @@ private:
 	struct RangePair {
 		ProgramCounterType first, last;
 	};
-	std::vector<Token> tokenize(std::string str);
-	void parse();
+	void parse(ProgramCounterType index, bool one);
 	bool try_execute_mod_instruction();
 	bool try_execute_func_instruction();
 	PointerDataType token_index(std::vector<Token>& token_list, PointerDataType index);
