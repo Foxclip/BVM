@@ -51,9 +51,8 @@ struct TreeToken {
 };
 
 std::vector<WordToken> tokenize(std::string str);
-std::vector<std::string> get_subtree(ProgramCounterType& index);
-void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, Macro& macro);
-ProgramCounterType parse_macro_body(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& current_macro);
+std::vector<WordToken> get_subtree(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, ProgramCounterType& last_index);
+void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& macro);
 void replace_macros(std::vector<WordToken>& words);
 void replace_string_literals(std::vector<WordToken>& words);
 void replace_type_literals(std::vector<WordToken>& words);

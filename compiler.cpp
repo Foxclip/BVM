@@ -101,16 +101,8 @@ std::vector<WordToken> tokenize(std::string str) {
 	return words;
 }
 
-std::vector<std::string> get_subtree(ProgramCounterType& index) {
-	return std::vector<std::string>();
-}
-
-void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, Macro& macro) {
-	words.erase(words.begin() + index);
-	words.insert(words.begin() + index, macro.body.begin(), macro.body.end());
-}
-
-ProgramCounterType parse_macro_body(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& current_macro) {
+std::vector<WordToken> get_subtree(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, ProgramCounterType& last_index) {
+	std::vector<WordToken> subtree;
 	std::stack<TreeToken> parent_stack;
 	ProgramCounterType i;
 	for (i = index; i < words.size(); i++) {
@@ -123,15 +115,15 @@ ProgramCounterType parse_macro_body(std::vector<WordToken>& words, ProgramCounte
 			if (arg_count > 0) {
 				parent_stack.push(current_token);
 			}
-			current_macro.body.push_back(words[i]);
+			subtree.push_back(words[i]);
 		} else {
 			auto macro_it = macros.find(Macro(current_token.str));
 			if (macro_it != macros.end()) {
-				expand_macro(words, i, (Macro&)*macro_it);
+				expand_macro(words, i, macros, (Macro&)*macro_it);
 				i--;
 				continue;
 			} else {
-				current_macro.body.push_back(words[i]);
+				subtree.push_back(words[i]);
 			}
 		}
 		ProgramCounterType current_index = i;
@@ -159,9 +151,30 @@ ProgramCounterType parse_macro_body(std::vector<WordToken>& words, ProgramCounte
 		if (parent_stack.empty()) {
 			break;
 		}
-
 	}
-	return i;
+	last_index = i;
+	return subtree;
+}
+
+void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, MacroSet& macros, Macro& macro) {
+	words.erase(words.begin() + index);
+	std::vector<std::vector<WordToken>> args;
+	for (ProgramCounterType i = 0; i < macro.arg_names.size(); i++) {
+		ProgramCounterType last_index;
+		std::vector<WordToken> arg_subtree = get_subtree(words, index, macros, last_index);
+		args.push_back(arg_subtree);
+		words.erase(words.begin() + index, words.begin() + last_index + 1);
+	}
+	for (ProgramCounterType i = 0; i < macro.body.size(); i++) {
+		auto it = std::find(macro.arg_names.begin(), macro.arg_names.end(), macro.body[i].str);
+		ProgramCounterType arg_index;
+		if (it != macro.arg_names.end()) {
+			arg_index = it - macro.arg_names.begin();
+			words.insert(words.begin() + index + i, args[arg_index].begin(), args[arg_index].end());
+		} else {
+			words.insert(words.begin() + index + i, macro.body[i]);
+		}
+	}
 }
 
 void replace_macros(std::vector<WordToken>& words) {
@@ -186,7 +199,7 @@ void replace_macros(std::vector<WordToken>& words) {
 				} else {
 					auto it = macros.find(Macro(current_word_token.str));
 					if (it != macros.end()) {
-						expand_macro(words, i, (Macro&)*it);
+						expand_macro(words, i, macros, (Macro&)*it);
 						i--;
 					} else {
 						// ok
@@ -218,7 +231,8 @@ void replace_macros(std::vector<WordToken>& words) {
 					throw std::runtime_error("Invalid macro argument name: " + current_word_token.str);
 				}
 			} else if (state == STATE_BODY) {
-				ProgramCounterType last_index = parse_macro_body(words, i, macros, current_macro);
+				ProgramCounterType last_index;
+				current_macro.body = get_subtree(words, i, macros, last_index);
 				macros.insert(current_macro);
 				words.erase(words.begin() + first_index, words.begin() + last_index + 1);
 				i = first_index - 1;

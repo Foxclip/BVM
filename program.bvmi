@@ -3187,14 +3187,17 @@
 # list
 # end
 
-# def
-#     avg
-#     list a b end
-#     div add a b 2.0
-
 def
-    five
-    a
-    5
+    avg
+    list a b end
+    div add a b 2.0
 
-five
+avg 2 3
+
+
+# def
+#     five
+#     a
+#     5
+
+# five
