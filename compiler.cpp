@@ -165,14 +165,17 @@ void expand_macro(std::vector<WordToken>& words, ProgramCounterType index, Macro
 		args.push_back(arg_subtree);
 		words.erase(words.begin() + index, words.begin() + last_index + 1);
 	}
+	ProgramCounterType insert_offset = 0;
 	for (ProgramCounterType i = 0; i < macro.body.size(); i++) {
 		auto it = std::find(macro.arg_names.begin(), macro.arg_names.end(), macro.body[i].str);
 		ProgramCounterType arg_index;
 		if (it != macro.arg_names.end()) {
 			arg_index = it - macro.arg_names.begin();
-			words.insert(words.begin() + index + i, args[arg_index].begin(), args[arg_index].end());
+			words.insert(words.begin() + index + insert_offset, args[arg_index].begin(), args[arg_index].end());
+			insert_offset += args[arg_index].size();
 		} else {
-			words.insert(words.begin() + index + i, macro.body[i]);
+			words.insert(words.begin() + index + insert_offset, macro.body[i]);
+			insert_offset++;
 		}
 	}
 }
@@ -193,7 +196,7 @@ void replace_macros(std::vector<WordToken>& words) {
 		WordToken current_word_token = words[i];
 		try {
 			if (state == STATE_BEGIN) {
-				if (current_word_token.str == "def") {
+				if (current_word_token.str == "defmacro") {
 					first_index = i;
 					state = STATE_NAME;
 				} else {
